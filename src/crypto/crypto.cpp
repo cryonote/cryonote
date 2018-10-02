@@ -57,7 +57,7 @@ namespace crypto {
 
   static inline void random_scalar(ec_scalar &res) {
     unsigned char tmp[64];
-    generate_random_bytes(64, tmp);
+    generate_random_bytes_not_thread_safe(64, tmp);
     sc_reduce(tmp);
     memcpy(&res, tmp, 32);
   }
