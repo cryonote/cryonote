@@ -1,0 +1,12 @@
+[submodule "contrib/epee"]
+	path = contrib/epee
+	url = https://github.com/cryonote/epee.git
+[submodule "external/stxxl"]
+	path = external/stxxl
+	url = https://github.com/cryonote/stxxl.git
+[submodule "external/sqlite3"]
+	path = external/sqlite3
+	url = https://github.com/cryonote/sqlite3.git
+[submodule "external/miniupnp"]
+	path = external/miniupnp
+	url = https://github.com/cryonote/miniupnp.git
