@@ -5,13 +5,12 @@
 // node.cpp : Defines the entry point for the console application.
 //
 
+#include <iostream>
+#include <sstream>
 
 #include "include_base_utils.h"
 
 using namespace epee;
-
-#include <iostream>
-#include <sstream>
 using namespace std;
 
 #include <boost/program_options.hpp>
@@ -20,7 +19,7 @@ using namespace std;
 #include "common/command_line.h"
 #include "console_handler.h"
 #include "p2p/net_node.h"
-//#include "cryptonote_core/cryptonote_core.h"
+#include "cryptonote_core/cryptonote_core.h"
 #include "cryptonote_protocol/cryptonote_protocol_handler.h"
 #include "core_proxy.h"
 
@@ -41,7 +40,7 @@ int main(int argc, char* argv[])
 {
 #ifdef WIN32
   _CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-#endif 
+#endif
 
   TRY_ENTRY();
 
@@ -51,8 +50,8 @@ int main(int argc, char* argv[])
   //set up logging options
   log_space::get_set_log_detalisation_level(true, LOG_LEVEL_2);
   //log_space::log_singletone::add_logger(LOGGER_CONSOLE, NULL, NULL);
-  log_space::log_singletone::add_logger(LOGGER_FILE, 
-    log_space::log_singletone::get_default_log_file().c_str(), 
+  log_space::log_singletone::add_logger(LOGGER_FILE,
+    log_space::log_singletone::get_default_log_file().c_str(),
     log_space::log_singletone::get_default_log_folder().c_str());
 
 
@@ -101,14 +100,14 @@ int main(int argc, char* argv[])
   //initialize core here
   LOG_PRINT_L0("Initializing proxy core...");
   res = pr_core.init(vm);
-  CHECK_AND_ASSERT_MES(res, 1, "Failed to initialize core");  
+  CHECK_AND_ASSERT_MES(res, 1, "Failed to initialize core");
   LOG_PRINT_L0("Core initialized OK");
 
   LOG_PRINT_L0("Starting p2p net loop...");
   p2psrv.run();
   LOG_PRINT_L0("p2p net loop stopped");
 
-  //deinitialize components  
+  //deinitialize components
   LOG_PRINT_L0("Deinitializing core...");
   pr_core.deinit();
   LOG_PRINT_L0("Deinitializing cryptonote_protocol...");
@@ -269,7 +268,7 @@ crypto::hash tests::proxy_core::get_block_id_by_height(uint64_t height)
         if (item.second.height == height)
             return item.first;
     }
-    
+
     throw std::runtime_error(std::string("No block of height ") + boost::lexical_cast<string>(height));
 }
 
@@ -277,7 +276,7 @@ bool tests::proxy_core::get_block_by_hash(const crypto::hash &h, cryptonote::blo
 {
     if (m_hash2blkidx.count(h) == 0)
         return false;
-    
+
     blk = m_hash2blkidx[h].blk;
     return true;
 }

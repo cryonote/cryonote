@@ -32,14 +32,14 @@ namespace cryptonote
   class blockchain_storage;
   class checkpoints;
   struct bs_delegate_info;
-  
+
   /************************************************************************/
   /*                                                                      */
   /************************************************************************/
    class core: public i_miner_handler
    {
      friend class core_tester;
-     
+
    public:
      core(i_cryptonote_protocol* pprotocol, tools::ntp_time& ntp_time_in);
      ~core();
@@ -50,7 +50,7 @@ namespace cryptonote
      i_cryptonote_protocol* get_protocol(){return m_pprotocol;}
 
      //-------------------- i_miner_handler -----------------------
-     virtual bool handle_block_found( block& b);
+     virtual bool handle_block_found(block& b);
      virtual bool get_block_template(block& b, const account_public_address& adr, difficulty_type& diffic, uint64_t& height, const blobdata& ex_nonce, bool dpos_block);
      virtual bool get_next_block_info(bool& is_dpos, account_public_address& signing_delegate_address, uint64_t& time_since_last_block);
 
@@ -105,11 +105,11 @@ namespace cryptonote
 
      i_core_callback* callback() const { return m_callback; }
      void callback(i_core_callback* callback) { m_callback = callback; }
-     
-     bool get_dpos_register_info(cryptonote::delegate_id_t& unused_delegate_id, uint64_t& registration_fee);     
+
+     bool get_dpos_register_info(cryptonote::delegate_id_t& unused_delegate_id, uint64_t& registration_fee);
      bool get_delegate_info(const cryptonote::account_public_address& addr, cryptonote::bs_delegate_info& res);
      std::vector<cryptonote::bs_delegate_info> get_delegate_infos();
-     
+
    private:
      bool add_new_tx(const transaction& tx, const crypto::hash& tx_hash, const crypto::hash& tx_prefix_hash, size_t blob_size, tx_verification_context& tvc, bool keeped_by_block);
      bool add_new_tx(const transaction& tx, tx_verification_context& tvc, bool keeped_by_block);
@@ -143,7 +143,7 @@ namespace cryptonote
      epee::math_helper::once_a_time_seconds<60*15, false> m_store_blockchain_interval;
      friend class tx_validate_inputs;
      std::atomic<bool> m_starter_message_showed;
-     
+
      i_core_callback *m_callback;
    };
 }

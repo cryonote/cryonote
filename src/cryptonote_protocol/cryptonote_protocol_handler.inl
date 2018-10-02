@@ -14,9 +14,9 @@
 namespace cryptonote
 {
 
-  //-----------------------------------------------------------------------------------------------------------------------  
+  //-----------------------------------------------------------------------------------------------------------------------
   template<class t_core>
-    t_cryptonote_protocol_handler<t_core>::t_cryptonote_protocol_handler(t_core& rcore, nodetool::i_p2p_endpoint<connection_context>* p_net_layout):m_core(rcore), 
+    t_cryptonote_protocol_handler<t_core>::t_cryptonote_protocol_handler(t_core& rcore, nodetool::i_p2p_endpoint<connection_context>* p_net_layout):m_core(rcore),
                                                                                                               m_p2p(p_net_layout),
                                                                                                               m_syncronized_connections_count(0),
                                                                                                               m_synchronized(false)
@@ -26,21 +26,21 @@ namespace cryptonote
       m_p2p = &m_p2p_stub;
   }
   //-----------------------------------------------------------------------------------------------------------------------
-  template<class t_core> 
+  template<class t_core>
   bool t_cryptonote_protocol_handler<t_core>::init(const boost::program_options::variables_map& vm)
   {
     return true;
   }
-  //------------------------------------------------------------------------------------------------------------------------  
-  template<class t_core> 
+  //------------------------------------------------------------------------------------------------------------------------
+  template<class t_core>
   bool t_cryptonote_protocol_handler<t_core>::deinit()
   {
-    
+
 
     return true;
   }
-  //------------------------------------------------------------------------------------------------------------------------  
-  template<class t_core> 
+  //------------------------------------------------------------------------------------------------------------------------
+  template<class t_core>
   void t_cryptonote_protocol_handler<t_core>::set_p2p_endpoint(nodetool::i_p2p_endpoint<connection_context>* p2p)
   {
     if(p2p)
@@ -48,8 +48,8 @@ namespace cryptonote
     else
       m_p2p = &m_p2p_stub;
   }
-  //------------------------------------------------------------------------------------------------------------------------  
-  template<class t_core> 
+  //------------------------------------------------------------------------------------------------------------------------
+  template<class t_core>
   bool t_cryptonote_protocol_handler<t_core>::on_callback(cryptonote_connection_context& context)
   {
     LOG_PRINT_CCONTEXT_L2("callback fired");
@@ -67,18 +67,18 @@ namespace cryptonote
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------
-  template<class t_core> 
+  template<class t_core>
   bool t_cryptonote_protocol_handler<t_core>::get_stat_info(core_stat_info& stat_inf)
   {
     return m_core.get_stat_info(stat_inf);
   }
-  //------------------------------------------------------------------------------------------------------------------------   
-  template<class t_core> 
+  //------------------------------------------------------------------------------------------------------------------------
+  template<class t_core>
   void t_cryptonote_protocol_handler<t_core>::log_connections()
   {
     std::stringstream ss;
 
-    ss << std::setw(25) << std::left << "Remote Host" 
+    ss << std::setw(25) << std::left << "Remote Host"
       << std::setw(20) << "Peer id"
       << std::setw(25) << "Recv/Sent (inactive,sec)"
       << std::setw(25) << "State"
@@ -86,8 +86,8 @@ namespace cryptonote
 
     m_p2p->for_each_connection([&](const connection_context& cntxt, nodetool::peerid_type peer_id)
     {
-      ss << std::setw(25) << std::left << std::string(cntxt.m_is_income ? " [INC]":"[OUT]") + 
-        epee::string_tools::get_ip_string_from_int32(cntxt.m_remote_ip) + ":" + std::to_string(cntxt.m_remote_port) 
+      ss << std::setw(25) << std::left << std::string(cntxt.m_is_income ? " [INC]":"[OUT]") +
+        epee::string_tools::get_ip_string_from_int32(cntxt.m_remote_ip) + ":" + std::to_string(cntxt.m_remote_port)
         << std::setw(20) << std::hex << peer_id
         << std::setw(25) << std::to_string(cntxt.m_recv_cnt)+ "(" + std::to_string(time(NULL) - cntxt.m_last_recv) + ")" + "/" + std::to_string(cntxt.m_send_cnt) + "(" + std::to_string(time(NULL) - cntxt.m_last_send) + ")"
         << std::setw(25) << get_protocol_state_string(cntxt.m_state)
@@ -97,7 +97,7 @@ namespace cryptonote
     LOG_PRINT_L0("Connections: " << ENDL << ss.str());
   }
   //------------------------------------------------------------------------------------------------------------------------
-  template<class t_core> 
+  template<class t_core>
   bool t_cryptonote_protocol_handler<t_core>::process_payload_sync_data(const CORE_SYNC_DATA& hshd, cryptonote_connection_context& context, bool is_inital)
   {
     if(context.m_state == cryptonote_connection_context::state_befor_handshake && !is_inital)
@@ -105,13 +105,13 @@ namespace cryptonote
 
     if(context.m_state == cryptonote_connection_context::state_synchronizing)
       return true;
-    
+
     if(m_core.have_block(hshd.top_id))
     {
       context.m_state = cryptonote_connection_context::state_normal;
       if(is_inital)
         on_connection_synchronized();
-      
+
       // still request any missing signed hashes, don't mark connection as unsync'ed if they are missing
       if (context.m_needed_signed_hashes.empty())
       {
@@ -125,7 +125,7 @@ namespace cryptonote
         }
       }
       request_missing_objects(context, true, true); // this func will filter and remove signed hashes we don't need
-      
+
       return true;
     }
 
@@ -143,16 +143,16 @@ namespace cryptonote
     m_p2p->request_callback(context);
     return true;
   }
-  //------------------------------------------------------------------------------------------------------------------------  
-  template<class t_core> 
+  //------------------------------------------------------------------------------------------------------------------------
+  template<class t_core>
   bool t_cryptonote_protocol_handler<t_core>::get_payload_sync_data(CORE_SYNC_DATA& hshd)
   {
     m_core.get_blockchain_top(hshd.current_height, hshd.top_id);
     hshd.current_height +=1;
     return true;
   }
-  //------------------------------------------------------------------------------------------------------------------------  
-    template<class t_core> 
+  //------------------------------------------------------------------------------------------------------------------------
+    template<class t_core>
     bool t_cryptonote_protocol_handler<t_core>::get_payload_sync_data(blobdata& data)
   {
     CORE_SYNC_DATA hsd = boost::value_initialized<CORE_SYNC_DATA>();
@@ -160,8 +160,8 @@ namespace cryptonote
     epee::serialization::store_t_to_binary(hsd, data);
     return true;
   }
-  //------------------------------------------------------------------------------------------------------------------------  
-    template<class t_core> 
+  //------------------------------------------------------------------------------------------------------------------------
+    template<class t_core>
     int t_cryptonote_protocol_handler<t_core>::handle_notify_new_block(int command, NOTIFY_NEW_BLOCK::request& arg, cryptonote_connection_context& context)
   {
     LOG_PRINT_CCONTEXT_L2("NOTIFY_NEW_BLOCK (hop " << arg.hop << ")");
@@ -173,7 +173,7 @@ namespace cryptonote
         ++context.m_callback_request_count;
         m_p2p->request_callback(context);
       }
-      
+
       return 1;
     }
 
@@ -219,11 +219,11 @@ namespace cryptonote
       LOG_PRINT_CCONTEXT_L2("-->>NOTIFY_REQUEST_CHAIN: m_block_ids.size()=" << r.block_ids.size() );
       post_notify<NOTIFY_REQUEST_CHAIN>(r, context);
     }
-      
+
     return 1;
   }
   //------------------------------------------------------------------------------------------------------------------------
-  template<class t_core> 
+  template<class t_core>
   int t_cryptonote_protocol_handler<t_core>::handle_notify_new_transactions(int command, NOTIFY_NEW_TRANSACTIONS::request& arg, cryptonote_connection_context& context)
   {
     LOG_PRINT_CCONTEXT_L2("NOTIFY_NEW_TRANSACTIONS");
@@ -255,13 +255,13 @@ namespace cryptonote
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------
-    template<class t_core> 
+    template<class t_core>
     int t_cryptonote_protocol_handler<t_core>::handle_notify_new_signed_hash(int command, NOTIFY_NEW_SIGNED_HASH::request& arg, cryptonote_connection_context& context)
   {
     LOG_PRINT_CCONTEXT_L2("NOTIFY_NEW_SIGNED_HASH (hop " << arg.hop << ")");
-    
+
     bool already_had = crypto::g_hash_cache.have_signed_longhash_for(arg.entry.block_id);
-    
+
     if (!crypto::g_hash_cache.add_signed_longhash(arg.entry)) // check the signature is valid
     {
       LOG_PRINT_CCONTEXT_L0("Signed hash verification failed, dropping connection");
@@ -273,10 +273,10 @@ namespace cryptonote
     {
       return 1;
     }
-    
+
     ++arg.hop;
     relay_signed_hash(arg, context);
-    
+
     return 1;
   }
   //------------------------------------------------------------------------------------------------------------------------
@@ -290,7 +290,7 @@ namespace cryptonote
       LOG_ERROR_CCONTEXT("failed to handle request NOTIFY_REQUEST_GET_OBJECTS, dropping connection");
       m_p2p->drop_connection(context);
     }
-    LOG_PRINT_CCONTEXT_L2("-->>NOTIFY_RESPONSE_GET_OBJECTS: blocks.size()=" << rsp.blocks.size() << ", txs.size()=" << rsp.txs.size() 
+    LOG_PRINT_CCONTEXT_L2("-->>NOTIFY_RESPONSE_GET_OBJECTS: blocks.size()=" << rsp.blocks.size() << ", txs.size()=" << rsp.txs.size()
                             << ", signed_hashes.size()=" << rsp.signed_hashes.size() << ", rsp.m_current_blockchain_height=" << rsp.current_blockchain_height << ", missed_ids.size()=" << rsp.missed_ids.size());
     post_notify<NOTIFY_RESPONSE_GET_OBJECTS>(rsp, context);
     return 1;
@@ -302,12 +302,12 @@ namespace cryptonote
     LOG_PRINT_CCONTEXT_L2("NOTIFY_RESPONSE_GET_OBJECTS, got " << arg.txs.size() << " txs, " << arg.blocks.size() << " blocks, " << arg.signed_hashes.size() << " signed hashes, " << arg.blocks_not_sent.size() << " blocks not sent");
     if(context.m_last_response_height > arg.current_blockchain_height)
     {
-      LOG_ERROR_CCONTEXT("sent wrong NOTIFY_HAVE_OBJECTS: arg.m_current_blockchain_height=" << arg.current_blockchain_height 
+      LOG_ERROR_CCONTEXT("sent wrong NOTIFY_HAVE_OBJECTS: arg.m_current_blockchain_height=" << arg.current_blockchain_height
         << " < m_last_response_height=" << context.m_last_response_height << ", dropping connection");
       m_p2p->drop_connection(context);
       return 1;
     }
-    
+
     BOOST_FOREACH(const auto& entry, arg.signed_hashes)
     {
       if (!crypto::g_hash_cache.add_signed_longhash(entry))
@@ -327,32 +327,32 @@ namespace cryptonote
       block b;
       if(!parse_and_validate_block_from_blob(block_entry.block, b))
       {
-        LOG_ERROR_CCONTEXT("sent wrong block: failed to parse and validate block: \r\n" 
+        LOG_ERROR_CCONTEXT("sent wrong block: failed to parse and validate block: \r\n"
           << epee::string_tools::buff_to_hex_nodelimer(block_entry.block) << "\r\n dropping connection");
         m_p2p->drop_connection(context);
         return 1;
-      }      
+      }
       //to avoid concurrency in core between connections, suspend connections which delivered block later then first one
       if(count == 2)
-      { 
+      {
         if(m_core.have_block(get_block_hash(b)))
         {
           context.enter_idle_state();
           return 1;
         }
       }
-      
+
       auto req_it = context.m_requested_objects.find(get_block_hash(b));
       if(req_it == context.m_requested_objects.end())
       {
-        LOG_ERROR_CCONTEXT("sent wrong NOTIFY_RESPONSE_GET_OBJECTS: block with id=" << epee::string_tools::pod_to_hex(get_blob_hash(block_entry.block)) 
+        LOG_ERROR_CCONTEXT("sent wrong NOTIFY_RESPONSE_GET_OBJECTS: block with id=" << epee::string_tools::pod_to_hex(get_blob_hash(block_entry.block))
           << " wasn't requested, dropping connection");
         m_p2p->drop_connection(context);
         return 1;
       }
-      if(b.tx_hashes.size() != block_entry.txs.size()) 
+      if(b.tx_hashes.size() != block_entry.txs.size())
       {
-        LOG_ERROR_CCONTEXT("sent wrong NOTIFY_RESPONSE_GET_OBJECTS: block with id=" << epee::string_tools::pod_to_hex(get_blob_hash(block_entry.block)) 
+        LOG_ERROR_CCONTEXT("sent wrong NOTIFY_RESPONSE_GET_OBJECTS: block with id=" << epee::string_tools::pod_to_hex(get_blob_hash(block_entry.block))
           << ", tx_hashes.size()=" << b.tx_hashes.size() << " mismatch with block_complete_entry.m_txs.size()=" << block_entry.txs.size() << ", dropping connection");
         m_p2p->drop_connection(context);
         return 1;
@@ -360,9 +360,9 @@ namespace cryptonote
 
       context.m_requested_objects.erase(req_it);
     }
-    
+
     bool enter_idle = false;
-    
+
     if (arg.blocks_not_sent.size())
     {
       if (cryptonote::config::do_boulderhash) {
@@ -370,10 +370,10 @@ namespace cryptonote
         m_p2p->drop_connection(context);
         return 1;
       }
-      
+
       enter_idle = true;
     }
-    
+
     // other can choose not to send blocks if we requested blocks only paired with signed hashes
     BOOST_FOREACH(const auto& block_id, arg.blocks_not_sent)
     {
@@ -384,7 +384,7 @@ namespace cryptonote
         m_p2p->drop_connection(context);
         return 1;
       }
-      
+
       context.m_requested_objects.erase(req_it);
     }
 
@@ -411,7 +411,7 @@ namespace cryptonote
           m_core.handle_incoming_tx(tx_blob, tvc, true);
           if(tvc.m_verifivation_failed)
           {
-            LOG_ERROR_CCONTEXT("transaction verification failed on NOTIFY_RESPONSE_GET_OBJECTS, \r\ntx_id = " 
+            LOG_ERROR_CCONTEXT("transaction verification failed on NOTIFY_RESPONSE_GET_OBJECTS, \r\ntx_id = "
               << epee::string_tools::pod_to_hex(get_blob_hash(tx_blob)) << ", dropping connection");
             m_p2p->drop_connection(context);
             return 1;
@@ -448,19 +448,19 @@ namespace cryptonote
         LOG_PRINT_CCONTEXT_L2("Block process time: " << block_process_time + transactions_process_time << "(" << transactions_process_time << "/" << block_process_time << ")ms");
       }
     }
-    
+
     if (enter_idle)
     {
       LOG_PRINT_CCONTEXT_L0("Didn't send some blocks due to no signed hashes, entering idle state");
       context.enter_idle_state();
       return 1;
     }
-    
+
     request_missing_objects(context, true, false);
     return 1;
   }
   //------------------------------------------------------------------------------------------------------------------------
-  template<class t_core> 
+  template<class t_core>
   bool t_cryptonote_protocol_handler<t_core>::on_idle()
   {
     return m_core.on_idle();
@@ -486,30 +486,30 @@ namespace cryptonote
   {
     return !core.have_block(bl_id);
   }
-  
+
   template<class t_core>
   bool need_signed_hash(t_core& core, const crypto::hash& bl_id)
   {
     if (cryptonote::config::testnet)
       return false;
-    
+
     if (crypto::g_hash_cache.have_signed_longhash_for(bl_id))
       return false;
-    
+
     if (!core.have_block(bl_id))
       return false; // ask for block itself which will imply sending the hash as well
-      
+
     block bl;
     if (!core.get_block_by_hash(bl_id, bl))
     {
       LOG_ERROR("core couldn't get block by hash");
       return false;
     }
-    
+
     uint64_t height = get_block_height(bl);
     return height < cryptonote::config::dpos_switch_block && !core.is_in_checkpoint_zone(height);
   }
-  
+
   template<class t_core>
   bool t_cryptonote_protocol_handler<t_core>::request_missing_objects(cryptonote_connection_context& context, bool check_having_blocks, bool signed_hashes_only)
   {
@@ -526,7 +526,7 @@ namespace cryptonote
             it++;
         }
       }
-      
+
       {
         auto it = context.m_needed_signed_hashes.begin();
         while (it != context.m_needed_signed_hashes.end())
@@ -538,17 +538,17 @@ namespace cryptonote
         }
       }
     }
-    
+
     bool need_objects = !context.m_needed_objects.empty();
     bool need_signed_hashes = !context.m_needed_signed_hashes.empty();
-    
+
     if(need_objects || need_signed_hashes)
     {
       //we know objects that we need, request this objects
       NOTIFY_REQUEST_GET_OBJECTS::request req;
-      
+
       req.require_signed_hashes = !cryptonote::config::do_boulderhash;
-      
+
       {
         size_t count = 0;
         auto it = context.m_needed_objects.begin();
@@ -560,7 +560,7 @@ namespace cryptonote
           context.m_needed_objects.erase(it++);
         }
       }
-      
+
       {
         size_t count = 0;
         auto it = context.m_needed_signed_hashes.begin();
@@ -571,24 +571,24 @@ namespace cryptonote
           context.m_needed_signed_hashes.erase(it++);
         }
       }
-      
+
       LOG_PRINT_CCONTEXT_L2("-->>NOTIFY_REQUEST_GET_OBJECTS: blocks.size()=" << req.blocks.size() << ", txs.size()=" << req.txs.size() << ", signed_hashes.size()=" << req.signed_hashes.size() << ", require_signed_hashes=" << req.require_signed_hashes);
-      post_notify<NOTIFY_REQUEST_GET_OBJECTS>(req, context);    
+      post_notify<NOTIFY_REQUEST_GET_OBJECTS>(req, context);
     }
-    
+
     // don't request objects, we were called form process_payload_sync_data where we have the top block and
     // connection was marked as synchronized
     if (signed_hashes_only)
     {
       return true;
     }
-    
+
     // if only need signed hashes, ask for more objects, or we may be synchronized
     if (!need_objects)
     {
       if(context.m_last_response_height < context.m_remote_blockchain_height-1)
       {//we have to fetch more objects ids, request blockchain entry
-        
+
         NOTIFY_REQUEST_CHAIN::request r = boost::value_initialized<NOTIFY_REQUEST_CHAIN::request>();
         m_core.get_short_chain_history(r.block_ids);
         LOG_PRINT_CCONTEXT_L2("-->>NOTIFY_REQUEST_CHAIN: m_block_ids.size()=" << r.block_ids.size() );
@@ -605,7 +605,7 @@ namespace cryptonote
                              << "\r\nm_needed_signed_hashes.size()=" << context.m_needed_signed_hashes.size()
                              << "\r\nm_requested_objects.size()=" << context.m_requested_objects.size()
                              << "\r\non connection [" << epee::net_utils::print_connection_context_short(context)<< "]");
-        
+
         context.m_state = cryptonote_connection_context::state_normal;
         LOG_PRINT_CCONTEXT_GREEN(" SYNCHRONIZED OK", LOG_LEVEL_0);
         on_connection_synchronized();
@@ -614,16 +614,16 @@ namespace cryptonote
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------
-  template<class t_core> 
+  template<class t_core>
   bool t_cryptonote_protocol_handler<t_core>::on_connection_synchronized()
   {
     bool val_expected = false;
     if(m_synchronized.compare_exchange_strong(val_expected, true))
     {
-      LOG_PRINT_L0(ENDL << "**********************************************************************" << ENDL 
-        << "You are now synchronized with the network. You may now start simplewallet." << ENDL 
+      LOG_PRINT_L0(ENDL << "**********************************************************************" << ENDL
+        << "You are now synchronized with the network. You may now start simplewallet." << ENDL
         << ENDL
-        << "Please note, that the blockchain will be saved only after you quit the daemon with \"exit\" command or if you use \"save\" command." << ENDL 
+        << "Please note, that the blockchain will be saved only after you quit the daemon with \"exit\" command or if you use \"save\" command." << ENDL
         << "Otherwise, you will possibly need to synchronize the blockchain again." << ENDL
         << ENDL
         << "Use \"help\" command to see the list of available commands." << ENDL
@@ -633,7 +633,7 @@ namespace cryptonote
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------
-  template<class t_core> 
+  template<class t_core>
   size_t t_cryptonote_protocol_handler<t_core>::get_synchronizing_connections_count()
   {
     size_t count = 0;
@@ -645,12 +645,12 @@ namespace cryptonote
     return count;
   }
   //------------------------------------------------------------------------------------------------------------------------
-  template<class t_core> 
+  template<class t_core>
   int t_cryptonote_protocol_handler<t_core>::handle_response_chain_entry(int command, NOTIFY_RESPONSE_CHAIN_ENTRY::request& arg, cryptonote_connection_context& context)
   {
-    LOG_PRINT_CCONTEXT_L2("NOTIFY_RESPONSE_CHAIN_ENTRY: m_block_ids.size()=" << arg.m_block_ids.size() 
+    LOG_PRINT_CCONTEXT_L2("NOTIFY_RESPONSE_CHAIN_ENTRY: m_block_ids.size()=" << arg.m_block_ids.size()
       << ", m_start_height=" << arg.start_height << ", m_total_height=" << arg.total_height);
-    
+
     if(!arg.m_block_ids.size())
     {
       LOG_ERROR_CCONTEXT("sent empty m_block_ids, dropping connection");
@@ -665,7 +665,7 @@ namespace cryptonote
       m_p2p->drop_connection(context);
       return 1;
     }
-    
+
     context.m_remote_blockchain_height = arg.total_height;
     context.m_last_response_height = arg.start_height + arg.m_block_ids.size()-1;
     if(context.m_last_response_height > context.m_remote_blockchain_height)
@@ -688,19 +688,19 @@ namespace cryptonote
     return 1;
   }
   //------------------------------------------------------------------------------------------------------------------------
-  template<class t_core> 
+  template<class t_core>
   bool t_cryptonote_protocol_handler<t_core>::relay_block(NOTIFY_NEW_BLOCK::request& arg, cryptonote_connection_context& exclude_context)
   {
     return relay_post_notify<NOTIFY_NEW_BLOCK>(arg, exclude_context);
   }
   //------------------------------------------------------------------------------------------------------------------------
-  template<class t_core> 
+  template<class t_core>
   bool t_cryptonote_protocol_handler<t_core>::relay_transactions(NOTIFY_NEW_TRANSACTIONS::request& arg, cryptonote_connection_context& exclude_context)
   {
     return relay_post_notify<NOTIFY_NEW_TRANSACTIONS>(arg, exclude_context);
   }
   //------------------------------------------------------------------------------------------------------------------------
-  template<class t_core> 
+  template<class t_core>
   bool t_cryptonote_protocol_handler<t_core>::relay_signed_hash(NOTIFY_NEW_SIGNED_HASH::request& arg, cryptonote_connection_context& exclude_context)
   {
     return relay_post_notify<NOTIFY_NEW_SIGNED_HASH>(arg, exclude_context, true);
