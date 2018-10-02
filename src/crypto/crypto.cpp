@@ -17,6 +17,11 @@
 #include "hash.h"
 
 namespace crypto {
+  const unsigned char I_[32] = { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+  const unsigned char L_[32] = { 0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10 };
+
+  const key_image I = *reinterpret_cast<const key_image*>(I_);
+  const key_image L = *reinterpret_cast<const key_image*>(L_);
 
   using std::abort;
   using std::int32_t;
@@ -73,6 +78,24 @@ namespace crypto {
   bool crypto_ops::check_key(const public_key &key) {
     ge_p3 point;
     return ge_frombytes_vartime(&point, &key) == 0;
+  }
+
+  key_image crypto_ops::scalarmult_key(const key_image & P, const key_image & a) {
+    ge_p3 A;
+    ge_p2 R;
+    ge_frombytes_vartime(&A, reinterpret_cast<const unsigned char*>(&P));
+    ge_scalarmult(&R, reinterpret_cast<const unsigned char*>(&a), &A);
+    key_image aP;
+    ge_tobytes(reinterpret_cast<unsigned char*>(&aP), &R);
+    return aP;
+  }
+
+  bool crypto_ops::validate_key_image(const key_image& ki) {
+    if (!(scalarmult_key(ki, L) == I))
+    {
+      return false;
+    }
+    return true;
   }
 
   bool crypto_ops::secret_key_to_public_key(const secret_key &sec, public_key &pub) {

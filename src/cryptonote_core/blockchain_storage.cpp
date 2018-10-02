@@ -2132,6 +2132,12 @@ bool blockchain_storage::check_tx_in_to_key(const transaction& tx, size_t i, con
   for (auto& key : vi.m_keys) {
     vec_pkeys.push_back(&key);
   }
+  if (!crypto::validate_key_image(inp.k_image))
+  {
+    LOG_ERROR("Invalid key image: " << inp.k_image << ", amount: " << print_money(inp.amount)
+      << ", tx: " << tx_prefix_hash);
+    return false;
+  }
   CHECK_AND_ASSERT_MES(crypto::check_ring_signature(tx_prefix_hash, inp.k_image, vec_pkeys, tx.signatures[i].data()),
                        false, "Ring signature check failed");
   return true;

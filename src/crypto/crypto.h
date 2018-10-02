@@ -71,6 +71,8 @@ namespace crypto {
     friend void generate_keys(public_key &, secret_key &);
     static bool check_key(const public_key &);
     friend bool check_key(const public_key &);
+    static key_image scalarmult_key(const key_image & P, const key_image & a);
+    friend key_image scalarmult_key(const key_image & P, const key_image & a);
     static bool secret_key_to_public_key(const secret_key &, public_key &);
     friend bool secret_key_to_public_key(const secret_key &, public_key &);
     static bool generate_key_derivation(const public_key &, const secret_key &, key_derivation &);
@@ -93,6 +95,8 @@ namespace crypto {
       const public_key *const *, std::size_t, const signature *);
     friend bool check_ring_signature(const hash &, const key_image &,
       const public_key *const *, std::size_t, const signature *);
+    friend bool validate_key_image(const key_image& ki);
+    static bool validate_key_image(const key_image& ki);
   };
 
   /* Generate a value filled with random bytes.
@@ -183,6 +187,10 @@ namespace crypto {
     const std::vector<const public_key *> &pubs,
     const signature *sig) {
     return check_ring_signature(prefix_hash, image, pubs.data(), pubs.size(), sig);
+  }
+  inline bool validate_key_image(const key_image& ki)
+  {
+    return crypto_ops::validate_key_image(ki);
   }
 }
 
