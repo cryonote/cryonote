@@ -54,7 +54,7 @@ add_dependencies(simplewallet version)
 
 set_property(TARGET common crypto_core crypto cryptonote_core rpc wallet PROPERTY FOLDER "libs")
 set_property(TARGET daemon simplewallet connectivity_tool simpleminer PROPERTY FOLDER "prog")
-set_property(TARGET daemon PROPERTY OUTPUT_NAME "pebblecoind")
+set_property(TARGET daemon PROPERTY OUTPUT_NAME "cryonoted")
 
 set_property(SOURCE crypto_core/jh.c crypto_core/crypto-ops.c crypto_core/blake256.c crypto_core/hash-extra-skein.c PROPERTY COTIRE_EXCLUDED TRUE)
 set_target_properties(daemon simplewallet PROPERTIES COTIRE_UNITY_LINK_LIBRARIES_INIT COPY_UNITY)
@@ -67,7 +67,7 @@ set_property(TARGET common crypto crypto_core cryptonote_core rpc wallet daemon 
 cotire(common crypto crypto_core cryptonote_core rpc wallet daemon simplewallet)
 set_property(TARGET common_unity crypto_unity crypto_core_unity cryptonote_core_unity rpc_unity wallet_unity PROPERTY FOLDER "libs")
 set_property(TARGET daemon_unity simplewallet_unity PROPERTY FOLDER "prog")
-set_property(TARGET daemon_unity PROPERTY OUTPUT_NAME "pebblecoind")
+set_property(TARGET daemon_unity PROPERTY OUTPUT_NAME "cryonoted")
 add_dependencies(daemon_unity version)
 add_dependencies(rpc_unity version)
 add_dependencies(simplewallet_unity version)
@@ -153,7 +153,7 @@ if (QT4_FOUND)
 
   add_executable(qtwallet ${QTWALLET} ${CRYPTONOTE_PROTOCOL} ${QTWALLET_FORM_HEADERS} ${QTWALLET_QRC_SOURCES} ${QTWALLET_LANG_SOURCES} ${QTWALLET_TRANS_OUTFILE})
   target_link_libraries(qtwallet p2p wallet rpc cryptonote_core wallet crypto common crypto_core libminiupnpc-static epee ${Boost_LIBRARIES} ${QT_LIBRARIES})
-  set_property(TARGET qtwallet PROPERTY OUTPUT_NAME "pebblecoin-qt")
+  set_property(TARGET qtwallet PROPERTY OUTPUT_NAME "cryonote-qt")
 
   if (WIN32)
     TARGET_LINK_LIBRARIES(qtwallet shlwapi.lib) #for PathRemoveFileSpec()
