@@ -3,6 +3,10 @@ cmake_minimum_required(VERSION 3.2)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(cotire)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 # $Format:Packaged from commit %H%nset(COMMIT %h)%nset(REFS "%d")$
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   # Treating warnings as errors causes CMake to fail to find pthreads, so insert it manually:
