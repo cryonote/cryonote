@@ -52,23 +52,23 @@ namespace bs_visitor_detail {
 namespace cryptonote
 {
   class core_tester;
-  
+
   struct bs_delegate_info
   {
     delegate_id_t delegate_id;
     account_public_address public_address;
     std::string address_as_string;
-    
+
     uint64_t total_votes;
-    
+
     uint64_t processed_blocks;
     uint64_t missed_blocks;
     uint64_t fees_received;
-    
+
     uint64_t cached_vote_rank;
     uint64_t cached_autoselect_rank;
   };
-  
+
   inline bool operator==(const bs_delegate_info& a, const bs_delegate_info& b)
   {
     return a.delegate_id == b.delegate_id
@@ -85,7 +85,7 @@ namespace cryptonote
   {
     return !(a == b);
   }
-  
+
   /************************************************************************/
   /*                                                                      */
   /************************************************************************/
@@ -95,7 +95,7 @@ namespace cryptonote
     friend struct bs_visitor_detail::purge_transaction_visitor;
     friend struct bs_visitor_detail::add_transaction_input_visitor;
     friend struct bs_visitor_detail::check_tx_input_visitor;
-    
+
   public:
     struct transaction_chain_entry
     {
@@ -104,7 +104,7 @@ namespace cryptonote
       size_t m_blob_size;
       std::vector<uint64_t> m_global_output_indexes;
     };
-    
+
     PACK(POD_CLASS blockchain_entry
     {
     public:
@@ -123,10 +123,10 @@ namespace cryptonote
       uint64_t decimals;
       uint64_t total_amount_minted;
       std::list<crypto::public_key> remint_key_history;
-      
+
       crypto::public_key remint_key() const { return remint_key_history.back(); }
     };
-    
+
     struct contract_info
     {
       uint64_t contract;
@@ -135,22 +135,22 @@ namespace cryptonote
       uint32_t fee_scale;
       uint64_t expiry_block;
       uint32_t default_grade;
-      
+
       // {currency: amount of contract coins minted backed by that currency}
       std::map<uint64_t, uint64_t> total_amount_minted;
       bool is_graded;
       uint32_t grade;
     };
-    
+
     typedef bs_delegate_info delegate_info;
-    
+
     struct vote_instance
     {
       uint64_t voting_for_height;
       uint64_t expected_vote;
       std::map<delegate_id_t, uint64_t> votes;
     };
-    
+
     blockchain_storage(tx_memory_pool& tx_pool, tools::ntp_time& ntp_time_in);
     ~blockchain_storage();
 
@@ -232,11 +232,11 @@ namespace cryptonote
     bool is_storing_blockchain() const {return m_is_blockchain_storing;}
     uint64_t block_difficulty(size_t i) const;
     uint64_t already_generated_coins(size_t i) const;
-    
+
     // cache the block fees for average_past_block_fees() performance
     uint64_t get_block_fees(uint64_t block_height) const;
     uint64_t average_past_block_fees(uint64_t for_block_height) const;
-    
+
     bool get_blocks(const std::list<crypto::hash>& block_ids,
                     std::list<block>& blocks,
                     std::list<crypto::hash>& missed_bs) const;
@@ -244,9 +244,9 @@ namespace cryptonote
     bool get_transactions(const std::vector<crypto::hash>& txs_ids,
                           std::list<transaction>& txs,
                           std::list<crypto::hash>& missed_txs) const;
-    
+
     uint64_t currency_decimals(coin_type type) const;
-    
+
     //debug functions
     void print_blockchain(uint64_t start_index, uint64_t end_index) const;
     void print_blockchain_index() const;
@@ -254,17 +254,17 @@ namespace cryptonote
 
     uint64_t get_adjusted_time() const;
     bool get_signing_delegate(const block& block_prev, uint64_t timestamp, delegate_id_t& result) const;
-    
+
     const delegate_votes& get_autovote_delegates() const;
     bool get_dpos_register_info(cryptonote::delegate_id_t& unused_delegate_id, uint64_t& registration_fee) const;
-    
+
     bool get_delegate_info(const cryptonote::account_public_address& addr, bs_delegate_info& res) const;
     std::vector<cryptonote::bs_delegate_info> get_delegate_infos() const;
-    
+
   private:
     // 1024 entries per block, 4 blocks per page, cache of 8 pages = 32,768 blocks in memory cache at once
     typedef stxxl::VECTOR_GENERATOR<blockchain_entry, 4, 8, sizeof(blockchain_entry)*1024>::result blockchain_entries;
-    
+
     /*// use compare greater since we have easier access to null_hash
     struct CryptoHashCompareGreater
     {
@@ -273,7 +273,7 @@ namespace cryptonote
     };
     typedef stxxl::map<crypto::hash, blockchain_entry, CryptoHashCompareGreater> blockchain_entry_by_hash;*/
     typedef sqlite3::sqlite3_map<crypto::hash, blockchain_entry> blockchain_entry_by_hash;
-    
+
     typedef sqlite3::sqlite3_map<crypto::hash, block> blocks_by_hash;
     typedef sqlite3::sqlite3_map<crypto::hash, size_t> blocks_by_id_index;
     typedef sqlite3::sqlite3_map<crypto::hash, transaction_chain_entry> transactions_container;
@@ -322,26 +322,26 @@ namespace cryptonote
     currency_by_id m_currencies;
     contract_by_id m_contracts;
     descriptions_container m_used_currency_descriptions;
-    
+
     // dpos
     delegate_info_container m_delegates;
     vote_history_container m_vote_histories;
     delegate_votes m_top_delegates; // not serialized
     delegate_votes m_autovote_delegates; // not serialized
-    
+
     std::string m_config_folder;
     checkpoints m_checkpoints;
     std::atomic<bool> m_is_in_checkpoint_zone;
     std::atomic<bool> m_is_blockchain_storing;
     std::atomic<bool> m_stop_catchup;
-    
+
     tools::ntp_time& m_ntp_time;
-    
+
     size_t m_changes_since_store;
-    
+
     // not serialized, just in-mem caches
     mutable cache::lru_cache <crypto::hash, uint64_t> m_cached_block_fees;
-    
+
     bool switch_to_alternative_blockchain(std::list<crypto::hash>& alt_chain, bool discard_disconnected_chain);
     bool pop_block_from_blockchain();
     bool purge_block_data_from_blockchain(const block& b, size_t processed_tx_count);
@@ -376,77 +376,28 @@ namespace cryptonote
     bool check_block_timestamp(std::vector<uint64_t> timestamps, const block& b) const;
     bool complete_timestamps_vector(uint64_t start_height, std::vector<uint64_t>& timestamps) const;
     bool update_next_comulative_size_limit();
-    
+
     uint64_t get_max_vote(uint64_t voting_for_height) const;
     bool reapply_votes(const vote_instance& vote_inst);
     bool apply_votes(uint64_t vote_amount, const delegate_votes& for_delegates, vote_instance& votes);
     bool unapply_votes(const vote_instance& vote_inst, bool enforce_effective_amount);
     bool is_top_delegate(const delegate_id_t& delegate_id) const;
     bool recalculate_top_delegates();
-    
+
     delegate_id_t nth_delegate_after(const delegate_id_t& start, size_t n) const;
 
     bool check_block_type(const block& bl) const;
     bool check_pow_pos(const block& bl, const difficulty_type& current_diffic, block_verification_context& bvc,
                        crypto::hash& proof_of_work) const;
-    
+
     delegate_id_t pick_unused_delegate_id() const;
-    
+
     uint64_t get_check_count() const;
     void print_sizes() const;
-    
+
     bool load_blockchain();
     void reset();
     void close_blockchain_entries();
-    
-    /// -------------------------------------------------------
-    /// isolate all the code to do the ram conversion
-    struct v15_ram_converter {
-      bool requires_conversion;
-      blockchain_storage& bs;
-      
-      v15_ram_converter(blockchain_storage& bs) : requires_conversion(false), bs(bs) { }
-      
-      uint64_t get_check_count() const;
-      void print_sizes() const;
-      
-      bool process_conversion();
-      
-      // old data & types
-      struct block_extended_info
-      {
-        block   bl;
-        uint64_t height;
-        size_t block_cumulative_size;
-        difficulty_type cumulative_difficulty;
-        uint64_t already_generated_coins;
-        
-        template<class archive_t>
-        void serialize(archive_t & ar, const unsigned int version)
-        {
-          ar & bl;
-          ar & height;
-          ar & cumulative_difficulty;
-          ar & block_cumulative_size;
-          ar & already_generated_coins;
-        }
-      };
-      
-      typedef std::unordered_map<crypto::hash, size_t> blocks_by_id_index;
-      typedef std::unordered_map<crypto::hash, transaction_chain_entry> transactions_container;
-      typedef std::unordered_map<crypto::hash, block_extended_info> blocks_ext_by_hash;
-      
-      std::vector<block_extended_info> m_blocks;
-      blocks_by_id_index m_blocks_index;
-      transactions_container m_transactions;
-      blocks_ext_by_hash m_alternative_chains;
-      blocks_ext_by_hash m_invalid_blocks;
-      
-      // -------------------------------------
-      template <class archive_t>
-      void load_old_version(archive_t& ar, const unsigned int version);
-    };
-    v15_ram_converter m_v15_ram_converter;
 
     template<class archive_t, class obj_t>
     friend void process_check_count(archive_t& ar, obj_t& obj);
@@ -457,11 +408,11 @@ namespace cryptonote
     o << "blockchain_entry";
     return o;
   }
-  
+
   /************************************************************************/
   /*                                                                      */
   /************************************************************************/
-  
+
   #define CURRENT_BLOCKCHAIN_STORAGE_ARCHIVE_VER    16
 
   template<class archive_t, class obj_t>
@@ -473,10 +424,10 @@ namespace cryptonote
       ar & total_check_count;
       return;
     }
-    
+
     uint64_t total_check_count_loaded = 0;
     ar & total_check_count_loaded;
-    
+
     if (total_check_count != total_check_count_loaded)
     {
       LOG_ERROR("Data corruption detected. total_count loaded from file = " << total_check_count_loaded << ", expected = " << total_check_count);
@@ -490,91 +441,30 @@ namespace cryptonote
   {
     if (version < 11)
       return;
-    
+
     CRITICAL_REGION_LOCAL(m_blockchain_lock);
-    
-    if (version <= 15) {
-      LOG_PRINT_YELLOW("Loading old version " << version << " blockchain, will have to convert...", LOG_LEVEL_0);
-      m_v15_ram_converter.load_old_version(ar, version);
-      return;
-    }
-    
+
     /* if (archive_t::is_saving::value)
     {
       throw std::runtime_error("Not ready to save new version yet");
     } */
-    
+
     // blocks, block index, transactions loaded from other files
     ar & m_spent_keys;
     // alternative chains from other files
     ar & m_outputs;
     // invalid blocks from other files
     ar & m_current_block_cumul_sz_limit;
-    
+
     ar & m_currencies;
     ar & m_used_currency_descriptions;
-    
+
     ar & m_contracts;
-    
+
     ar & m_delegates;
     ar & m_vote_histories;
-    
+
     process_check_count(ar, *this);
-    print_sizes();
-  }
-  
-  template <class archive_t>
-  void blockchain_storage::v15_ram_converter::load_old_version(archive_t& ar, const unsigned int version)
-  {
-    // load old blockchain and mark needs conversion
-    requires_conversion = true;
-    ar & m_blocks;
-    ar & m_blocks_index;
-    ar & m_transactions;
-    ar & bs.m_spent_keys;
-    ar & m_alternative_chains;
-    
-    if (version < 13)
-    {
-      // load old version
-      old_outputs_container old_outputs;
-      ar & old_outputs;
-      bs.m_outputs.clear();
-      txout_target_v bah = txout_to_key();
-      BOOST_FOREACH(const auto& item, old_outputs)
-      {
-        bs.m_outputs[std::make_pair(CP_XPB, item.first)] = item.second;
-      }
-    }
-    else
-    {
-      ar & bs.m_outputs;
-    }
-    
-    ar & m_invalid_blocks;
-    ar & bs.m_current_block_cumul_sz_limit;
-    
-    if (version >= 13)
-    {
-      ar & bs.m_currencies;
-      ar & bs.m_used_currency_descriptions;
-    }
-    
-    if (version >= 14)
-    {
-      ar & bs.m_contracts;
-    }
-    
-    if (version >= 15)
-    {
-      ar & bs.m_delegates;
-      ar & bs.m_vote_histories;
-    }
-    
-    if (version > 11)
-    {
-      process_check_count(ar, *this);
-    }
     print_sizes();
   }
 
@@ -600,19 +490,19 @@ namespace cryptonote
                   << ", (type, amount)=(" << type << ", " << tx_in_to_key.amount << ")");
         return false;
       }
-      
+
       const auto tx_it = m_transactions.find(amount_outs_vec[i].first);
       CHECK_AND_ASSERT_MES(tx_it != m_transactions.end(), false, "Wrong transaction id in output indexes: " << epee::string_tools::pod_to_hex(amount_outs_vec[i].first));
       CHECK_AND_ASSERT_MES(amount_outs_vec[i].second < tx_it->second.tx.outs().size(), false,
                            "Wrong index in transaction outputs: " << amount_outs_vec[i].second
                            << ", expected less then " << tx_it->second.tx.outs().size());
-      
+
       if (!vis.handle_output(tx_it->second.tx, amount_outs_vec[i].second, tx_it->second.tx.outs()[amount_outs_vec[i].second]))
       {
         LOG_ERROR("Failed to handle_output for output no = " << count << ", with absolute offset " << i);
         return false;
       }
-      
+
       if (count++ == absolute_offsets.size() - 1 && pmax_related_block_height)
       {
         if (*pmax_related_block_height < tx_it->second.m_keeper_block_height)

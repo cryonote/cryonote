@@ -127,8 +127,6 @@ blockchain_storage::blockchain_storage(tx_memory_pool& tx_pool, tools::ntp_time&
     , m_ntp_time(ntp_time_in)
     , m_changes_since_store(0)
     , m_cached_block_fees(17500) // enough for max # of blocks in past day during DPOS era
-
-    , m_v15_ram_converter(*this)
 {
   // no autocommit - only commit changes when store()ing.
   m_blocks_by_hash.set_autocommit(false, false);
@@ -246,17 +244,6 @@ bool blockchain_storage::load_blockchain()
     return false;
   }
 
-  if (m_v15_ram_converter.requires_conversion) {
-    if (!m_v15_ram_converter.process_conversion()) {
-      throw std::runtime_error("old->new blockchain conversion failed! report error to the developer. delete blockchain.bin to start sync from scratch");
-    }
-    // store right away so don't have to convert again
-    LOG_PRINT_YELLOW("Storing blockchain to finalize conversion...", LOG_LEVEL_0);
-    if (!store_blockchain()) {
-      LOG_ERROR("Warning: Could not store blockchain right after conversion... continuing anyway.");
-    }
-  }
-
   return true;
 }
 //------------------------------------------------------------------
@@ -278,11 +265,6 @@ bool blockchain_storage::init(const std::string& config_folder)
     CHECK_AND_ASSERT_MES(generate_genesis_block(bl), false, "Failed to generate genesis block");
     add_new_block(bl, bvc);
     CHECK_AND_ASSERT_MES(!bvc.m_verifivation_failed && bvc.m_added_to_main_chain, false, "Failed to add genesis block to blockchain");
-  }
-
-  if (m_v15_ram_converter.requires_conversion) {
-    LOG_ERROR("Converting blockchain is not yet implemented");
-    return false;
   }
 
   if (m_pblockchain_entries->empty())
@@ -311,9 +293,6 @@ bool blockchain_storage::init(const std::string& config_folder)
 bool blockchain_storage::store_blockchain()
 {
   CRITICAL_REGION_LOCAL(m_blockchain_lock);
-
-  CHECK_AND_ASSERT_MES(!m_v15_ram_converter.requires_conversion, false,
-                       "Can't store unconverted blockchain");
 
   m_changes_since_store = 0;
   m_is_blockchain_storing = true;
