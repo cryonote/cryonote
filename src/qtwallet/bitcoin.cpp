@@ -483,7 +483,7 @@ static po::options_description InitParameters()
     command_line::add_arg(desc_cmd_qt, qt_opt::arg_disable_wallet);
     command_line::add_arg(desc_cmd_qt, qt_opt::arg_choose_data_dir);
     command_line::add_arg(desc_cmd_qt, qt_opt::arg_root_certificates);
-  
+
     po::options_description desc_options("Allowed options");
     desc_options.add(desc_cmd_only).add(desc_cmd_sett).add(desc_cmd_qt);
     return desc_options;
@@ -494,12 +494,12 @@ static po::options_description InitParameters()
 int main(int argc, char *argv[])
 {
     epee::string_tools::set_module_name_and_folder(argv[0]);
-  
+
     SetupEnvironment();
     log_space::get_set_log_detalisation_level(true, LOG_LEVEL_0);
     log_space::log_singletone::add_logger(LOGGER_CONSOLE, NULL, NULL);
     LOG_PRINT_L0("Starting...");
-  
+
     /// 1. Parse command-line options. These take precedence over anything else.
     po::options_description desc_options = InitParameters();
     // Command-line options take precedence:
@@ -510,13 +510,13 @@ int main(int argc, char *argv[])
                               QObject::tr("Error: Failed to parse command-line parameters."));
         return 1;
     }
-    
+
     /// Enable testnet from command line if necessary
     if (GetArg(daemon_opt::arg_testnet_on) || cryptonote::config::testnet_only)
     {
         cryptonote::config::enable_testnet();
     }
-    
+
     // Do not refer to data directory yet, this can be overridden by Intro::pickDataDirectory
 
     /// 2. Basic Qt initialization (not dependent on parameters or configuration)
@@ -574,37 +574,37 @@ int main(int argc, char *argv[])
                               QObject::tr("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(GetDataDir(false).string())));
         return 1;
     }
-  
+
     if (!ReadConfigFile(desc_options)) {
         QMessageBox::critical(0, QObject::tr("Pebblecoin"),
                               QObject::tr("Error: Cannot parse configuration file. Only use key=value syntax."));
         return 1;
     }
-    
+
     /// Enable testnet from config file if necessary
     if (GetArg(daemon_opt::arg_testnet_on) || cryptonote::config::testnet_only)
     {
         cryptonote::config::enable_testnet();
     }
-    
+
     // set app name for testnet settings from now on
     QApplication::setApplicationName(cryptonote::config::testnet ? QAPP_APP_NAME_TESTNET : QAPP_APP_NAME_DEFAULT);
-    
+
     if (!cryptonote_opt::handle_command_line(vmapArgs))
     {
         QMessageBox::critical(0, QObject::tr("Pebblecoin"),
                               QObject::tr("Error: Must provide the correct genesis block hashes. Copy the config file from the BTCTalk thread and put it in %1 . Make sure the hashes are the same.").arg(QString::fromStdString(GetConfigFile().string())));
         return 1;
     }
-    
+
     /// 6b. Generate the wallet if it doesn't exist
-    
+
 #ifdef ENABLE_WALLET
     std::string wallet_path = GetWalletFile().string();
     bool keys_file_exists;
     bool wallet_file_exists;
     tools::wallet2::wallet_exists(wallet_path, keys_file_exists, wallet_file_exists);
-    
+
     if (!keys_file_exists && !wallet_file_exists)
     {
         try {
@@ -626,12 +626,12 @@ int main(int argc, char *argv[])
                               QObject::tr("Error: Found wallet file but not keys file."));
         return 1;
     }
-    
+
     /// 6c. Set mining options & finish processing options
-    
+
     {
         tools::wallet2 w;
-        
+
         try
         {
             w.load(wallet_path, "");
@@ -643,8 +643,7 @@ int main(int argc, char *argv[])
             return 1;
         }
         
-        bool enable_boulder = GetArg(hashing_opt::arg_enable_boulderhash) || cryptonote::config::testnet;
-        if (enable_boulder)
+        if (cryptonote::config::testnet)
         {
             SoftSetArg(miner_opt::arg_start_mining, cryptonote::get_account_address_as_str(w.get_public_address()));
         }
@@ -652,14 +651,14 @@ int main(int argc, char *argv[])
     }
 
 #endif
-    
+
     if (!crypto::process_options(vmapArgs, HasArg(miner_opt::arg_start_mining)))
     {
         QMessageBox::critical(0, QObject::tr("Pebblecoin"),
                               QObject::tr("Error: Invalid hash-related options (see debug messages)."));
         return 1;
     }
-    
+
     // Re-initialize translations after changing application name (language in network-specific settings can be different)
     initTranslations(qtTranslatorBase, qtTranslator, translatorBase, translator);
 
@@ -668,13 +667,13 @@ int main(int argc, char *argv[])
      // - Do this after parsing the configuration file, as the network can be switched there
      // - QSettings() will use the new application name after this, resulting in network-specific settings
      // - Needs to be done before createOptionsModel
-     
+
      // Check for -testnet or -regtest parameter (Params() calls are only valid after this clause)
      if (!SelectParamsFromCommandLine()) {
      QMessageBox::critical(0, QObject::tr("Pebblecoin"), QObject::tr("Error: Invalid combination of -regtest and -testnet."));
      return 1;
      }*/
-    
+
     /// 9. Main GUI initialization
     // Install global event filter that makes sure that long tooltips can be word-wrapped
     app.installEventFilter(new GUIUtil::ToolTipToRichTextFilter(TOOLTIP_WRAP_THRESHOLD, &app));

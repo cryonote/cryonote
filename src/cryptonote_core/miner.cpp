@@ -57,7 +57,6 @@ namespace cryptonote
     command_line::add_arg(desc, arg_extra_messages);
     command_line::add_arg(desc, arg_start_mining);
     command_line::add_arg(desc, arg_mining_threads);
-    command_line::add_arg(desc, arg_dont_share_state);
     command_line::add_arg(desc, arg_delegate_wallet_file);
     command_line::add_arg(desc, arg_delegate_wallet_password);
     command_line::add_arg(desc, arg_dpos_block_wait_time);
@@ -81,7 +80,6 @@ namespace cryptonote
       , m_do_print_hashrate(false)
       , m_do_mining(false)
       , m_current_hash_rate(0)
-      , m_dont_share_state(false)
       , m_pdelegate_wallet(new tools::wallet2(true))
       , m_dpos_block_wait_time(15)
   {
@@ -172,8 +170,6 @@ namespace cryptonote
       LOG_ERROR("dpos block wait time must be at most " << (DPOS_DELEGATE_SLOT_TIME - 5) << " seconds");
       return false;
     }
-
-    m_dont_share_state = command_line::has_arg(vm, arg_dont_share_state) ? command_line::get_arg(vm, miner_opt::arg_dont_share_state) : false;
 
     return true;
   }

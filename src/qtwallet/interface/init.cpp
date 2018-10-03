@@ -372,86 +372,78 @@ bool CommandLinePreprocessor()
 
 bool AppInit2(boost::thread_group& threadGroup, QString& error)
 {
-    TRY_ENTRY();
+  TRY_ENTRY();
+  if (pdaemonThread != NULL)
+  {
+    error = QObject::tr("App is already initialized");
+    return false;
+  }
 
-    if (pdaemonThread != NULL)
+  // set up logging options
+  LOG_PRINT_L0("Setting up logging options...");
+  boost::filesystem::path log_file_path(GetArg(daemon_opt::arg_log_file));
+  if (log_file_path.empty())
+      log_file_path = log_space::log_singletone::get_default_log_file();
+  std::string log_dir;
+  log_dir = log_file_path.has_parent_path() ? log_file_path.parent_path().string() : log_space::log_singletone::get_default_log_folder();
+
+  log_space::log_singletone::add_logger(LOGGER_FILE, log_file_path.filename().string().c_str(), log_dir.c_str());
+  LOG_PRINT_L0(tools::get_project_description("Qt"));
+
+  LOG_PRINT_L0("Running command line preprocessor...");
+  if (CommandLinePreprocessor())
+  {
+    error = "";
+    return false;
+  }
+
+  // Load the wallet
+  LOG_PRINT_L0("Loading wallet2...");
+  tools::wallet2 *pwallet2 = new tools::wallet2();
+
+  pwallet2->set_conn_timeout(250); // local daemon should always be instant
+
+  try
+  {
+    pwallet2->load(GetWalletFile().string(), "");
+  }
+  catch (const std::exception &e)
+  {
+    LOG_PRINT_L0("Failed to load wallet: " << e.what());
+    error = QObject::tr("Failed to load wallet: %1").arg(e.what());
+    return false;
+  }
+
+  std::string rpc_bind_port = GetArg(core_rpc_opt::arg_rpc_bind_port);
+  if (rpc_bind_port.empty())
+  {
+    rpc_bind_port = std::to_string(cryptonote::config::rpc_default_port());
+  }
+
+  pwallet2->init("http://localhost:" + rpc_bind_port);
+  LOG_PRINT_L0("Creating CWallet...");
+  pwalletMain = new CWallet(GetWalletFile().string() + ".cwallet");
+  pwalletMain->SetWallet2(pwallet2);
+
+  // Run daemon in a thread. Daemon will start the wallet once it is loaded.
+  LOG_PRINT_L0("Running daemon in a thread");
+  {
+    DaemonInitState initState;
+    pdaemonThread = new boost::thread(boost::bind(DaemonThread, boost::ref(initState)));
+
+    LOG_PRINT_L0("Waiting until daemon thread initialization done...");
+    initState.waitUntilDone();
+    LOG_PRINT_L0("done, fError is: " << initState.fError);
+
+    if (initState.fError)
     {
-        error = QObject::tr("App is already initialized");
-        return false;
+      error = initState.errorMessage;
+      return false;
     }
+  }
 
-    LOG_PRINT_L0("Initializing shared boulderhash state...");
-    crypto::g_boulderhash_state = crypto::pc_malloc_state();
-    LOG_PRINT_L0("Shared boulderhash state initialized OK");
+  LOG_PRINT_L0("AppInit2() done");
+  return true;
 
-    LOG_PRINT_L0("Initializing boulderhash threadpool...");
-    crypto::pc_init_threadpool(vmapArgs);
-
-    //set up logging options
-    LOG_PRINT_L0("Setting up logging options...");
-    boost::filesystem::path log_file_path(GetArg(daemon_opt::arg_log_file));
-    if (log_file_path.empty())
-        log_file_path = log_space::log_singletone::get_default_log_file();
-    std::string log_dir;
-    log_dir = log_file_path.has_parent_path() ? log_file_path.parent_path().string() : log_space::log_singletone::get_default_log_folder();
-
-    log_space::log_singletone::add_logger(LOGGER_FILE, log_file_path.filename().string().c_str(), log_dir.c_str());
-    LOG_PRINT_L0(tools::get_project_description("Qt"));
-
-    LOG_PRINT_L0("Running command line preprocessor...");
-    if (CommandLinePreprocessor())
-    {
-        error = "";
-        return false;
-    }
-
-    // Load the wallet
-    LOG_PRINT_L0("Loading wallet2...");
-    tools::wallet2 *pwallet2 = new tools::wallet2();
-
-    pwallet2->set_conn_timeout(250); // local daemon should always be instant
-
-    try
-    {
-        pwallet2->load(GetWalletFile().string(), "");
-    }
-    catch (const std::exception &e)
-    {
-        LOG_PRINT_L0("Failed to load wallet: " << e.what());
-        error = QObject::tr("Failed to load wallet: %1").arg(e.what());
-        return false;
-    }
-
-    std::string rpc_bind_port = GetArg(core_rpc_opt::arg_rpc_bind_port);
-    if (rpc_bind_port.empty())
-    {
-        rpc_bind_port = std::to_string(cryptonote::config::rpc_default_port());
-    }
-    pwallet2->init("http://localhost:" + rpc_bind_port);
-
-    LOG_PRINT_L0("Creating CWallet...");
-    pwalletMain = new CWallet(GetWalletFile().string() + ".cwallet");
-    pwalletMain->SetWallet2(pwallet2);
-
-    // Run daemon in a thread. Daemon will start the wallet once it is loaded.
-    LOG_PRINT_L0("Running daemon in a thread");
-    {
-        DaemonInitState initState;
-        pdaemonThread = new boost::thread(boost::bind(DaemonThread, boost::ref(initState)));
-
-        LOG_PRINT_L0("Waiting until daemon thread initialization done...");
-        initState.waitUntilDone();
-        LOG_PRINT_L0("done, fError is: " << initState.fError);
-
-        if (initState.fError)
-        {
-            error = initState.errorMessage;
-            return false;
-        }
-    }
-
-    LOG_PRINT_L0("AppInit2() done");
-    return true;
-
-    CATCH_ENTRY_L0("AppInit2", false);
+  CATCH_ENTRY_L0("AppInit2", false);
 }

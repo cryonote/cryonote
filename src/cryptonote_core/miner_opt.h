@@ -12,7 +12,6 @@ namespace miner_opt
   extern const command_line::arg_descriptor<std::string> arg_extra_messages;
   extern const command_line::arg_descriptor<std::string> arg_start_mining;
   extern const command_line::arg_descriptor<uint32_t>    arg_mining_threads;
-  extern const command_line::arg_descriptor<bool>        arg_dont_share_state;
   extern const command_line::arg_descriptor<std::string> arg_delegate_wallet_file;
   extern const command_line::arg_descriptor<std::string> arg_delegate_wallet_password;
   extern const command_line::arg_descriptor<uint64_t>    arg_dpos_block_wait_time;
