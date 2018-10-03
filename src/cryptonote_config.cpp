@@ -10,7 +10,7 @@
 #include "crypto/hash_options.h"
 
 const bool ALLOW_DEBUG_COMMANDS = true;
-const char *CRYPTONOTE_NAME                         = "pebblecoin";
+const char *CRYPTONOTE_NAME                         = "cryonote";
 const char *CRYPTONOTE_POOLDATA_FILENAME            = "poolstate.bin";
 const char *CRYPTONOTE_BLOCKCHAINDATA_FILENAME      = "blockchain.bin";
 const char *CRYPTONOTE_BLOCKCHAINDATA_TEMP_FILENAME = "blockchain.bin.tmp";
