@@ -41,9 +41,6 @@
 #define DPOS_BLOCK_DIFFICULTY                           0xffffffff  // count way more than any pow block
 #define DPOS_DELEGATE_SLOT_TIME                         45 // seconds a delegate has to create his block before being skipped
 
-#define BOULDERHASH_2_SWITCH_BLOCK                      20250
-#define BOULDERHASH_2_SWITCH_EASY_WINDOW                DIFFICULTY_WINDOW // blocks
-
 #define DPOS_REGISTRATION_FEE_MULTIPLE                  100      // expect to be up for 100 rounds
 #define DPOS_MIN_REGISTRATION_FEE                       (5*COIN)
 
@@ -91,7 +88,6 @@ namespace cryptonote {
     extern bool test_serialize_unserialize_block;
     extern bool no_reward_ramp;
     extern bool use_signed_hashes;
-    extern bool do_boulderhash;
 
     extern const bool testnet_only;
 

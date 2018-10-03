@@ -9,10 +9,7 @@
 namespace hashing_opt
 {
   extern const command_line::arg_descriptor<bool>        arg_disable_signed_hashes;
-  extern const command_line::arg_descriptor<bool>        arg_enable_boulderhash;
   extern const command_line::arg_descriptor<std::string> arg_hash_signing_priv_key;
-  extern const command_line::arg_descriptor<uint32_t>    arg_worker_threads;
-  extern const command_line::arg_descriptor<uint32_t>    arg_states_per_thread;
 }
 
 namespace crypto {

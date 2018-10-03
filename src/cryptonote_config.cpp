@@ -33,7 +33,6 @@ namespace cryptonote {
     bool test_serialize_unserialize_block = false;
     bool no_reward_ramp = false;
     bool use_signed_hashes = true;
-    bool do_boulderhash = false;
 
     const bool testnet_only = false;
 
@@ -45,9 +44,7 @@ namespace cryptonote {
     {
       testnet = true;
       no_reward_ramp = true;
-      crypto::g_hash_ops_small_boulderhash = true;
       use_signed_hashes = false;
-      do_boulderhash = true;
       dpos_registration_start_block = 0;
       dpos_switch_block = 1200;
     }

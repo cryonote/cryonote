@@ -185,17 +185,17 @@ bool construct_tx_to_key(const std::vector<test_event_entry>& events, cryptonote
   std::vector<cryptonote::tx_destination_entry> destinations;
   if (!fill_tx_sources_and_destinations(events, blk_head, from, to, amount, fee, nmix, sources, destinations, cp))
     return false;
-  
+
   for (size_t i=0; i < sources.size(); i++) {
     auto& s = sources[i];
     LOG_PRINT_L0("source " << i << ": (" << s.cp << ", " << s.amount_in << " --> " << s.amount_out << ")");
   }
-  
+
   for (size_t i=0; i < destinations.size(); i++) {
     auto& d = destinations[i];
     LOG_PRINT_L0("dest   " << i << ": (" << d.cp << ", " << d.amount << ")");
   }
-  
+
   cryptonote::keypair txkey;
   return construct_tx(from.get_keys(), sources, destinations, std::vector<uint8_t>(), tx, 0, txkey, mod);
 }
@@ -240,12 +240,12 @@ public:
     , m_check_can_create_block_from_template(true)
   {
   }
-  
+
   bool check_can_create_valid_mining_block() const
   {
     if (!m_check_can_create_block_from_template)
       return true;
-    
+
     cryptonote::block b;
     cryptonote::account_base account;
     account.generate();
@@ -253,22 +253,22 @@ public:
     uint64_t difficulty;
     uint64_t height;
     cryptonote::blobdata blob_reserve;
-    
+
     bool dpos_block = cryptonote::config::in_pos_era(m_c.get_current_blockchain_height());
-    
+
     if (dpos_block) { g_ntp_time.apply_manual_delta(CRYPTONOTE_DPOS_BLOCK_MINIMUM_BLOCK_SPACING); }
     LOG_PRINT_CYAN("check_can_create_valid_mining_block...", LOG_LEVEL_0);
     bool got_template = m_c.get_block_template(b, account.get_keys().m_account_address, difficulty, height, blob_reserve,
                                                dpos_block);
     b.nonce = 0; // pretend we mined it
     if (dpos_block) { g_ntp_time.apply_manual_delta(-CRYPTONOTE_DPOS_BLOCK_MINIMUM_BLOCK_SPACING); }
-    
+
     if (!got_template)
     {
       LOG_ERROR("check_can_create_valid_mining_block: Could not get_block_template");
       return false;
     }
-    
+
     if (dpos_block)
     {
       CHECK_AND_ASSERT_MES(m_delegate_accts.count(b.signing_delegate_id) > 0, false,
@@ -283,7 +283,7 @@ public:
       LOG_PRINT_CYAN("NOT checking can_create_valid_mining_block, difficulty is too high", LOG_LEVEL_0);
       return true;
     }*/
-    
+
     LOG_PRINT_CYAN("Adding block from get_block_template...", LOG_LEVEL_0);
     cryptonote::block_verification_context bvc = AUTO_VAL_INIT(bvc);
     if (dpos_block) { g_ntp_time.apply_manual_delta(CRYPTONOTE_DPOS_BLOCK_MINIMUM_BLOCK_SPACING); }
@@ -293,14 +293,14 @@ public:
     CHECK_AND_ASSERT_MES(!bvc.m_verifivation_failed, false,
                          "check_can_create_valid_mining_block: Block verification failed on block template (txpool error)");
     CHECK_AND_ASSERT_MES(bvc.m_added_to_main_chain, false, "check_can_create_valid_mining_block: didn't add to main chain");
-    
+
     //remove it so future tests aren't affected
     LOG_PRINT_CYAN("Removing block from get_block_template...", LOG_LEVEL_0);
     cryptonote::core_tester ct(m_c);
     CHECK_AND_ASSERT_MES(ct.pop_block_from_blockchain(), false,
                          "check_can_create_valid_mining_block: Couldn't pop block from blockhain");
     LOG_PRINT_CYAN("Success in adding and removing block from get_block_template", LOG_LEVEL_0);
-    
+
     return true;
   }
 
@@ -343,9 +343,9 @@ public:
     bool tx_added = pool_size + 1 == m_c.get_pool_transactions_count();
     bool r = m_validator.check_tx_verification_context(tvc, tx_added, m_ev_index, tx);
     CHECK_AND_NO_ASSERT_MES(r, false, "tx verification context check failed");
-    
+
     CHECK_AND_ASSERT(check_can_create_valid_mining_block(), false);
-    
+
     return true;
   }
 
@@ -365,9 +365,9 @@ public:
     }
     bool r = m_validator.check_block_verification_context(bvc, m_ev_index, b);
     CHECK_AND_NO_ASSERT_MES(r, false, "block verification context check failed");
-    
+
     CHECK_AND_ASSERT(check_can_create_valid_mining_block(), false);
-    
+
     return r;
   }
 
@@ -376,19 +376,19 @@ public:
     log_event(std::string("callback_entry ") + cb.callback_name);
     return m_validator.verify(cb.callback_name, m_c, m_ev_index, m_events);
   }
-  
+
   bool operator()(const callback_entry_func& cb) const
   {
     log_event(std::string("callback_entry_func "));
     return cb.cb(m_c, m_ev_index);
   }
-  
+
   bool operator()(const debug_mark& dm) const
   {
     log_event(std::string("debug_mark: ") + dm.message);
     return true;
   }
-  
+
   bool operator()(const dont_mark_spent_tx& dmst) const
   {
     log_event(std::string("dont_mark_spent_tx"));
@@ -408,7 +408,7 @@ public:
     }
     return true;
   }
-  
+
   bool operator()(const register_delegate_account& rda)
   {
     log_event(std::string("register_delegate_account"));
@@ -417,7 +417,7 @@ public:
     m_delegate_accts[rda.delegate_id] = rda.acct;
     return true;
   }
-  
+
   bool operator()(const cryptonote::account_base& ab) const
   {
     log_event("cryptonote::account_base");
@@ -442,9 +442,9 @@ public:
     }
     bool r = m_validator.check_block_verification_context(bvc, m_ev_index, blk);
     CHECK_AND_NO_ASSERT_MES(r, false, "block verification context check failed");
-    
+
     CHECK_AND_ASSERT(check_can_create_valid_mining_block(), false);
-    
+
     return true;
   }
 
@@ -469,9 +469,9 @@ public:
 
     bool r = m_validator.check_tx_verification_context(tvc, tx_added, m_ev_index, tx);
     CHECK_AND_NO_ASSERT_MES(r, false, "transaction verification context check failed");
-    
+
     CHECK_AND_ASSERT(check_can_create_valid_mining_block(), false);
-    
+
     return true;
   }
 
@@ -682,4 +682,3 @@ void set_default_fee(std::vector<test_event_entry>& events, uint64_t default_fee
     LOG_ERROR("Failed to generate test: " << e.what()); \
     return false; \
   }
-

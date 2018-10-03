@@ -34,12 +34,12 @@ using namespace miner_opt;
 namespace cryptonote
 {
   //-----------------------------------------------------------------------------------------------------
-  bool miner::find_nonce_for_given_block(block& bl, const difficulty_type& diffic, uint64_t height, uint64_t **state)
+  bool miner::find_nonce_for_given_block(block& bl, const difficulty_type& diffic, uint64_t height)
   {
     for(; bl.nonce != std::numeric_limits<uint32_t>::max(); bl.nonce++)
     {
       crypto::hash h;
-      if (!get_block_longhash(bl, h, height, state, false))
+      if (!get_block_longhash(bl, h, height, false))
       {
         throw std::runtime_error("unable to get_block_longhash");
       }
@@ -134,12 +134,12 @@ namespace cryptonote
         m_threads_total = command_line::get_arg(vm, arg_mining_threads);
       }
     }
-    
+
     if (command_line::has_arg(vm, arg_delegate_wallet_file))
     {
       std::string file_path = command_line::get_arg(vm, arg_delegate_wallet_file);
       std::string pwd = command_line::get_arg(vm, arg_delegate_wallet_password);
-      
+
       try
       {
         m_pdelegate_wallet->load(file_path, pwd);
@@ -149,19 +149,19 @@ namespace cryptonote
         LOG_ERROR("could not load delegate wallet file: " << e.what());
         return false;
       }
-      
+
       if (m_threads_total == 0)
       {
         m_threads_total = 1;
       }
       m_do_mining = true;
     }
-    
+
     if (command_line::has_arg(vm, arg_dpos_block_wait_time))
     {
       m_dpos_block_wait_time = command_line::get_arg(vm, arg_dpos_block_wait_time);
     }
-    
+
     if (m_dpos_block_wait_time < CRYPTONOTE_DPOS_BLOCK_MINIMUM_BLOCK_SPACING)
     {
       LOG_ERROR("dpos block wait time must be at least " << CRYPTONOTE_DPOS_BLOCK_MINIMUM_BLOCK_SPACING << " seconds");
@@ -172,7 +172,7 @@ namespace cryptonote
       LOG_ERROR("dpos block wait time must be at most " << (DPOS_DELEGATE_SLOT_TIME - 5) << " seconds");
       return false;
     }
-    
+
     m_dont_share_state = command_line::has_arg(vm, arg_dont_share_state) ? command_line::get_arg(vm, miner_opt::arg_dont_share_state) : false;
 
     return true;
@@ -222,21 +222,24 @@ namespace cryptonote
       return false;
     }
 
+    // lets update block template
     if(!m_template_no)
-      request_block_template();//lets update block template
+    {
+      request_block_template();
+    }
 
     boost::interprocess::ipcdetail::atomic_write32(&m_stop, 0);
     boost::interprocess::ipcdetail::atomic_write32(&m_thread_index, 0);
 
     boost::thread::attributes attrs;
     attrs.set_stack_size(THREAD_STACK_SIZE);
-    
+
     for(size_t i = 0; i != threads_count; i++)
     {
       m_threads.push_back(boost::thread(attrs, boost::bind(&miner::worker_thread, this)));
     }
 
-    LOG_PRINT_L0("Mining has started with " << threads_count << " threads, good luck!" )
+    LOG_PRINT_L0("Mining has started with " << threads_count << " threads, good luck!")
     return true;
   }
   //-----------------------------------------------------------------------------------------------------
@@ -249,7 +252,7 @@ namespace cryptonote
       th.join();
 
     m_threads.clear();
-    LOG_PRINT_L0("Mining has been stopped, " << m_threads.size() << " finished" );
+    LOG_PRINT_L0("Mining has been stopped, " << m_threads.size() << " finished");
     return true;
   }
   //-----------------------------------------------------------------------------------------------------
@@ -282,18 +285,21 @@ namespace cryptonote
   //-----------------------------------------------------------------------------------------------------
   bool miner::on_idle()
   {
-    m_update_block_template_interval.do_call([&]() {
-      if (is_mining()) {
+    m_update_block_template_interval.do_call([&]()
+    {
+      if (is_mining())
+      {
         request_block_template();
       }
       return true;
     });
 
-    m_update_merge_hr_interval.do_call([&]() {
+    m_update_merge_hr_interval.do_call([&]()
+    {
       merge_hr();
       return true;
     });
-    
+
     return true;
   }
   //-----------------------------------------------------------------------------------------------------
@@ -308,7 +314,9 @@ namespace cryptonote
   bool miner::on_block_chain_update()
   {
     if(!is_mining())
+    {
       return true;
+    }
 
     return request_block_template();
   }
@@ -354,23 +362,22 @@ namespace cryptonote
     bool is_dpos;
     account_public_address delegate_addr;
     uint64_t time_since_last_block;
-    
+
     if (!m_phandler->get_next_block_info(is_dpos, delegate_addr, time_since_last_block))
     {
       LOG_ERROR("Could not get_next_block_info()");
       clear_block_template();
       return false;
     }
-    
+
     account_public_address mine_address = is_dpos ? m_pdelegate_wallet->get_public_address() : m_mine_address;
-    
     if (mine_address == null_public_address)
     {
       LOG_PRINT_L1("No mining address");
       clear_block_template();
       return true;
     }
-    
+
     if (is_dpos)
     {
       if (m_pdelegate_wallet->get_public_address() == null_public_address)
@@ -379,14 +386,14 @@ namespace cryptonote
         clear_block_template();
         return false;
       }
-      
+
       if (delegate_addr == null_public_address)
       {
         LOG_PRINT_L2("Still waiting for minimum dpos block time");
         clear_block_template();
         return true;
       }
-      
+
       if (!m_pdelegate_wallet->is_mine(delegate_addr))
       {
         LOG_PRINT_L2("Next dpos block is not ours: We are "
@@ -397,7 +404,7 @@ namespace cryptonote
         clear_block_template();
         return true;
       }
-      
+
       if (time_since_last_block < m_dpos_block_wait_time)
       {
         LOG_PRINT_L1("Waiting " << m_dpos_block_wait_time - time_since_last_block << " more seconds until making dpos block");
@@ -405,11 +412,11 @@ namespace cryptonote
         return true;
       }
     }
-    
+
     block bl = AUTO_VAL_INIT(bl);
     difficulty_type di = AUTO_VAL_INIT(di);
     uint64_t height = AUTO_VAL_INIT(height);
-    cryptonote::blobdata extra_nonce; 
+    cryptonote::blobdata extra_nonce;
     if (m_extra_messages.size() && m_config.current_extra_message_index < m_extra_messages.size())
     {
       extra_nonce = m_extra_messages[m_config.current_extra_message_index];
@@ -432,7 +439,7 @@ namespace cryptonote
     {
       account_public_address delegate_addr;
       uint64_t time_since_last_block;
-      
+
       if (!m_phandler->get_next_block_info(in_pos_era, delegate_addr, time_since_last_block))
       {
         LOG_ERROR("Could not get next block info in worker thread");
@@ -447,7 +454,7 @@ namespace cryptonote
                        LOG_LEVEL_0);
       return true;
     }
-    
+
     LOG_PRINT_L0("Miner thread was started ["<< th_local_index << "]");
     log_space::log_singletone::set_thread_log_prefix(std::string("[miner ") + std::to_string(th_local_index) + "]");
     uint32_t nonce = m_starter_nonce + th_local_index;
@@ -456,28 +463,11 @@ namespace cryptonote
     uint32_t local_template_ver = 0;
     cryptonote::account_public_address local_signing_delegate_address = AUTO_VAL_INIT(local_signing_delegate_address);
     block b;
-    
+
     uint64_t **state = NULL;
-    bool allocated_state = false;
-    if (!in_pos_era)
-    {
-      if (m_dont_share_state || th_local_index > 0)
-      {
-        LOG_PRINT_L0("Mallocing boulderhash state...");
-        state = crypto::pc_malloc_state();
-        allocated_state = true;
-      }
-      else
-      {
-        LOG_PRINT_L0("Using global boulderhash state");
-        state = crypto::g_boulderhash_state;
-        allocated_state = false;
-      }
-    }
-    
     uint64_t last_print = misc_utils::get_tick_count();
     uint64_t m_hashes_since_print = 0;
-    
+
     while (!m_stop)
     {
       if (m_pausers_count)
@@ -507,9 +497,9 @@ namespace cryptonote
           continue;
         }
       }
-      
+
       bool found_block = false;
-      
+
       if (is_pos_block(b))
       {
         if (th_local_index > 0)
@@ -517,15 +507,7 @@ namespace cryptonote
           LOG_PRINT_YELLOW("All but miner 0 stopping, now in pos era", LOG_LEVEL_0);
           break;
         }
-        
-        if (allocated_state)
-        {
-          LOG_PRINT_L0("Freeing boulderhash state...");
-          crypto::pc_free_state(state);
-          state = NULL;
-          allocated_state = false;
-        }
-        
+
         // if we here, delegate address is ours and it is time
         if (!m_pdelegate_wallet->sign_dpos_block(b))
         {
@@ -546,11 +528,11 @@ namespace cryptonote
           epee::misc_utils::sleep_no_w(60000);
           continue;
         }
-        
+
         b.nonce = nonce;
         crypto::hash h;
         uint64_t start_t = misc_utils::get_tick_count();
-        get_block_longhash(b, h, height, state, false);
+        get_block_longhash(b, h, height, false);
         uint64_t end_t = misc_utils::get_tick_count();
         LOG_PRINT_L3("Took " << (end_t - start_t) << "ms to do a hash");
         found_block = check_hash(h, local_diff);
@@ -586,13 +568,7 @@ namespace cryptonote
         }
       }
     }
-    
-    if (allocated_state)
-    {
-      LOG_PRINT_L0("Freeing boulderhash state...");
-      crypto::pc_free_state(state);
-    }
-    
+
     LOG_PRINT_L0("Miner thread stopped ["<< th_local_index << "]");
     return true;
   }

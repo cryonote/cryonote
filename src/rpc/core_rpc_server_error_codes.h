@@ -2,7 +2,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#pragma  once 
+#pragma  once
 
 
 #define CORE_RPC_ERROR_CODE_WRONG_PARAM           -1
@@ -13,8 +13,3 @@
 #define CORE_RPC_ERROR_CODE_WRONG_BLOCKBLOB       -6
 #define CORE_RPC_ERROR_CODE_BLOCK_NOT_ACCEPTED    -7
 #define CORE_RPC_ERROR_CODE_CORE_BUSY             -9
-#define CORE_RPC_ERROR_CODE_CANT_BOULDERHASH      -10
-
-
-
-

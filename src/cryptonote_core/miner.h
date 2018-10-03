@@ -2,7 +2,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#pragma once 
+#pragma once
 
 #include <atomic>
 
@@ -28,18 +28,18 @@ namespace cryptonote
   /************************************************************************/
   class miner
   {
-  public: 
+  public:
     static void init_options(boost::program_options::options_description& desc);
-    static bool find_nonce_for_given_block(block& bl, const difficulty_type& diffic, uint64_t height, uint64_t **state);
-    
+    static bool find_nonce_for_given_block(block& bl, const difficulty_type& diffic, uint64_t height);
+
     miner(i_miner_handler* phandler);
     ~miner();
     bool init(const boost::program_options::variables_map& vm);
-    
+
     bool clear_block_template();
     bool set_block_template(const block& bl, const difficulty_type& diffic, uint64_t height,
                             const cryptonote::account_public_address& signing_delegate_address);
-    
+
     bool start(const account_public_address& adr, size_t threads_count);
     bool stop();
     bool is_mining() const;
@@ -49,18 +49,18 @@ namespace cryptonote
     bool on_idle();
     void on_synchronized();
     bool on_block_chain_update();
-    
+
     uint64_t get_speed() const;
     void set_print_hashrate(bool do_hr);
-    
+
   private:
     bool store_config();
     bool load_config();
-    
+
     void merge_hr();
     bool request_block_template();
     bool worker_thread();
-    
+
     struct miner_config
     {
       uint64_t current_extra_message_index;
@@ -91,7 +91,7 @@ namespace cryptonote
     epee::math_helper::once_a_time_seconds<2> m_update_merge_hr_interval;
     std::vector<blobdata> m_extra_messages;
     miner_config m_config;
-    std::string m_config_folder_path;    
+    std::string m_config_folder_path;
     std::atomic<uint64_t> m_last_hr_merge_time;
     std::atomic<uint64_t> m_hashes;
     std::atomic<uint64_t> m_current_hash_rate;
@@ -100,7 +100,7 @@ namespace cryptonote
     bool m_do_print_hashrate;
     bool m_do_mining;
     bool m_dont_share_state;
-    
+
     tools::wallet2 *m_pdelegate_wallet;
     uint64_t m_dpos_block_wait_time;
   };

@@ -84,13 +84,13 @@ bool test_generator::add_block(const cryptonote::block& blk, size_t tsx_size, st
   {
     miner_tx_size = 0;
   }
-  
+
   const size_t block_size = tsx_size + miner_tx_size;
   uint64_t block_reward = 0;
   crypto::hash block_id = cryptonote::null_hash;
   if (!get_block_hash(blk, block_id))
     return false;
-  
+
   get_block_reward(misc_utils::median(block_sizes), block_size, already_generated_coins, get_block_height(blk), block_reward);
   m_blocks_info[block_id] = block_info(blk.prev_id, already_generated_coins + block_reward, block_size);
   return true;
@@ -102,12 +102,12 @@ bool make_miner_tx(transaction& miner_tx_res, size_t txs_size, size_t height, st
 {
   transaction miner_tx = AUTO_VAL_INIT(miner_tx);
   size_t target_block_size = txs_size + get_object_blobsize(miner_tx);
-  
+
   while (true)
   {
     if (!construct_miner_tx(height, misc_utils::median(block_sizes), already_generated_coins, target_block_size, fee, dest_address, miner_tx, blobdata(), 10))
       return false;
-    
+
     size_t actual_block_size = txs_size + get_object_blobsize(miner_tx);
     if (target_block_size < actual_block_size)
     {
@@ -145,7 +145,7 @@ bool make_miner_tx(transaction& miner_tx_res, size_t txs_size, size_t height, st
       break;
     }
   }
-  
+
   miner_tx_res = miner_tx;
   return true;
 }
@@ -191,16 +191,20 @@ bool test_generator::construct_block(cryptonote::block& blk, uint64_t height, co
     total_fee += fee;
     txs_size += get_object_blobsize(tx);
   }
-  
+
   if (!make_miner_tx(blk.miner_tx, txs_size, height, block_sizes, already_generated_coins, total_fee, miner_acc.get_keys().m_account_address))
+  {
     return false;
+  }
 
   //blk.tree_root_hash = get_tx_tree_hash(blk);
 
   // Nonce search...
   blk.nonce = 0;
-  while (!miner::find_nonce_for_given_block(blk, get_test_difficulty(), height, crypto::g_boulderhash_state))
+  while (!miner::find_nonce_for_given_block(blk, get_test_difficulty(), height))
+  {
     blk.timestamp++;
+  }
 
   return add_block(blk, txs_size, block_sizes, already_generated_coins);
 }
@@ -240,10 +244,10 @@ bool test_generator::construct_block_pos(cryptonote::block& blk, const cryptonot
   uint64_t already_generated_coins = get_already_generated_coins(prev_id);
   std::vector<size_t> block_sizes;
   get_last_n_block_sizes(block_sizes, prev_id, CRYPTONOTE_REWARD_BLOCKS_WINDOW);
-  
+
   blk.major_version = DPOS_BLOCK_MAJOR_VERSION;
   blk.minor_version = DPOS_BLOCK_MINOR_VERSION;
-  
+
   blk.timestamp = timestamp;
   blk.prev_id = prev_id;
 
@@ -270,7 +274,7 @@ bool test_generator::construct_block_pos(cryptonote::block& blk, const cryptonot
   // Sign it
   if (!sign_dpos_block(blk, staker_acc))
     return false;
-  
+
   return add_block(blk, txs_size, block_sizes, already_generated_coins);
 }
 
@@ -353,7 +357,7 @@ struct output_index {
 
   const std::string toString() const {
     std::stringstream ss;
-    
+
     ss << "output_index{blk_height=" << blk_height
     << " tx_no=" << tx_no
     << " out_no=" << out_no
@@ -362,7 +366,7 @@ struct output_index {
     << " idx=" << idx
     << " spent=" << spent
     << "}";
-    
+
     return ss.str();
   }
 
@@ -380,7 +384,7 @@ typedef pair<uint64_t, size_t>  outloc_t;
 currency_map get_inputs_amount(const vector<tx_source_entry> &s)
 {
   currency_map amounts;
-  
+
   BOOST_FOREACH(const tx_source_entry &e, s)
   {
     amounts[e.cp] += e.amount_out;
@@ -416,49 +420,49 @@ bool init_output_indices(bool respect_unlock_time,
                          const cryptonote::account_base& from, cryptonote::coin_type cp)
 {
   uint64_t blockchain_size = get_block_height(blockchain.back());
-  
+
   // list out all transactions in order
   struct tx_entry {
     const block* pblk;
     const transaction* ptx;
     size_t height;
     size_t tx_no;
-    
+
     tx_entry(const block* pblk_in, const transaction* ptx_in, size_t height_in, size_t tx_no_in)
         : pblk(pblk_in), ptx(ptx_in), height(height_in), tx_no(tx_no_in) { }
   };
-  
+
   size_t blockchain_height = 0;
-  
+
   vector<tx_entry> vtx;
   BOOST_FOREACH (const block& blk, blockchain) {
     size_t height = boost::get<txin_gen>(*blk.miner_tx.ins().begin()).height;
-    
+
     size_t tx_no = 0;
     vtx.push_back(tx_entry(&blk, &blk.miner_tx, height, tx_no++));
-  
+
     BOOST_FOREACH(const crypto::hash &h, blk.tx_hashes) {
       const map_hash2tx_isregular_t::const_iterator cit = mtx.find(h);
       if (mtx.end() == cit)
         throw std::runtime_error("block contains an unknown tx hash");
-      
+
       vtx.push_back(tx_entry(&blk, cit->second.first, height, tx_no++));
     }
-    
+
     blockchain_height = std::max(blockchain_height, height);
   }
-  
+
   // process all contracts first
   std::unordered_map<uint64_t, blockchain_storage::contract_info> contract_info;
   BOOST_FOREACH (const auto& ent, vtx) {
     const transaction& tx = *ent.ptx;
-    
+
     for (size_t j = 0; j < tx.ins().size(); ++j) {
       const auto& txin = tx.ins()[j];
-      
+
       if (txin.type() == typeid(txin_create_contract)) {
         const auto& inp = boost::get<txin_create_contract>(txin);
-        
+
         blockchain_storage::contract_info ci;
         ci.contract = inp.contract;
         ci.fee_scale = inp.fee_scale;
@@ -467,10 +471,10 @@ bool init_output_indices(bool respect_unlock_time,
         ci.is_graded = false;
         ci.grade = 0;
         contract_info[inp.contract] = ci;
-        
+
         LOG_PRINT_CYAN("Found contract " << inp.contract, LOG_LEVEL_0);
       }
-      
+
       if (txin.type() == typeid(txin_grade_contract)) {
         const auto& inp = boost::get<txin_grade_contract>(txin);
         auto& ci = contract_info[inp.contract];
@@ -481,10 +485,10 @@ bool init_output_indices(bool respect_unlock_time,
       }
     }
   }
-  
+
   BOOST_FOREACH (const auto& ent, vtx) {
     const transaction &tx = *ent.ptx;
-    
+
     // Skip unspendable txs
     if (respect_unlock_time && !is_tx_spendtime_unlocked(blockchain_size + 1, tx.unlock_time))
     {
@@ -495,15 +499,15 @@ bool init_output_indices(bool respect_unlock_time,
                        LOG_LEVEL_0);*/
       continue;
     }
-    
+
     for (size_t out_no = 0; out_no < tx.outs().size(); ++out_no) {
       const tx_out &out = tx.outs()[out_no];
       const auto& tx_out_cp = tx.out_cp(out_no);
-      
+
       auto type = tx_source_entry::InToKey;
       uint64_t amount_in = 0, amount_out = 0, contract_resolving = CURRENCY_N_A;
       const txout_to_key* p_outp = NULL;
-      
+
       if (tx_out_cp != cp)
       {
         // maybe it's a contract backed by the currency we want
@@ -537,11 +541,11 @@ bool init_output_indices(bool respect_unlock_time,
                            LOG_LEVEL_0);
           continue;
         }
-        
+
         CHECK_AND_ASSERT_MES(tx_out_cp.contract_type == BackingCoin ||
                              tx_out_cp.contract_type == ContractCoin, false,
                              "CONSISTENCY FAIL: found an out w/ a backing but not a contract type");
-        
+
         CHECK_AND_ASSERT_MES(cp.backed_by_currency == BACKED_BY_N_A, false,
                              "CONSISTENCY FAIL: found a contract backed by a contract");
 
@@ -559,7 +563,7 @@ bool init_output_indices(bool respect_unlock_time,
                            LOG_LEVEL_0);
           continue;
         }
-        
+
         contract_resolving = tx_out_cp.currency;
         /*LOG_PRINT_CYAN(out.amount << (tx_out_cp.contract_type == ContractCoin ? " contract " : " backing ")
                        << "coins of " << tx_out_cp.currency
@@ -584,15 +588,15 @@ bool init_output_indices(bool respect_unlock_time,
           continue;
         }
       }
-      
+
       output_index oi(type, out.target, amount_in, amount_out, contract_resolving,
                       ent.height, ent.tx_no, out_no, ent.pblk, ent.ptx);
-      
+
       auto key = std::make_pair(tx_out_cp, out.amount);
       outs[key].push_back(oi);
       size_t tx_global_idx = outs[key].size() - 1;
       outs[key][tx_global_idx].idx = tx_global_idx;
-      
+
       // Is out to me?
       if (is_out_to_acc(from.get_keys(), *p_outp, get_tx_pub_key_from_extra(tx), out_no)) {
         //LOG_PRINT_YELLOW("found match to 'me' with out_cp " << tx.out_cp(j) << ", amount " << out.amount, LOG_LEVEL_0);
@@ -603,7 +607,7 @@ bool init_output_indices(bool respect_unlock_time,
       }
     }
   }
-  
+
   return true;
 }
 
@@ -614,12 +618,12 @@ bool init_spent_output_indices(map_output_idx_t& outs, map_output_mine_t& outs_m
   BOOST_FOREACH (const map_output_mine_t::value_type &o, outs_mine) {
     for (size_t i = 0; i < o.second.size(); ++i) {
       output_index &oi = outs[o.first][o.second[i]];
-      
+
       // construct key image for this output
       crypto::key_image img;
       keypair in_ephemeral;
       generate_key_image_helper(from.get_keys(), get_tx_pub_key_from_extra(*oi.p_tx), oi.out_no, in_ephemeral, img);
-      
+
       // lookup for this key image in the events vector
       BOOST_FOREACH(auto& tx_pair, mtx) {
         const transaction& tx = *tx_pair.second.first;
@@ -640,7 +644,7 @@ bool init_spent_output_indices(map_output_idx_t& outs, map_output_mine_t& outs_m
       }
     }
   }
-  
+
   return true;
 }
 
@@ -692,7 +696,7 @@ bool fill_tx_sources(std::vector<tx_source_entry>& sources, const std::vector<te
 {
   map_output_idx_t outs;
   map_output_mine_t outs_mine;
-  
+
   std::vector<cryptonote::block> blockchain;
   map_hash2tx_isregular_t mtx;
   if (!find_block_chain(events, blockchain, mtx, get_block_hash(blk_head)))
@@ -700,19 +704,19 @@ bool fill_tx_sources(std::vector<tx_source_entry>& sources, const std::vector<te
     LOG_ERROR("fill_tx_sources: could not find_block_chain");
     return false;
   }
-  
+
   if (!init_output_indices(!ignore_unlock_times, outs, outs_mine, blockchain, mtx, from, cp))
   {
     LOG_ERROR("fill_tx_sources: could not init_output_indices");
     return false;
   }
-  
+
   if (!init_spent_output_indices(outs, outs_mine, blockchain, mtx, from))
   {
     LOG_ERROR("fill_tx_sources: could not init_spent_output_indices");
     return false;
   }
-  
+
   uint64_t sources_amount = 0;
   bool sources_found = false;
   BOOST_REVERSE_FOREACH(const map_output_mine_t::value_type o, outs_mine)
@@ -726,7 +730,7 @@ bool fill_tx_sources(std::vector<tx_source_entry>& sources, const std::vector<te
         //LOG_PRINT_CYAN("fill_tx_sources: skipping spent output_index", LOG_LEVEL_0);
         continue;
       }
-      
+
       cryptonote::tx_source_entry ts;
       ts.type = oi.type;
       ts.cp = cp;
@@ -741,23 +745,23 @@ bool fill_tx_sources(std::vector<tx_source_entry>& sources, const std::vector<te
         LOG_PRINT_CYAN("fill_tx_sources: couldn't fill_output_entries", LOG_LEVEL_0);
         continue;
       }
-      
+
       ts.real_output = realOutput;
-      
+
       sources.push_back(ts);
-      
+
       sources_amount += ts.amount_out;
       sources_found = amount <= sources_amount;
       LOG_PRINT_CYAN("found " << sources_amount << "/" << amount << " of " << cp << " so far", LOG_LEVEL_0);
     }
-    
+
     if (sources_found)
       break;
   }
-  
+
   if (!sources_found)
     LOG_ERROR("fill_tx_sources: sources were not found for cp " << cp);
-  
+
   return sources_found;
 }
 
@@ -779,7 +783,7 @@ bool fill_tx_sources_and_destinations(const std::vector<test_event_entry>& event
     LOG_ERROR("fill_tx_sources_and_destinations with sub-currency and fee not yet supported");
     return false;
   }
-  
+
   sources.clear();
   destinations.clear();
 
@@ -808,7 +812,7 @@ bool fill_tx_sources_and_destinations(const std::vector<test_event_entry>& event
     }
     destinations.push_back(de_change);
   }
-  
+
   return true;
 }
 
@@ -827,8 +831,10 @@ bool fill_nonce(cryptonote::block& blk, const difficulty_type& diffic, uint64_t 
   blk.nonce = 0;
   try
   {
-    while (!miner::find_nonce_for_given_block(blk, diffic, height, crypto::g_boulderhash_state))
+    while (!miner::find_nonce_for_given_block(blk, diffic, height))
+    {
       blk.timestamp++;
+    }
   }
   catch (...)
   {
@@ -894,25 +900,25 @@ uint64_t get_balance(const cryptonote::account_base& addr, const std::vector<cry
   uint64_t res = 0;
   map_output_idx_t outs;
   map_output_mine_t outs_mine;
-  
+
   map_hash2tx_isregular_t confirmed_txs;
   get_confirmed_txs(blockchain, mtx, confirmed_txs);
-  
+
   if (!init_output_indices(false, outs, outs_mine, blockchain, confirmed_txs, addr, CP_XPB))
     return false;
-  
+
   if (!init_spent_output_indices(outs, outs_mine, blockchain, confirmed_txs, addr))
     return false;
-  
+
   BOOST_FOREACH (const map_output_mine_t::value_type &o, outs_mine) {
     for (size_t i = 0; i < o.second.size(); ++i) {
       if (outs[o.first][o.second[i]].spent)
         continue;
-      
+
       res += outs[o.first][o.second[i]].amount_out;
     }
   }
-  
+
   return res;
 }
 
@@ -923,7 +929,7 @@ uint64_t get_balance(const std::vector<test_event_entry>& events, const cryptono
   map_hash2tx_isregular_t mtx;
   if (!find_block_chain(events, chain, mtx, get_block_hash(head)))
     throw test_gen_error("Could not find_block_chain");
-  
+
   return get_balance(addr, chain, mtx);
 }
 
@@ -974,7 +980,7 @@ bool find_block_chain(const std::vector<test_event_entry>& events, std::vector<c
         mtx[get_transaction_hash(tx)] = std::make_pair(&tx, next_tx_regular);
       }
     }
-    
+
     next_tx_invalid = false;
     next_tx_regular = true;
     if (typeid(callback_entry) == ev.type())
@@ -990,7 +996,7 @@ bool find_block_chain(const std::vector<test_event_entry>& events, std::vector<c
       next_tx_regular = false;
     }
   }
-  
+
   bool b_success = false;
   crypto::hash id = head;
   for (auto it = block_index.find(id); block_index.end() != it; it = block_index.find(id))
@@ -1004,7 +1010,7 @@ bool find_block_chain(const std::vector<test_event_entry>& events, std::vector<c
     }
   }
   reverse(blockchain.begin(), blockchain.end());
-  
+
   return b_success;
 }
 
@@ -1048,7 +1054,7 @@ bool do_replay_events(std::vector<test_event_entry>& events, test_chain_unit_bas
   });
   if (!r)
     return false;
-  
+
   // use local config folder
   vm.insert(std::make_pair(command_line::arg_data_dir.name,
                            boost::program_options::variable_value(std::string("coretests_data"), false)));
@@ -1136,26 +1142,26 @@ uint64_t average_past_block_fees(const std::vector<cryptonote::block>& blockchai
 {
   if (for_block_height == 0)
     return 0;
-  
+
   // get block at height 1 below the target height
   // average all fees from that block inclusive until first block that has timestamp more than 1 day ago
-  
+
   if (for_block_height - 1 >= blockchain.size()) {
     LOG_ERROR("Invalid for_block_height " << for_block_height << ", blockchain.size()= " << blockchain.size());
     throw test_gen_error("Invalid for_block_height in average_past_block_fees");
   }
-  
+
   uint64_t end_timestamp = blockchain[for_block_height - 1].timestamp;
   size_t used_blocks = 0;
   uint64_t fee_summaries = 0;
-  
+
   for (int height = for_block_height - 1; height >= 0; height--)
   {
     const auto& bl = blockchain[height];
-    
+
     if (bl.timestamp < end_timestamp - 86400)
       break;
-    
+
     BOOST_FOREACH(const auto& tx_id, bl.tx_hashes) {
       auto it = mtx.find(tx_id);
       if (it == mtx.end()) {
@@ -1166,10 +1172,10 @@ uint64_t average_past_block_fees(const std::vector<cryptonote::block>& blockchai
     }
     used_blocks++;
   }
-  
+
   if (used_blocks == 0)
     return 0;
-  
+
   return fee_summaries / used_blocks;
 }
 
@@ -1180,9 +1186,9 @@ cryptonote::block make_next_pos_block(test_generator& generator, std::vector<tes
                                       const std::list<cryptonote::transaction>& tx_list)
 {
   LOG_PRINT_L0("make_next_pos_block");
-  
+
   g_ntp_time.apply_manual_delta(CRYPTONOTE_DPOS_BLOCK_MINIMUM_BLOCK_SPACING);
-  
+
   std::vector<cryptonote::block> blockchain;
   map_hash2tx_isregular_t mtx;
   if (!find_block_chain(events, blockchain, mtx, get_block_hash(block_prev)))
@@ -1191,7 +1197,7 @@ cryptonote::block make_next_pos_block(test_generator& generator, std::vector<tes
   }
   uint64_t average_fee = average_past_block_fees(blockchain, mtx, blockchain.size());
   LOG_PRINT_L0("make_next_pos_block, fee=" << average_fee << ", prev_height=" << get_block_height(block_prev));
-  
+
   cryptonote::block blk;
   if (!generator.construct_block_pos(blk, block_prev, staker_account, staker_id, average_fee, tx_list))
   {
@@ -1217,7 +1223,7 @@ cryptonote::block make_next_pos_blocks(test_generator& generator, std::vector<te
 {
   if (staker_account.size() != staker_id.size())
     throw test_gen_error("make_next_pos_blocks called w/ different # of accounts vs ids");
-  
+
   block last = block_prev;
   for (size_t i=0; i < staker_account.size(); i++)
   {
@@ -1332,11 +1338,8 @@ void reset_test_defaults()
 {
   cryptonote::config::dpos_registration_start_block = 83120;
   cryptonote::config::dpos_switch_block = 85300;
-  crypto::g_hash_ops_small_boulderhash = true;
-  cryptonote::config::do_boulderhash = true;
   cryptonote::config::no_reward_ramp = true;
   cryptonote::config::test_serialize_unserialize_block = true;
   cryptonote::config::dpos_num_delegates = 5;
   DEFAULT_FEE = 0; // add no-fee txs, lot of tests use them
 }
-

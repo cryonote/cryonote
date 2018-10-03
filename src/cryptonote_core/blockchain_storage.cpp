@@ -2984,12 +2984,10 @@ bool blockchain_storage::check_pow_pos(const block& bl, const difficulty_type& c
                                        block_verification_context& bvc, crypto::hash& proof_of_work) const
 {
   crypto::hash id = get_block_hash(bl);
-
   proof_of_work = null_hash;
-
   if (is_pow_block(bl))
   {
-    if (!get_block_longhash(bl, proof_of_work, m_pblockchain_entries->size(), crypto::g_boulderhash_state, true))
+    if (!get_block_longhash(bl, proof_of_work, m_pblockchain_entries->size(), true))
     {
       LOG_ERROR("Block with id: " << id << " could not get block long hash");
       bvc.m_missing_longhash = true;
@@ -3065,7 +3063,7 @@ bool blockchain_storage::handle_block_to_main_chain(const block& bl, const crypt
   {
     LOG_PRINT_L0("Block with id: " << id << ENDL
       << "have invalid timestamp: " << bl.timestamp);
-    //add_block_as_invalid(bl, id);//do not add blocks to invalid storage befor proof of work check was passed
+    //add_block_as_invalid(bl, id);//do not add blocks to invalid storage before proof of work check was passed
     bvc.m_verifivation_failed = true;
     return false;
   }
@@ -3185,8 +3183,8 @@ bool blockchain_storage::handle_block_to_main_chain(const block& bl, const crypt
 
   bent.height = m_pblockchain_entries->size();
   bent.timestamp = bl.timestamp;
-
-  if (config::test_serialize_unserialize_block) {
+  if (config::test_serialize_unserialize_block)
+  {
     if (!tools::serialize_obj_to_file(bl, "tmptmptmp.block"))
     {
       LOG_PRINT_RED_L0("test_serialize_unserialize_block failed: Couldn't serialize block to test file");
@@ -3275,7 +3273,6 @@ bool blockchain_storage::handle_block_to_main_chain(const block& bl, const crypt
     << ", " << block_processing_time << "ms");
 
   bvc.m_added_to_main_chain = true;
-
   m_tx_pool.on_blockchain_inc(bent.height, id);
   //LOG_PRINT_L0("BLOCK: " << ENDL << "" << dump_obj_as_json(bei.bl));
   return true;

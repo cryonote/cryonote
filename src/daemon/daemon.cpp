@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
   node_server_t::init_options(desc_cmd_sett);
   cryptonote::miner::init_options(desc_cmd_sett);
   crypto::init_options(desc_cmd_sett);
-  
+
   po::options_description desc_options("Allowed options");
   desc_options.add(desc_cmd_only).add(desc_cmd_sett);
   po::variables_map vm;
@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
     {
       cryptonote::config::enable_testnet();
     }
-    
+
     if (command_line::get_arg(vm, command_line::arg_help))
     {
       std::cout << tools::get_project_description("daemon") << ENDL << ENDL;
@@ -109,14 +109,14 @@ int main(int argc, char* argv[])
     {
       cryptonote::config::enable_testnet();
     }
-    
+
     po::notify(vm);
 
     return true;
   });
   if (!r)
     return 1;
-  
+
   //set up logging options
   boost::filesystem::path log_file_path(command_line::get_arg(vm, arg_log_file));
   if (log_file_path.empty())
@@ -131,15 +131,15 @@ int main(int argc, char* argv[])
   {
     return 0;
   }
-  
+
   LOG_PRINT("Module folder: " << argv[0], LOG_LEVEL_0);
-  
+
   if (!crypto::process_options(vm, command_line::has_arg(vm, miner_opt::arg_start_mining)))
     return 1;
-  
+
   if (!cryptonote_opt::handle_command_line(vm))
     return 1;
-    
+
   bool res = true;
   cryptonote::checkpoints checkpoints;
   res = cryptonote::create_checkpoints(checkpoints);
@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
   res = crypto::g_hash_cache.init(command_line::get_data_dir(vm));
   CHECK_AND_ASSERT_MES(res, 1, "Failed to initialize global hash cache.");
   LOG_PRINT_L0("Global hash cache initialized OK...");
-  
+
   tools::ntp_time ntp(60*60);
   core_t ccore(NULL, ntp);
   ccore.set_checkpoints(std::move(checkpoints));
@@ -160,15 +160,8 @@ int main(int argc, char* argv[])
   cprotocol.set_p2p_endpoint(&p2psrv);
   ccore.set_cryptonote_protocol(&cprotocol);
   daemon_cmmands_handler dch(p2psrv);
-  
-  //initialize objects
-  LOG_PRINT_L0("Initializing shared boulderhash state...");
-  crypto::g_boulderhash_state = crypto::pc_malloc_state();
-  LOG_PRINT_L0("Shared boulderhash state initialized OK");
-  
-  LOG_PRINT_L0("Initializing boulderhash threadpool...");
-  crypto::pc_init_threadpool(vm);
-  
+
+  // initialize objects
   LOG_PRINT_L0("Initializing p2p server...");
   res = p2psrv.init(vm);
   CHECK_AND_ASSERT_MES(res, 1, "Failed to initialize p2p server.");
@@ -184,7 +177,7 @@ int main(int argc, char* argv[])
   CHECK_AND_ASSERT_MES(res, 1, "Failed to initialize core rpc server.");
   LOG_PRINT_GREEN("Core rpc server initialized OK on port: " << rpc_server.get_binded_port(), LOG_LEVEL_0);
 
-  //initialize core here
+  // initialize core here
   LOG_PRINT_L0("Initializing core...");
   res = ccore.init(vm);
   CHECK_AND_ASSERT_MES(res, 1, "Failed to initialize core");
@@ -210,12 +203,12 @@ int main(int argc, char* argv[])
   p2psrv.run();
   LOG_PRINT_L0("p2p net loop stopped");
 
-  //stop components
+  // stop components
   LOG_PRINT_L0("Stopping core rpc server...");
   rpc_server.send_stop_signal();
   rpc_server.timed_wait_server_stop(5000);
 
-  //deinitialize components
+  // deinitialize components
   LOG_PRINT_L0("Deinitializing core...");
   ccore.deinit();
   LOG_PRINT_L0("Deinitializing rpc server ...");
@@ -228,15 +221,9 @@ int main(int argc, char* argv[])
   ccore.set_cryptonote_protocol(NULL);
   cprotocol.set_p2p_endpoint(NULL);
 
-  LOG_PRINT_L0("Stopping boulderhash threadpool...");
-  crypto::pc_stop_threadpool();
-
-  LOG_PRINT_L0("Deinitializing shared boulderhash state...");
-  crypto::pc_free_state(crypto::g_boulderhash_state);
-
   LOG_PRINT_L0("Deinitializing global hash cache...");
   crypto::g_hash_cache.deinit();
-  
+
   LOG_PRINT("Node stopped.", LOG_LEVEL_0);
   return 0;
 
@@ -246,7 +233,7 @@ int main(int argc, char* argv[])
 bool command_line_preprocessor(const boost::program_options::variables_map& vm)
 {
   bool exit = false;
-  
+
   if (command_line::get_arg(vm, command_line::arg_version))
   {
     std::cout << tools::get_project_description("daemon") << ENDL;
@@ -273,6 +260,6 @@ bool command_line_preprocessor(const boost::program_options::variables_map& vm)
     log_space::get_set_log_detalisation_level(true, new_log_level);
     LOG_PRINT_L0("LOG_LEVEL set to " << new_log_level);
   }
-  
+
   return false;
 }

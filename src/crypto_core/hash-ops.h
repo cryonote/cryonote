@@ -61,24 +61,3 @@ void hash_extra_jh(const void *data, size_t length, char *hash);
 void hash_extra_skein(const void *data, size_t length, char *hash);
 
 void tree_hash(const char (*hashes)[HASH_SIZE], size_t count, char *root_hash);
-
-#define BOULDERHASH_SMALL_STATES 2
-#define BOULDERHASH_SMALL_STATE_SIZE 1024 // 1 KiB * 2 = 2 KiB
-#define BOULDERHASH_REGULAR_STATES 65
-#define BOULDERHASH_REGULAR_STATE_SIZE 26738688
-#define BOULDERHASH_ITERATIONS 1064960
-#define BOULDERHASH2_ITERATIONS 42598400
-
-#define BOULDERHASH_VERSION_REGULAR_1     1
-#define BOULDERHASH_VERSION_REGULAR_2     2
-
-extern bool g_hash_ops_small_boulderhash;
-size_t get_boulderhash_states(void);
-size_t get_boulderhash_state_size(void);
-
-void pc_boulderhash_init(const void *data, size_t length,
-                         uint64_t **state, uint64_t *result, uint64_t *extra);
-void pc_boulderhash_fill_state(int version, uint64_t *cur_state);
-void pc_boulderhash_calc_result(int version, uint64_t *result, uint64_t extra, uint64_t **state);
-void pc_boulderhash(int version, const void *data, size_t length, char *hash, uint64_t **state);
-

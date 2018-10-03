@@ -3,7 +3,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <functional> 
+#include <functional>
 
 #include <boost/foreach.hpp>
 
@@ -22,7 +22,7 @@ struct test_runner
   size_t tests_count;
   std::vector<std::string> failed_tests;
   bool stop_on_fail;
-  
+
   bool generate_and_play(const std::string& test_name, test_chain_unit_base& test)
   {
     if (!only_test.empty() && test_name != only_test)
@@ -30,9 +30,9 @@ struct test_runner
       std::cout << concolor::yellow << "#TEST# skipped " << test_name << concolor::normal << '\n';
       return true;
     }
-    
+
     ++tests_count;
-    
+
     std::vector<test_event_entry> events;
     bool generated = false;
     try
@@ -48,7 +48,7 @@ struct test_runner
     {
       LOG_PRINT(test_name << " generation failed: generic exception", 0);
     }
-    
+
     if (generated && do_replay_events(events, test))
     {
       std::cout << concolor::green << "#TEST# Succeeded " << test_name << concolor::normal << '\n';
@@ -65,11 +65,11 @@ struct test_runner
       return false;
     }
   }
-  
+
   bool call_test(const std::string& test_name, const std::function<bool()>& test)
   {
     ++tests_count;
-    
+
     if (test())
     {
       std::cout << concolor::green << "#TEST# Succeeded " << test_name << concolor::normal << std::endl;
@@ -86,7 +86,7 @@ struct test_runner
       return false;
     }
   }
-  
+
   void report()
   {
     std::cout << (failed_tests.empty() ? concolor::green : concolor::magenta);
@@ -121,17 +121,17 @@ namespace
 int main(int argc, char* argv[])
 {
   TRY_ENTRY();
-  
+
   set_test_genesis_config();
-  
+
   epee::string_tools::set_module_name_and_folder(argv[0]);
 
   //set up logging options
   epee::log_space::get_set_log_detalisation_level(true, LOG_LEVEL_3);
   epee::log_space::log_singletone::add_logger(LOGGER_CONSOLE, NULL, NULL, LOG_LEVEL_2);
-  
-  epee::log_space::log_singletone::add_logger(LOGGER_FILE, 
-    epee::log_space::log_singletone::get_default_log_file().c_str(), 
+
+  epee::log_space::log_singletone::add_logger(LOGGER_FILE,
+    epee::log_space::log_singletone::get_default_log_file().c_str(),
     epee::log_space::log_singletone::get_default_log_folder().c_str());
 
   po::options_description desc_options("Allowed options");
@@ -147,17 +147,19 @@ int main(int argc, char* argv[])
     return true;
   });
   if (!r)
+  {
     return 1;
-  
+  }
+
   if (command_line::get_arg(vm, command_line::arg_help))
   {
     std::cout << desc_options << std::endl;
     return 0;
   }
 
-  reset_test_defaults(); // enables small boulderhash
-  crypto::g_boulderhash_state = crypto::pc_malloc_state();
-  
+  // reset the test default values
+  reset_test_defaults();
+
   test_runner tester;
   tester.stop_on_fail = command_line::get_arg(vm, arg_stop_on_fail);
   tester.tests_count = 0;
@@ -167,17 +169,17 @@ int main(int argc, char* argv[])
   CALL_TEST("TRANSACTIONS TESTS", test_transactions);
 
   // --------------- gen/replay tests ---------------
-  
+
 #if defined(_MSC_VER) && _MSC_VER < 1900
-    
+
   LOG_ERROR("MSVC does not support initializer lists, can't run DPOS tests");
-    
+
 #else
-  
+
   if (tester.only_test == "gen_dpos_speed_test") {
     GENERATE_AND_PLAY(gen_dpos_speed_test);
   }
-  
+
   GENERATE_AND_PLAY(gen_dpos_register);
   GENERATE_AND_PLAY(gen_dpos_register_too_soon);
   GENERATE_AND_PLAY(gen_dpos_register_invalid_id);
@@ -185,10 +187,10 @@ int main(int argc, char* argv[])
   GENERATE_AND_PLAY(gen_dpos_register_invalid_address);
   GENERATE_AND_PLAY(gen_dpos_register_low_fee);
   GENERATE_AND_PLAY(gen_dpos_register_low_fee_2);
-  
+
   GENERATE_AND_PLAY(gen_dpos_vote);
   GENERATE_AND_PLAY(gen_dpos_vote_too_soon);
-  
+
   GENERATE_AND_PLAY(gen_dpos_switch_to_dpos);
   GENERATE_AND_PLAY(gen_dpos_altchain_voting);
   GENERATE_AND_PLAY(gen_dpos_altchain_voting_invalid);
@@ -206,9 +208,9 @@ int main(int argc, char* argv[])
   GENERATE_AND_PLAY(gen_dpos_altchain_voting_2);
   GENERATE_AND_PLAY(gen_dpos_altchain_voting_3);
   GENERATE_AND_PLAY(gen_dpos_altchain_voting_4);
-    
+
 #endif
-    
+
   /*// Contract chain-switch
   GENERATE_AND_PLAY(gen_chainswitch_txin_to_key);
   GENERATE_AND_PLAY(gen_chainswitch_contract_create_id_1);
@@ -221,7 +223,7 @@ int main(int argc, char* argv[])
   GENERATE_AND_PLAY(gen_chainswitch_contract_create_descr_4);
   GENERATE_AND_PLAY(gen_chainswitch_contract_create_send);
   GENERATE_AND_PLAY(gen_chainswitch_contract_grade);
-  
+
   // Contracts
   GENERATE_AND_PLAY(gen_contracts_create);
   GENERATE_AND_PLAY(gen_contracts_create_mint);
@@ -248,18 +250,18 @@ int main(int argc, char* argv[])
   GENERATE_AND_PLAY(gen_contracts_grade_checks);
   GENERATE_AND_PLAY(gen_contracts_resolve_backing_checks);
   GENERATE_AND_PLAY(gen_contracts_resolve_contract_checks);
-  
+
   GENERATE_AND_PLAY(gen_contracts_create_mint_fuse);
   GENERATE_AND_PLAY(gen_contracts_create_mint_fuse_fee);
   GENERATE_AND_PLAY(gen_contracts_create_mint_fuse_checks);
-  
+
   // Sub-currencies
   GENERATE_AND_PLAY(gen_chainswitch_mint);
   GENERATE_AND_PLAY(gen_chainswitch_mint_2);
   GENERATE_AND_PLAY(gen_chainswitch_mint_3);
   GENERATE_AND_PLAY(gen_chainswitch_remint);
   GENERATE_AND_PLAY(gen_chainswitch_remint_2);
-  
+
   GENERATE_AND_PLAY(gen_currency_mint);
   GENERATE_AND_PLAY(gen_currency_mint_many);
   GENERATE_AND_PLAY(gen_currency_invalid_amount_0);
@@ -274,11 +276,11 @@ int main(int argc, char* argv[])
   GENERATE_AND_PLAY(gen_currency_invalid_remint_key);
   GENERATE_AND_PLAY(gen_currency_invalid_spend_more_than_mint);
   GENERATE_AND_PLAY(gen_currency_ok_spend_less_than_mint);
-  
+
   GENERATE_AND_PLAY(gen_currency_spend_currency);
   GENERATE_AND_PLAY(gen_currency_cant_spend_other_currency);
   GENERATE_AND_PLAY(gen_currency_spend_currency_mix);
-  
+
   GENERATE_AND_PLAY(gen_currency_remint_valid);
   GENERATE_AND_PLAY(gen_currency_remint_invalid_amount_0);
   GENERATE_AND_PLAY(gen_currency_remint_invalid_unremintable);
@@ -292,7 +294,7 @@ int main(int argc, char* argv[])
   GENERATE_AND_PLAY(gen_currency_remint_can_remint_twice_per_block);
   GENERATE_AND_PLAY(gen_currency_remint_cant_mint_remint_same_block);
   GENERATE_AND_PLAY(gen_currency_remint_limit_uint64max);*/
-  
+
   // Vanilla:
   GENERATE_AND_PLAY(gen_simple_chain_001);
   GENERATE_AND_PLAY(gen_simple_chain_split_1);
@@ -370,12 +372,8 @@ int main(int argc, char* argv[])
   GENERATE_AND_PLAY(gen_uint_overflow_2);
 
   //GENERATE_AND_PLAY(gen_block_reward); // Takes a while
-  
+
   tester.report();
-
-  crypto::pc_free_state(crypto::g_boulderhash_state);
-
   return tester.failed_tests.empty() ? 0 : 1;
-
   CATCH_ENTRY_L0("main", 1);
 }

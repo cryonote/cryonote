@@ -156,12 +156,12 @@ namespace cryptonote
   {
     CHECK_CORE_READY();
     res.status = "Failed";
-    
+
     if(!m_core.get_key_image_seqs(req, res))
     {
       return true;
     }
-    
+
     LOG_PRINT_L0("COMMAND_RPC_GET_KEY_IMAGE_SEQS: " << ENDL);
 	for (const auto& im : req.images)
 	{
@@ -598,49 +598,15 @@ namespace cryptonote
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------
-  bool core_rpc_server::on_getboulderhash(const COMMAND_RPC_GETBOULDERHASH::request &req, COMMAND_RPC_GETBOULDERHASH::response &res, epee::json_rpc::error &error_resp, connection_context &cntx)
-  {
-    LOG_PRINT_L1("on_getboulderhash, version=" << req.version);
-    
-    if (!cryptonote::config::do_boulderhash || crypto::g_boulderhash_state == NULL)
-    {
-      error_resp.code = CORE_RPC_ERROR_CODE_CANT_BOULDERHASH;
-      error_resp.message = "Daemon can't do boulderhash";
-      return false;
-    }
-    
-    if (req.version != BOULDERHASH_VERSION_REGULAR_1 && req.version != BOULDERHASH_VERSION_REGULAR_2)
-    {
-      error_resp.code = CORE_RPC_ERROR_CODE_WRONG_PARAM;
-      error_resp.message = "Unknown boulderhash version";
-      return false;
-    }
-    
-    //LOG_PRINT_L0("The block hashing blob hex is: " << req.block_hashing_blob_hex);
-    
-    std::string block_hashing_buff;
-    string_tools::parse_hexstr_to_binbuff(req.block_hashing_blob_hex, block_hashing_buff);
-    
-    crypto::hash h = crypto::pc_boulderhash(req.version, block_hashing_buff.data(), block_hashing_buff.size(),
-                                            crypto::g_boulderhash_state);
-    
-    res.version = req.version;
-    res.block_hash_hex = string_tools::pod_to_hex(h);
-    
-    //LOG_PRINT_L0("The result hex is: " << res.block_hash_hex);
-    
-    return true;
-  }
-  //------------------------------------------------------------------------------------------------------------------------------
   bool core_rpc_server::on_get_autovote_delegates(const COMMAND_RPC_GET_AUTOVOTE_DELEGATES::request& req, COMMAND_RPC_GET_AUTOVOTE_DELEGATES::response& res, connection_context& cntx)
   {
     CHECK_CORE_READY();
-    
+
     const auto& set_delegates = m_core.get_blockchain_storage().get_autovote_delegates();
-    
+
     res.autovote_delegates = std::vector<delegate_id_t>(set_delegates.begin(), set_delegates.end());
     res.status = CORE_RPC_STATUS_OK;
-    
+
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------
@@ -652,9 +618,9 @@ namespace cryptonote
       error_resp.message = "Core is busy.";
       return false;
     }
-    
+
     res.delegate_infos.clear();
-    
+
     account_public_address delegate_addr;
     bs_delegate_info info;
     delegate_info_responce info_resp;
@@ -668,9 +634,9 @@ namespace cryptonote
         continue;
       res.delegate_infos.push_back(info_resp);
     }
-    
+
     res.status = CORE_RPC_STATUS_OK;
-    
+
     return true;
   }
 }

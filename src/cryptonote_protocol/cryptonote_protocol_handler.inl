@@ -167,13 +167,9 @@ namespace cryptonote
     LOG_PRINT_CCONTEXT_L2("NOTIFY_NEW_BLOCK (hop " << arg.hop << ")");
     if(context.m_state != cryptonote_connection_context::state_normal)
     {
-      if (!cryptonote::config::do_boulderhash)
-      {
-        LOG_PRINT_CCONTEXT_L2("Requesting callback to ask for signed hashes");
-        ++context.m_callback_request_count;
-        m_p2p->request_callback(context);
-      }
-
+      LOG_PRINT_CCONTEXT_L2("Requesting callback to ask for signed hashes");
+      ++context.m_callback_request_count;
+      m_p2p->request_callback(context);
       return 1;
     }
 
@@ -365,12 +361,6 @@ namespace cryptonote
 
     if (arg.blocks_not_sent.size())
     {
-      if (cryptonote::config::do_boulderhash) {
-        LOG_PRINT_CCONTEXT_RED("sent wrong NOTIFY_RESPONSE_GET_OBJECTS: didn't send blocks but not relying on signed hashes, dropping connection", LOG_LEVEL_0);
-        m_p2p->drop_connection(context);
-        return 1;
-      }
-
       enter_idle = true;
     }
 
@@ -544,11 +534,9 @@ namespace cryptonote
 
     if(need_objects || need_signed_hashes)
     {
-      //we know objects that we need, request this objects
+      // we know objects that we need, request this objects
       NOTIFY_REQUEST_GET_OBJECTS::request req;
-
-      req.require_signed_hashes = !cryptonote::config::do_boulderhash;
-
+      req.require_signed_hashes = true;
       {
         size_t count = 0;
         auto it = context.m_needed_objects.begin();
@@ -587,8 +575,8 @@ namespace cryptonote
     if (!need_objects)
     {
       if(context.m_last_response_height < context.m_remote_blockchain_height-1)
-      {//we have to fetch more objects ids, request blockchain entry
-
+      {
+        // we have to fetch more objects ids, request blockchain entry
         NOTIFY_REQUEST_CHAIN::request r = boost::value_initialized<NOTIFY_REQUEST_CHAIN::request>();
         m_core.get_short_chain_history(r.block_ids);
         LOG_PRINT_CCONTEXT_L2("-->>NOTIFY_REQUEST_CHAIN: m_block_ids.size()=" << r.block_ids.size() );

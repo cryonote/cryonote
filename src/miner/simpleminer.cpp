@@ -2,7 +2,6 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-
 #include "common/command_line.h"
 #include "misc_log_ex.h"
 #include "simpleminer.h"
@@ -52,16 +51,15 @@ int main(int argc, char** argv)
     return true;
   });
   if (!r)
+  {
     return 1;
+  }
 
   mining::simpleminer miner;
   r = miner.init(vm);
   r = r && miner.run(); // Never returns...
-
   return 0;
 }
-
-
 
 namespace mining
 {
@@ -86,9 +84,6 @@ namespace mining
     m_pool_port = pool_addr.substr(p + 1, pool_addr.size());
     m_login = command_line::get_arg(vm, arg_login);
     m_pass = command_line::get_arg(vm, arg_pass);
-    crypto::pc_init_threadpool(vm);
-    m_state = crypto::pc_malloc_state();
-    
     return true;
   }
 
@@ -164,11 +159,10 @@ namespace mining
         //uint32_t c = (*((uint32_t*)&job.blob.data()[39]));
         ++(*((uint32_t*)&job.blob.data()[39]));
         crypto::hash h = cryptonote::null_hash;
-        crypto::pc_boulderhash(BOULDERHASH_VERSION_REGULAR_2, job.blob.data(), job.blob.size(), h, m_state);
-        if(  ((uint32_t*)&h)[7] < job.target )
+        crypto::cn_slow_hash(job.blob.data(), job.blob.size(), h);
+        if(((uint32_t*)&h)[7] < job.target)
         {
           //found!
-          
           COMMAND_RPC_SUBMITSHARE::request submit_request = AUTO_VAL_INIT(submit_request);
           COMMAND_RPC_SUBMITSHARE::response submit_response = AUTO_VAL_INIT(submit_response);
           submit_request.id     = pool_session_id;
@@ -194,7 +188,7 @@ namespace mining
           break;
         }
       }
-      //get next job
+      // get next job
       COMMAND_RPC_GETJOB::request getjob_request = AUTO_VAL_INIT(getjob_request);
       COMMAND_RPC_GETJOB::response getjob_response = AUTO_VAL_INIT(getjob_response);
       getjob_request.id = pool_session_id;
@@ -222,6 +216,5 @@ namespace mining
     }
 
     return true;
-
   }
 }

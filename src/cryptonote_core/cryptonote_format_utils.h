@@ -31,14 +31,14 @@ namespace cryptonote
   class transaction;
   struct block;
   struct txout_to_key;
-  
+
   //---------------------------------------------------------------
   bool get_transaction_prefix_hash(const transaction_prefix& tx, crypto::hash& h);
   crypto::hash get_transaction_prefix_hash(const transaction_prefix& tx);
   bool parse_and_validate_tx_from_blob(const blobdata& tx_blob, transaction& tx, crypto::hash& tx_hash, crypto::hash& tx_prefix_hash);
   bool parse_and_validate_tx_from_blob(const blobdata& tx_blob, transaction& tx);
   bool construct_miner_tx(size_t height, size_t median_size, uint64_t already_generated_coins, size_t current_block_size, uint64_t fee, const account_public_address &miner_address, transaction& tx, const blobdata& extra_nonce = blobdata(), size_t max_outs = 1);
-  
+
   bool get_block_prefix_hash(const block& b, crypto::hash& res);
   crypto::hash get_block_prefix_hash(const block& b);
 
@@ -60,10 +60,10 @@ namespace cryptonote
     coin_type cp;
     uint64_t amount_in;                 //money in the input
     uint64_t amount_out;                //money that can be spent (may be less than amount_in for ResolveBacking/ResolveContract)
-    
+
     // for ResolveBacking/ResolveContract
     uint64_t contract_resolving;        //which contract is being resolved when resolving backing or contract coins
-    
+
     tx_source_entry()
         : real_output(0), real_output_in_tx_index(0),
           type(InToKey), cp(CP_XPB),
@@ -82,7 +82,7 @@ namespace cryptonote
 
   //---------------------------------------------------------------
   bool construct_tx(const account_keys& sender_account_keys, const std::vector<tx_source_entry>& sources, const std::vector<tx_destination_entry>& destinations, std::vector<uint8_t> extra, transaction& tx, uint64_t unlock_time);
-  
+
   template<typename T>
   bool find_tx_extra_field_by_type(const std::vector<tx_extra_field>& tx_extra_fields, T& field)
   {
@@ -114,7 +114,7 @@ namespace cryptonote
   bool get_transaction_hash(const transaction& t, crypto::hash& res, size_t& blob_size);
   bool get_block_hash(const block& b, crypto::hash& res);
   crypto::hash get_block_hash(const block& b);
-  bool get_block_longhash(const block& b, crypto::hash& res, uint64_t height, uint64_t **state, bool use_cache);
+  bool get_block_longhash(const block& b, crypto::hash& res, uint64_t height, bool use_cache);
   bool generate_genesis_block(block& bl);
   bool parse_and_validate_block_from_blob(const blobdata& b_blob, block& b);
   currency_map get_outs_money_amount(const transaction& tx);
@@ -134,17 +134,17 @@ namespace cryptonote
   bool check_outputs_types_supported(const transaction& tx);
   bool check_outs_valid(const transaction& tx);
   bool parse_amount(uint64_t& amount, const std::string& str_amount);
-  
+
   uint64_t get_block_height(const block& b);
   std::vector<uint64_t> relative_output_offsets_to_absolute(const std::vector<uint64_t>& off);
   std::vector<uint64_t> absolute_output_offsets_to_relative(const std::vector<uint64_t>& off);
   std::string print_money(uint64_t amount, uint64_t decimals);
   std::string print_money(uint64_t amount);
   std::string print_grade_scale(uint64_t grade_scale);
-  
+
   bool check_dpos_block_sig(const block& b, const account_public_address& delegate_addr);
   bool sign_dpos_block(block& b, const cryptonote::account_base& staker_acc);
-  
+
   //---------------------------------------------------------------
   template<class t_currency_decimal_getter>
   std::string print_moneys(const currency_map& moneys, const t_currency_decimal_getter& getter)
@@ -205,7 +205,7 @@ namespace cryptonote
     blobdata bl;
     if (!t_serializable_object_to_blob(o, bl))
       return false;
-    
+
     blob_size = bl.size();
     get_blob_hash(bl, res);
     return true;
@@ -258,21 +258,21 @@ namespace cryptonote
   {
     if (l.empty())
       throw std::runtime_error("nth_sorted_item_after given empty container");
-    
+
     std::vector<item_t> items;
     BOOST_FOREACH(const auto& item, l)
     {
       items.push_back(extract_f(item));
     }
     std::sort(items.begin(), items.end());
-    
+
     auto start_it = std::lower_bound(items.begin(), items.end(), start);
     // if it's > than all the elements start from the beginning
     if (start_it == items.end())
     {
       start_it = items.begin();
     }
-    
+
     // wrap-around
     size_t start_index = start_it - items.begin();
     return items[(start_index + n) % items.size()];
