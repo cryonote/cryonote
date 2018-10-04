@@ -41,9 +41,9 @@ ARCHIVE=pebblecoin-all-$PLATFORM_NAME-v$VERSION-$REPO-$BRANCH-$BUILD_NUMBER.tar.
 
 cd src
 # strip
-strip -s pebblecoind simplewallet pebblecoin-qt
+strip -s cryonoted simplewallet cryonote-qt
 # create package
-tar -cvzf $ARCHIVE pebblecoind simplewallet pebblecoin-qt
+tar -cvzf $ARCHIVE cryonoted simplewallet cryonote-qt
 cd ../../..
 # store archive name
 echo build/$PLATFORM_NAME/src/$ARCHIVE > archive_name

@@ -8,7 +8,7 @@ BUILDCMD="$MSBUILD /property:Configuration=Release /property:Platform=x64"
 GENERATOR="Visual Studio 14 Win64"
 
 # quit on any sub-command error
-set -e 
+set -e
 
 # clear prev build
 rm -rf "build/$PLATFORM_NAME"
@@ -37,14 +37,14 @@ VERSION=`src\\\\Release\\\\print_version`
 REPO_BRANCH=`git branch -r --contains HEAD | tail -n 1`
 REPO=`echo $REPO_BRANCH | cut -d/ -f1`
 BRANCH=`echo $REPO_BRANCH | cut -d/ -f2`
-ARCHIVE=pebblecoin-all-$PLATFORM_NAME-v$VERSION-$REPO-$BRANCH-$BUILD_NUMBER.zip
+ARCHIVE=cryonote-all-$PLATFORM_NAME-v$VERSION-$REPO-$BRANCH-$BUILD_NUMBER.zip
 
 rm -rf dist
 mkdir -p dist
 cd dist
 
-cp ..\\src\\Release\\pebblecoind.exe .
-cp ..\\src\\Release\\pebblecoin-qt.exe .
+cp ..\\src\\Release\\cryonoted.exe .
+cp ..\\src\\Release\\cryonote-qt.exe .
 cp ..\\src\\Release\\simplewallet.exe .
 # Copy redistributable
 cd "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\redist\\x64\\Microsoft.VC140.CRT"
