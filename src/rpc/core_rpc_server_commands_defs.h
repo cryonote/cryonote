@@ -479,31 +479,6 @@ namespace cryptonote
     };
 
   };
-
-  struct COMMAND_RPC_GETBOULDERHASH
-  {
-    struct request
-    {
-      std::string block_hashing_blob_hex;
-      uint32_t version;
-
-      BEGIN_KV_SERIALIZE_MAP()
-        KV_SERIALIZE(block_hashing_blob_hex)
-        KV_SERIALIZE(version)
-      END_KV_SERIALIZE_MAP()
-    };
-
-    struct response
-    {
-      std::string block_hash_hex;
-      uint32_t version;
-
-      BEGIN_KV_SERIALIZE_MAP()
-        KV_SERIALIZE(block_hash_hex)
-        KV_SERIALIZE(version)
-      END_KV_SERIALIZE_MAP()
-    };
-  };
   
   struct COMMAND_RPC_GET_AUTOVOTE_DELEGATES
   {
