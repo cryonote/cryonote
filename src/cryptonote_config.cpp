@@ -25,7 +25,7 @@ const char *CRYPTONOTE_BLOCKCHAINDB_BLOCKS_FILENAME = "blockchaindb_blocks.bin";
 const char *CRYPTONOTE_BLOCKCHAINDB_INDEX_FILENAME = "blockchaindb_index.bin";
 const char *CRYPTONOTE_BLOCKCHAINDB_TXS_FILENAME = "blockchaindb_txs.bin";
 
-uint64_t DEFAULT_FEE = UINT64_C(10000000); // 0.10 XPB
+uint64_t DEFAULT_FEE = UINT64_C(10000000); // 0.10 XCN
 
 namespace cryptonote {
   namespace config {
@@ -33,11 +33,10 @@ namespace cryptonote {
     bool test_serialize_unserialize_block = false;
     bool no_reward_ramp = false;
     bool use_signed_hashes = true;
-
     const bool testnet_only = false;
 
-    uint64_t dpos_registration_start_block = 83120;  // Tuesday, April 21st, ~20:00 UTC
-    uint64_t dpos_switch_block = 85300;              // Friday, April 24th, ~20:00 UTC
+    uint64_t dpos_registration_start_block = 80000;
+    uint64_t dpos_switch_block = 100000;
     uint64_t dpos_num_delegates = 100;
 
     void enable_testnet()
@@ -46,16 +45,16 @@ namespace cryptonote {
       no_reward_ramp = true;
       use_signed_hashes = false;
       dpos_registration_start_block = 0;
-      dpos_switch_block = 1200;
+      dpos_switch_block = 1500;
     }
 
     uint16_t p2p_default_port()
     {
-      return testnet ? 6182 : 6180;
+      return testnet ? 7802 : 7801;
     }
     uint16_t rpc_default_port()
     {
-      return testnet ? 6183 : 6181;
+      return testnet ? 7804 : 7803;
     }
 
     bool in_pos_era(uint64_t height)
@@ -75,7 +74,7 @@ namespace cryptonote {
 
     uint64_t address_base58_prefix()
     {
-      return testnet ? 0x101e : 0x5484; // testnet start with "TT", main net start with "PB"
+      return testnet ? 0x101e : 0x46; // testnet start with "TT", main net start with "C"
     }
   }
 }
