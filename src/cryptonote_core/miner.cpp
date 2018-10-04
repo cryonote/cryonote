@@ -459,8 +459,6 @@ namespace cryptonote
     uint32_t local_template_ver = 0;
     cryptonote::account_public_address local_signing_delegate_address = AUTO_VAL_INIT(local_signing_delegate_address);
     block b;
-
-    uint64_t **state = NULL;
     uint64_t last_print = misc_utils::get_tick_count();
     uint64_t m_hashes_since_print = 0;
 
@@ -518,13 +516,6 @@ namespace cryptonote
       }
       else
       {
-        if (state == NULL)
-        {
-          LOG_PRINT_L0("Waiting for dpos era...");
-          epee::misc_utils::sleep_no_w(60000);
-          continue;
-        }
-
         b.nonce = nonce;
         crypto::hash h;
         uint64_t start_t = misc_utils::get_tick_count();
