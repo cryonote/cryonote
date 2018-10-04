@@ -16,7 +16,7 @@ namespace cryptonote
 
     enum state
     {
-      state_befor_handshake = 0, //default state
+      state_before_handshake = 0, //default state
       state_synchronizing,
       state_idle,
       state_normal
@@ -30,7 +30,7 @@ namespace cryptonote
     uint64_t m_last_response_height;
     epee::copyable_atomic m_callback_request_count; //in debug purpose: problem with double callback rise
     //size_t m_score;  TODO: add score calculations
-    
+
     void enter_idle_state()
     {
       m_state = cryptonote_connection_context::state_idle;
@@ -45,8 +45,8 @@ namespace cryptonote
   {
     switch (s)
     {
-    case cryptonote_connection_context::state_befor_handshake:
-      return "state_befor_handshake";
+    case cryptonote_connection_context::state_before_handshake:
+      return "state_before_handshake";
     case cryptonote_connection_context::state_synchronizing:
       return "state_synchronizing";
     case cryptonote_connection_context::state_idle:
@@ -55,7 +55,7 @@ namespace cryptonote
       return "state_normal";
     default:
       return "unknown";
-    }    
+    }
   }
 
 }

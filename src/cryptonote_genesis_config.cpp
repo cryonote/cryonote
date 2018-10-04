@@ -136,7 +136,9 @@ namespace cryptonote_opt
 
     cryptonote::block bl;
     if (!generate_genesis_block(bl))
+    {
       return false;
+    }
 
     if (command_line::has_arg(vm, arg_work_hash_hex))
     {
