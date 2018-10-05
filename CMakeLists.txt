@@ -8,19 +8,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # $Format:Packaged from commit %H%nset(COMMIT %h)%nset(REFS "%d")$
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   # Treating warnings as errors causes CMake to fail to find pthreads, so insert it manually:
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
 endif()
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   # Increase template depth
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=1000 -Wno-deprecated-register")
 endif()
 
-if (APPLE)
+if(APPLE)
   # link with osx libraries
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework CoreFoundation -framework QuartzCore -framework ApplicationServices -framework AppKit")
 endif()
@@ -45,7 +45,7 @@ if(MSVC)
   include_directories(SYSTEM src/platform/msc)
 
   find_package(Qt4 QUIET COMPONENTS QtCore QtGui QtNetwork QtTest)
-  if (STATIC AND NOT QT4_FOUND)
+  if(STATIC AND NOT QT4_FOUND)
     foreach(VAR CMAKE_C_FLAGS_DEBUG CMAKE_CXX_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELEASE)
       string(REPLACE "/MD" "/MT" ${VAR} "${${VAR}}")
     endforeach()
@@ -105,7 +105,7 @@ endif()
 
 if(STATIC)
   set(Boost_USE_STATIC_LIBS ON)
-  if (QT4_FOUND)
+  if(QT4_FOUND)
     set(Boost_USE_STATIC_RUNTIME OFF)
   else()
     set(Boost_USE_STATIC_RUNTIME ON)
@@ -127,7 +127,7 @@ endif()
 
 set(COMMIT_ID_IN_VERSION ON CACHE BOOL "Include commit ID in version")
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/version")
-if (NOT COMMIT_ID_IN_VERSION)
+if(NOT COMMIT_ID_IN_VERSION)
   set(COMMIT_ID "")
   configure_file("src/version.h.in" "version/version.h")
   add_custom_target(version ALL)

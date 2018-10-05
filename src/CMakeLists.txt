@@ -58,7 +58,7 @@ set_property(TARGET daemon PROPERTY OUTPUT_NAME "cryonoted")
 
 set_property(SOURCE crypto_core/crypto-ops.c crypto_core/blake256.c PROPERTY COTIRE_EXCLUDED TRUE)
 set_target_properties(daemon simplewallet PROPERTIES COTIRE_UNITY_LINK_LIBRARIES_INIT COPY_UNITY)
-if (NOT USE_PCH)
+if(NOT USE_PCH)
   set_property(DIRECTORY . PROPERTY COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
 endif()
 set_property(TARGET common crypto crypto_core cryptonote_core rpc wallet daemon simplewallet PROPERTY
@@ -75,7 +75,7 @@ add_dependencies(simplewallet_unity version)
 
 # QT Wallet
 find_package(Qt4 QUIET COMPONENTS QtCore QtGui QtNetwork QtTest)
-if (QT4_FOUND)
+if(QT4_FOUND)
   add_definitions(-DENABLE_WALLET)
   include(${QT_USE_FILE})
   add_definitions(${QT_DEFINITIONS})
@@ -177,7 +177,7 @@ if (QT4_FOUND)
   target_link_libraries(qtwallet p2p wallet rpc cryptonote_core wallet crypto common crypto_core libminiupnpc-static epee ${Boost_LIBRARIES} ${QT_LIBRARIES})
   set_property(TARGET qtwallet PROPERTY OUTPUT_NAME "cryonote-qt")
 
-  if (WIN32)
+  if(WIN32)
     TARGET_LINK_LIBRARIES(qtwallet shlwapi.lib) #for PathRemoveFileSpec()
   endif()
 
