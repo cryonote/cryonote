@@ -139,9 +139,9 @@ bool gen_block_invalid_prev_id::generate(std::vector<test_event_entry>& events) 
 bool gen_block_invalid_prev_id::check_block_verification_context(const cryptonote::block_verification_context& bvc, size_t event_idx, const cryptonote::block& /*blk*/)
 {
   if (1 == event_idx)
-    return bvc.m_marked_as_orphaned && !bvc.m_added_to_main_chain && !bvc.m_verifivation_failed;
+    return bvc.m_marked_as_orphaned && !bvc.m_added_to_main_chain && !bvc.m_verification_failed;
   else
-    return !bvc.m_marked_as_orphaned && bvc.m_added_to_main_chain && !bvc.m_verifivation_failed;
+    return !bvc.m_marked_as_orphaned && bvc.m_added_to_main_chain && !bvc.m_verification_failed;
 }
 
 bool gen_block_invalid_nonce::generate(std::vector<test_event_entry>& events) const
@@ -170,7 +170,7 @@ bool gen_block_invalid_nonce::generate(std::vector<test_event_entry>& events) co
   }
   while (0 == blk_3.nonce);
   --blk_3.nonce;
-  
+
   events.push_back(blk_3);
 
   return true;
@@ -182,7 +182,7 @@ bool gen_block_no_miner_tx::generate(std::vector<test_event_entry>& events) cons
 
   transaction miner_tx;
   miner_tx.set_null();
-  
+
 
   block blk_1;
   generator.construct_block_manually(blk_1, blk_0, miner_account, test_generator::bf_miner_tx, 0, 0, 0, crypto::hash(), 0, miner_tx);
@@ -313,7 +313,7 @@ bool gen_block_miner_tx_has_2_in::generate(std::vector<test_event_entry>& events
   GENERATE_ACCOUNT(miner_account);
   MAKE_GENESIS_BLOCK(events, blk_gen, miner_account, 1338224400);
   MAKE_NEXT_BLOCK(events, blk_0, blk_gen, miner_account);
-  
+
   REWIND_BLOCKS(events, blk_0r, blk_0, miner_account);
 
   GENERATE_ACCOUNT(alice);
@@ -611,7 +611,7 @@ bool gen_block_invalid_binary_format::check_block_verification_context(const cry
   }
   else
   {
-    return !bvc.m_added_to_main_chain && (bvc.m_already_exists || bvc.m_marked_as_orphaned || bvc.m_verifivation_failed);
+    return !bvc.m_added_to_main_chain && (bvc.m_already_exists || bvc.m_marked_as_orphaned || bvc.m_verification_failed);
   }
 }
 

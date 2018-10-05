@@ -30,9 +30,9 @@ bool test_chain_unit_base::check_tx_verification_context(const cryptonote::tx_ve
                                                          const cryptonote::transaction& tx)
 {
   // Default tx verification context check
-  if (tvc.m_verifivation_failed)
+  if (tvc.m_verification_failed)
     throw std::runtime_error("Transaction verification failed");
-  
+
   return true;
 }
 
@@ -40,8 +40,8 @@ bool test_chain_unit_base::check_block_verification_context(const cryptonote::bl
                                                             size_t event_idx, const cryptonote::block& block)
 {
   // Default block verification context check
-  if (bvc.m_verifivation_failed)
+  if (bvc.m_verification_failed)
     throw std::runtime_error("Block verification failed");
-  
+
   return true;
 }

@@ -2,7 +2,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#pragma once 
+#pragma once
 
 #include "chaingen.h"
 #include "test_chain_unit_base.h"
@@ -19,9 +19,9 @@ public:
   virtual bool check_block_verification_context(const cryptonote::block_verification_context& bvc, size_t event_idx, const cryptonote::block& /*blk*/)
   {
     if (invalid_block_idx == event_idx)
-      return bvc.m_verifivation_failed;
+      return bvc.m_verification_failed;
     else
-      return !bvc.m_verifivation_failed;
+      return !bvc.m_verification_failed;
   }
 
   bool check_block_purged(core_t& c, size_t ev_index, const std::vector<test_event_entry>& events)

@@ -290,7 +290,7 @@ public:
     bool r = m_c.handle_incoming_block(t_serializable_object_to_blob(b), bvc);
     if (dpos_block) { g_ntp_time.apply_manual_delta(-CRYPTONOTE_DPOS_BLOCK_MINIMUM_BLOCK_SPACING); }
     CHECK_AND_ASSERT_MES(r, false, "check_can_create_valid_mining_block: Could not handle_incoming_block");
-    CHECK_AND_ASSERT_MES(!bvc.m_verifivation_failed, false,
+    CHECK_AND_ASSERT_MES(!bvc.m_verification_failed, false,
                          "check_can_create_valid_mining_block: Block verification failed on block template (txpool error)");
     CHECK_AND_ASSERT_MES(bvc.m_added_to_main_chain, false, "check_can_create_valid_mining_block: didn't add to main chain");
 
@@ -334,7 +334,7 @@ public:
     cryptonote::blobdata txblob;
     if (!t_serializable_object_to_blob(tx, txblob))
     {
-      tvc.m_verifivation_failed = true;
+      tvc.m_verification_failed = true;
     }
     else
     {
@@ -357,7 +357,7 @@ public:
     cryptonote::blobdata bd;
     if (!t_serializable_object_to_blob(b, bd))
     {
-      bvc.m_verifivation_failed = true;
+      bvc.m_verification_failed = true;
     }
     else
     {

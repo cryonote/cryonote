@@ -16,35 +16,35 @@ struct dpos_base : public test_chain_unit_base
     REGISTER_CALLBACK_METHOD(dpos_base, mark_invalid_tx);
     REGISTER_CALLBACK_METHOD(dpos_base, mark_invalid_block);
   }
-  
+
   virtual bool check_tx_verification_context(const cryptonote::tx_verification_context& tvc, bool tx_added, size_t event_idx, const cryptonote::transaction& /*tx*/)
   {
     if (m_invalid_tx_index == event_idx)
-      return tvc.m_verifivation_failed;
+      return tvc.m_verification_failed;
     else
-      return !tvc.m_verifivation_failed && tx_added;
+      return !tvc.m_verification_failed && tx_added;
   }
-  
+
   virtual bool check_block_verification_context(const cryptonote::block_verification_context& bvc, size_t event_idx, const cryptonote::block& /*block*/)
   {
     if (m_invalid_block_index == event_idx)
-      return bvc.m_verifivation_failed;
+      return bvc.m_verification_failed;
     else
-      return !bvc.m_verifivation_failed;
+      return !bvc.m_verification_failed;
   }
-  
+
   bool mark_invalid_block(core_t& /*c*/, size_t ev_index, const std::vector<test_event_entry>& /*events*/)
   {
     m_invalid_block_index = ev_index + 1;
     return true;
   }
-  
+
   bool mark_invalid_tx(core_t& /*c*/, size_t ev_index, const std::vector<test_event_entry>& /*events*/)
   {
     m_invalid_tx_index = ev_index + 1;
     return true;
   }
-  
+
 private:
   size_t m_invalid_tx_index;
   size_t m_invalid_block_index;
@@ -65,11 +65,11 @@ bool make_register_delegate_tx_(std::vector<test_event_entry>& events, transacti
   transaction tx_register_delegate;
   tx_builder txb;
   txb.init();
-  
+
   std::vector<tx_source_entry> sources;
   CHECK_AND_ASSERT_MES(fill_tx_sources(sources, events, head, delegate_source, registration_fee, 0, CP_XPB),
                        false, "Couldn't fill sources");
-  
+
   std::vector<tx_destination_entry> destinations;
   uint64_t cash_back = get_inputs_amount(sources)[CP_XPB] - registration_fee;
   if (cash_back > 0)
@@ -77,7 +77,7 @@ bool make_register_delegate_tx_(std::vector<test_event_entry>& events, transacti
     destinations.push_back(tx_destination_entry(CP_XPB, cash_back,
                                                 delegate_source.get_keys().m_account_address));
   }
-  
+
   CHECK_AND_ASSERT_MES(txb.add_register_delegate(delegate_id, delegate_source.get_keys().m_account_address,
                                                  registration_fee,
                                                  delegate_source.get_keys(),
@@ -86,7 +86,7 @@ bool make_register_delegate_tx_(std::vector<test_event_entry>& events, transacti
   txb_call(txb);
   CHECK_AND_ASSERT_MES(txb.finalize(mod), false, "Couldn't finalize");
   CHECK_AND_ASSERT_MES(txb.get_finalized_tx(tx_register_delegate), false, "Couldn't get finalized tx");
-  
+
   events.push_back(tx_register_delegate);
   tx = tx_register_delegate;
   return true;
@@ -102,7 +102,7 @@ bool make_vote_tx_(std::vector<test_event_entry>& events, transaction& tx,
 {
   tx_builder txb;
   txb.init();
-  
+
   std::vector<tx_source_entry> sources;
   CHECK_AND_ASSERT_MES(fill_tx_sources(sources, events, head, vote_source, amount, nmix, CP_XPB),
                        false, "Couldn't fill sources");
@@ -113,7 +113,7 @@ bool make_vote_tx_(std::vector<test_event_entry>& events, transaction& tx,
   CHECK_AND_ASSERT_MES(txb.finalize(mod), false, "Couldn't finalize");
   transaction vote_tx;
   CHECK_AND_ASSERT_MES(txb.get_finalized_tx(vote_tx), false, "Couldn't get finalized tx");
-  
+
   events.push_back(vote_tx);
   tx = vote_tx;
   return true;
@@ -152,7 +152,7 @@ bool make_vote_tx_(std::vector<test_event_entry>& events, transaction& tx,
 
 #define INIT_DPOS_TEST2() \
   INIT_DPOS_TEST(); \
-  
+
 
 DEFINE_TEST(gen_dpos_register, dpos_base);
 DEFINE_TEST(gen_dpos_register_too_soon, dpos_base);

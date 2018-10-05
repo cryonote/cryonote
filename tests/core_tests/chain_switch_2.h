@@ -28,40 +28,40 @@ struct chain_switch_2_base : public test_chain_unit_base
     REGISTER_CALLBACK_METHOD(chain_switch_2_base, check_not_head_2);
     REGISTER_CALLBACK_METHOD(chain_switch_2_base, check_not_head_3);
   }
-  
+
   virtual bool check_tx_verification_context(const cryptonote::tx_verification_context& tvc, bool tx_added, size_t event_idx, const cryptonote::transaction& /*tx*/)
   {
     if (m_invalid_tx_index == event_idx)
-      return tvc.m_verifivation_failed;
+      return tvc.m_verification_failed;
     else
-      return !tvc.m_verifivation_failed && tx_added;
+      return !tvc.m_verification_failed && tx_added;
   }
-  
+
   virtual bool check_block_verification_context(const cryptonote::block_verification_context& bvc, size_t event_idx, const cryptonote::block& /*block*/)
   {
     if (m_invalid_block_index == event_idx)
-      return bvc.m_verifivation_failed;
+      return bvc.m_verification_failed;
     else
-      return !bvc.m_verifivation_failed;
+      return !bvc.m_verification_failed;
   }
-  
+
   bool mark_invalid_block(core_t& /*c*/, size_t ev_index, const std::vector<test_event_entry>& /*events*/)
   {
     m_invalid_block_index = ev_index + 1;
     return true;
   }
-  
+
   bool mark_invalid_tx(core_t& /*c*/, size_t ev_index, const std::vector<test_event_entry>& /*events*/)
   {
     m_invalid_tx_index = ev_index + 1;
     return true;
   }
-  
+
 #define MAKE_FN_NAME(BASE, VAR) bool BASE ## VAR(core_t& c, size_t ev_index, const std::vector<test_event_entry>& events)
 #define FUNCTION_NAME(BASE, VAR) MAKE_FN_NAME(BASE, VAR)
 #define MAKE_VAR_NAME(BASE, VAR, TAIL) BASE ## VAR ## TAIL
 #define VAR_NAME(BASE, VAR, TAIL) MAKE_VAR_NAME(BASE, VAR, TAIL)
-  
+
 #define DEFINE_HEAD_CHECK_CALLBACKS(WHICH) \
   MAKE_FN_NAME(mark_head_, WHICH) { \
     VAR_NAME(m_head_, WHICH, _index) = ev_index + 1; \
@@ -83,7 +83,7 @@ struct chain_switch_2_base : public test_chain_unit_base
   DEFINE_HEAD_CHECK_CALLBACKS(1);
   DEFINE_HEAD_CHECK_CALLBACKS(2);
   DEFINE_HEAD_CHECK_CALLBACKS(3);
-  
+
 private:
   size_t m_invalid_tx_index;
   size_t m_invalid_block_index;
@@ -97,4 +97,3 @@ DEFINE_TEST(gen_chainswitch_mint_2, chain_switch_2_base);
 DEFINE_TEST(gen_chainswitch_mint_3, chain_switch_2_base);
 DEFINE_TEST(gen_chainswitch_remint, chain_switch_2_base);
 DEFINE_TEST(gen_chainswitch_remint_2, chain_switch_2_base);
-

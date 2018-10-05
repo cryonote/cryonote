@@ -264,7 +264,7 @@ bool blockchain_storage::init(const std::string& config_folder)
     block_verification_context bvc = boost::value_initialized<block_verification_context>();
     CHECK_AND_ASSERT_MES(generate_genesis_block(bl), false, "Failed to generate genesis block");
     add_new_block(bl, bvc);
-    CHECK_AND_ASSERT_MES(!bvc.m_verifivation_failed && bvc.m_added_to_main_chain, false, "Failed to add genesis block to blockchain");
+    CHECK_AND_ASSERT_MES(!bvc.m_verification_failed && bvc.m_added_to_main_chain, false, "Failed to add genesis block to blockchain");
   }
 
   if (m_pblockchain_entries->empty())
@@ -274,7 +274,7 @@ bool blockchain_storage::init(const std::string& config_folder)
     block_verification_context bvc = boost::value_initialized<block_verification_context>();
     CHECK_AND_ASSERT_MES(generate_genesis_block(bl), false, "Failed to generate genesis block");
     add_new_block(bl, bvc);
-    CHECK_AND_ASSERT_MES(!bvc.m_verifivation_failed, false, "Failed to add genesis block to blockchain");
+    CHECK_AND_ASSERT_MES(!bvc.m_verification_failed, false, "Failed to add genesis block to blockchain");
   }
 
   auto last_block = get_block_by_hash(m_pblockchain_entries->back().hash);
@@ -475,7 +475,7 @@ bool blockchain_storage::reset_and_set_genesis_block(const block& b)
 
   block_verification_context bvc = boost::value_initialized<block_verification_context>();
   add_new_block(b, bvc);
-  return bvc.m_added_to_main_chain && !bvc.m_verifivation_failed;
+  return bvc.m_added_to_main_chain && !bvc.m_verification_failed;
 }
 //------------------------------------------------------------------
 namespace bs_visitor_detail {
@@ -1362,7 +1362,7 @@ bool blockchain_storage::handle_alternative_block(const block& b, const crypto::
   if(0 == block_height)
   {
     LOG_ERROR("Block with id: " << string_tools::pod_to_hex(id) << " (as alternative) have wrong miner transaction");
-    bvc.m_verifivation_failed = true;
+    bvc.m_verification_failed = true;
     return false;
   }
   if (!m_checkpoints.is_alternative_block_allowed(get_current_blockchain_height() - 1, block_height))
@@ -1370,7 +1370,7 @@ bool blockchain_storage::handle_alternative_block(const block& b, const crypto::
     LOG_PRINT_RED_L0("Block with id: " << id
       << ENDL << " can't be accepted for alternative chain, block height: " << block_height
       << ENDL << " blockchain height: " << get_current_blockchain_height());
-    bvc.m_verifivation_failed = true;
+    bvc.m_verification_failed = true;
     return false;
   }
 
@@ -1417,7 +1417,7 @@ bool blockchain_storage::handle_alternative_block(const block& b, const crypto::
       LOG_PRINT_RED_L0("Block with id: " << id
         << ENDL << " for alternative chain, have invalid timestamp: " << b.timestamp);
       //add_block_as_invalid(b, id);//do not add blocks to invalid storage before proof of work check was passed
-      bvc.m_verifivation_failed = true;
+      bvc.m_verification_failed = true;
       return false;
     }
 
@@ -1431,14 +1431,14 @@ bool blockchain_storage::handle_alternative_block(const block& b, const crypto::
     if(!m_checkpoints.check_block(bent.height, id, is_a_checkpoint))
     {
       LOG_ERROR("CHECKPOINT VALIDATION FAILED");
-      bvc.m_verifivation_failed = true;
+      bvc.m_verification_failed = true;
       return false;
     }
 
     if (!check_block_type(b))
     {
       LOG_ERROR("Block with id: " << id << " for alternative chain, has invalid pow/pos type");
-      bvc.m_verifivation_failed = true;
+      bvc.m_verification_failed = true;
       return false;
     }
 
@@ -1455,7 +1455,7 @@ bool blockchain_storage::handle_alternative_block(const block& b, const crypto::
       LOG_PRINT_RED_L0("Block with id: " << id
                        << ENDL << " and height " << bent.height << " (" << get_block_height(b)
                        << ") for alternative chain, proof of work check failed");
-      bvc.m_verifivation_failed = true;
+      bvc.m_verification_failed = true;
       return false;
     }
 
@@ -1463,7 +1463,7 @@ bool blockchain_storage::handle_alternative_block(const block& b, const crypto::
     {
       LOG_PRINT_RED_L0("Block with id: " << string_tools::pod_to_hex(id)
         << " (as alternative) have wrong miner transaction.");
-      bvc.m_verifivation_failed = true;
+      bvc.m_verification_failed = true;
       return false;
     }
 
@@ -1486,7 +1486,7 @@ bool blockchain_storage::handle_alternative_block(const block& b, const crypto::
         ", checkpoint is found in alternative chain on height " << bent.height, LOG_LEVEL_0);
       bool r = switch_to_alternative_blockchain(alt_chain, true);
       if(r) bvc.m_added_to_main_chain = true;
-      else bvc.m_verifivation_failed = true;
+      else bvc.m_verification_failed = true;
       return r;
     }else if(m_pblockchain_entries->back().cumulative_difficulty < bent.cumulative_difficulty) //check if difficulty bigger then in main chain
     {
@@ -1496,7 +1496,7 @@ bool blockchain_storage::handle_alternative_block(const block& b, const crypto::
         << ENDL << " alternative blockchain size: " << alt_chain.size() << " with cum_difficulty " << bent.cumulative_difficulty, LOG_LEVEL_0);
       bool r = switch_to_alternative_blockchain(alt_chain, false);
       if(r) bvc.m_added_to_main_chain = true;
-      else bvc.m_verifivation_failed = true;
+      else bvc.m_verification_failed = true;
       return r;
     }else
     {
@@ -2991,7 +2991,7 @@ bool blockchain_storage::check_pow_pos(const block& bl, const difficulty_type& c
     {
       LOG_ERROR("Block with id: " << id << " could not get block long hash");
       bvc.m_missing_longhash = true;
-      bvc.m_verifivation_failed = true;
+      bvc.m_verification_failed = true;
       return false;
     }
 
@@ -3000,7 +3000,7 @@ bool blockchain_storage::check_pow_pos(const block& bl, const difficulty_type& c
       LOG_PRINT_L0("Block with id: " << id << ENDL
                    << " have not enough proof of work: " << proof_of_work << ENDL
                    << "expected difficulty: " << current_diffic);
-      bvc.m_verifivation_failed = true;
+      bvc.m_verification_failed = true;
       return false;
     }
 
@@ -3019,28 +3019,28 @@ bool blockchain_storage::check_pow_pos(const block& bl, const difficulty_type& c
   if (!get_block_by_hash(bl.prev_id, prev_block))
   {
     LOG_ERROR("Block with id: " << id << ENDL << " could not get previous block");
-    bvc.m_verifivation_failed = true;
+    bvc.m_verification_failed = true;
     return false;
   }
 
   if (!get_signing_delegate(prev_block, bl.timestamp, signing_delegate))
   {
     LOG_ERROR("Block with id: " << id << ENDL << " could not get signing delegate for timestamp " << bl.timestamp);
-    bvc.m_verifivation_failed = true;
+    bvc.m_verification_failed = true;
     return false;
   }
 
   if (signing_delegate != bl.signing_delegate_id)
   {
     LOG_ERROR("Block with id: " << id << ENDL << " has signing delegate " << bl.signing_delegate_id << ", should be " << signing_delegate);
-    bvc.m_verifivation_failed = true;
+    bvc.m_verification_failed = true;
     return false;
   }
 
   if (!check_dpos_block_sig(bl, const_get(m_delegates, signing_delegate).public_address))
   {
     LOG_ERROR("Block with id: " << id << ENDL << " have invalid signature for delegate " << signing_delegate);
-    bvc.m_verifivation_failed = true;
+    bvc.m_verification_failed = true;
     return false;
   }
 
@@ -3064,14 +3064,14 @@ bool blockchain_storage::handle_block_to_main_chain(const block& bl, const crypt
     LOG_PRINT_L0("Block with id: " << id << ENDL
       << "have invalid timestamp: " << bl.timestamp);
     //add_block_as_invalid(bl, id);//do not add blocks to invalid storage before proof of work check was passed
-    bvc.m_verifivation_failed = true;
+    bvc.m_verification_failed = true;
     return false;
   }
 
   if (!check_block_type(bl))
   {
     LOG_ERROR("Block with id: " << id << " has invalid pow/pos type");
-    bvc.m_verifivation_failed = true;
+    bvc.m_verification_failed = true;
     return false;
   }
 
@@ -3084,7 +3084,7 @@ bool blockchain_storage::handle_block_to_main_chain(const block& bl, const crypt
     if (!check_pow_pos(bl, current_diffic, bvc, proof_of_work))
     {
       LOG_PRINT_RED_L0("Block with id: " << id << " failed pow/pos check");
-      bvc.m_verifivation_failed = true;
+      bvc.m_verification_failed = true;
       return false;
     }
   }
@@ -3093,7 +3093,7 @@ bool blockchain_storage::handle_block_to_main_chain(const block& bl, const crypt
     if (!m_checkpoints.check_block(get_current_blockchain_height(), id))
     {
       LOG_ERROR("CHECKPOINT VALIDATION FAILED");
-      bvc.m_verifivation_failed = true;
+      bvc.m_verification_failed = true;
       return false;
     }
   }
@@ -3102,7 +3102,7 @@ bool blockchain_storage::handle_block_to_main_chain(const block& bl, const crypt
   {
     LOG_PRINT_L0("Block with id: " << id
       << " failed to pass prevalidation");
-    bvc.m_verifivation_failed = true;
+    bvc.m_verification_failed = true;
     return false;
   }
   size_t coinbase_blob_size = get_object_blobsize(bl.miner_tx);
@@ -3113,7 +3113,7 @@ bool blockchain_storage::handle_block_to_main_chain(const block& bl, const crypt
                                   id, get_current_blockchain_height())))
   {
     LOG_PRINT_L0("Block with id: " << id << " failed to validate and add miner transaction to blockchain storage");
-    bvc.m_verifivation_failed = true;
+    bvc.m_verification_failed = true;
     return false;
   }
   size_t tx_processed_count = 0;
@@ -3128,7 +3128,7 @@ bool blockchain_storage::handle_block_to_main_chain(const block& bl, const crypt
       LOG_PRINT_L0("Block with id: " << id  << "have at least one unknown transaction with id: " << tx_id);
       purge_block_data_from_blockchain(bl, tx_processed_count);
       //add_block_as_invalid(bl, id);
-      bvc.m_verifivation_failed = true;
+      bvc.m_verification_failed = true;
       return false;
     }
     if(!validate_tx(tx, false))
@@ -3140,7 +3140,7 @@ bool blockchain_storage::handle_block_to_main_chain(const block& bl, const crypt
       purge_block_data_from_blockchain(bl, tx_processed_count);
       add_block_as_invalid(bl, id);
       LOG_PRINT_L0("Block with id " << id << " added as invalid becouse of wrong inputs in transactions");
-      bvc.m_verifivation_failed = true;
+      bvc.m_verification_failed = true;
       return false;
     }
 
@@ -3151,7 +3151,7 @@ bool blockchain_storage::handle_block_to_main_chain(const block& bl, const crypt
        bool add_res = m_tx_pool.add_tx(tx, tvc, true);
        CHECK_AND_ASSERT_MES2(add_res, "WARNING: handle_block_to_main_chain: failed to add transaction back to transaction pool");
        purge_block_data_from_blockchain(bl, tx_processed_count);
-       bvc.m_verifivation_failed = true;
+       bvc.m_verification_failed = true;
        return false;
     }
     fee_summary += fee;
@@ -3166,7 +3166,7 @@ bool blockchain_storage::handle_block_to_main_chain(const block& bl, const crypt
     LOG_PRINT_L0("Block with id: " << id
       << " have wrong miner transaction");
     purge_block_data_from_blockchain(bl, tx_processed_count);
-    bvc.m_verifivation_failed = true;
+    bvc.m_verification_failed = true;
     return false;
   }
 
@@ -3218,7 +3218,7 @@ bool blockchain_storage::handle_block_to_main_chain(const block& bl, const crypt
   {
     LOG_ERROR("block with id: " << id << " already in block indexes");
     purge_block_data_from_blockchain(bl, tx_processed_count);
-    bvc.m_verifivation_failed = true;
+    bvc.m_verification_failed = true;
     return false;
   }
 
@@ -3259,7 +3259,7 @@ bool blockchain_storage::handle_block_to_main_chain(const block& bl, const crypt
     m_pblockchain_entries->pop_back();
     ++m_changes_since_store;
     purge_block_data_from_blockchain(bl, tx_processed_count);
-    bvc.m_verifivation_failed = true;
+    bvc.m_verification_failed = true;
     return false;
   }
 

@@ -16,29 +16,29 @@ struct contracts_base : public test_chain_unit_base
     REGISTER_CALLBACK_METHOD(contracts_base, mark_invalid_tx);
     REGISTER_CALLBACK_METHOD(contracts_base, mark_invalid_block);
   }
-  
+
   virtual bool check_tx_verification_context(const cryptonote::tx_verification_context& tvc, bool tx_added, size_t event_idx, const cryptonote::transaction& /*tx*/)
   {
     if (m_invalid_tx_index == event_idx)
-      return tvc.m_verifivation_failed;
+      return tvc.m_verification_failed;
     else
-      return !tvc.m_verifivation_failed && tx_added;
+      return !tvc.m_verification_failed && tx_added;
   }
-  
+
   virtual bool check_block_verification_context(const cryptonote::block_verification_context& bvc, size_t event_idx, const cryptonote::block& /*block*/)
   {
     if (m_invalid_block_index == event_idx)
-      return bvc.m_verifivation_failed;
+      return bvc.m_verification_failed;
     else
-      return !bvc.m_verifivation_failed;
+      return !bvc.m_verification_failed;
   }
-  
+
   bool mark_invalid_block(core_t& /*c*/, size_t ev_index, const std::vector<test_event_entry>& /*events*/)
   {
     m_invalid_block_index = ev_index + 1;
     return true;
   }
-  
+
   bool mark_invalid_tx(core_t& /*c*/, size_t ev_index, const std::vector<test_event_entry>& /*events*/)
   {
     m_invalid_tx_index = ev_index + 1;
@@ -49,7 +49,7 @@ struct contracts_base : public test_chain_unit_base
   {
     p_events = &events;
   }
-  
+
   cryptonote::block& make_genesis_block(const cryptonote::account_base& account, uint64_t timestamp)
   {
     block genesis;
@@ -57,7 +57,7 @@ struct contracts_base : public test_chain_unit_base
     p_events->push_back(genesis);
     return p_events->back();
   }
-  
+
   cryptonote::block& make_next_block(const cryptonote::account_base& account, const cryptonote::block& prev)
   {
     cryptonote::block next;
@@ -65,18 +65,18 @@ struct contracts_base : public test_chain_unit_base
     p_events->push_back(next);
     return p_events->back();
   }
-  
+
   cryptonote::block make_starting_blocks(const cryptonote::account_base& account, uint64_t timestamp)
   {
     generate_genesis_block(account, timestamp);
-    
+
     for (int i=0; i < 3; i++) {
       make_next_block(account, events.back());
     }
-    
+
     return p_events->back();
   }*/
-  
+
 private:
   size_t m_invalid_tx_index;
   size_t m_invalid_block_index;
@@ -98,12 +98,12 @@ bool make_send_contract_tx(std::vector<test_event_entry>& events, transaction& t
   transaction tx_send_contract;
   tx_builder txb;
   txb.init();
-  
+
   std::vector<tx_source_entry> sources;
   CHECK_AND_ASSERT_MES(fill_tx_sources(sources, events, head, backing_source, amount, 0,
                                        coin_type(backing_currency, NotContract, BACKED_BY_N_A)), false,
                        "Couldn't fill sources");
-  
+
   std::vector<tx_destination_entry> destinations;
   destinations.push_back(tx_destination_entry(coin_type(contract_id, BackingCoin, backing_currency),
                                               amount,
@@ -111,7 +111,7 @@ bool make_send_contract_tx(std::vector<test_event_entry>& events, transaction& t
   destinations.push_back(tx_destination_entry(coin_type(contract_id, ContractCoin, backing_currency),
                                               amount,
                                               contract_dest.get_keys().m_account_address));
-  
+
   uint64_t cash_back = get_inputs_amount(sources)[coin_type(backing_currency, NotContract, BACKED_BY_N_A)] - amount;
   if (cash_back > 0)
   {
@@ -119,18 +119,18 @@ bool make_send_contract_tx(std::vector<test_event_entry>& events, transaction& t
                                                 cash_back,
                                                 backing_source.get_keys().m_account_address));
   }
-  
+
   CHECK_AND_ASSERT_MES(txb.add_mint_contract(backing_source.get_keys(), contract_id, amount,
                                              sources, destinations),
                        false, "Couldn't add_mint_contract");
   CHECK_AND_ASSERT_MES(txb.finalize(mod), false, "Couldn't finalize");
   CHECK_AND_ASSERT_MES(txb.get_finalized_tx(tx_send_contract), false, "Couldn't get finalized tx");
-  
+
   events.push_back(tx_send_contract);
   tx = tx_send_contract;
   return true;
 }
-  
+
 template <class tx_modifier_t>
 bool make_fuse_contract_tx(std::vector<test_event_entry>& events, transaction& tx,
                            uint64_t contract_id, uint64_t amount, uint64_t backing_currency,
@@ -141,10 +141,10 @@ bool make_fuse_contract_tx(std::vector<test_event_entry>& events, transaction& t
   transaction tx_fuse_contract;
   tx_builder txb;
   txb.init();
-  
+
   std::vector<tx_source_entry> backing_sources, contract_sources;
   std::vector<tx_destination_entry> destinations;
-  
+
   CoinContractType whiches[2] = {BackingCoin, ContractCoin};
   BOOST_FOREACH(auto which, whiches) {
     auto& account = which == BackingCoin ? backing_account : contract_account;
@@ -159,10 +159,10 @@ bool make_fuse_contract_tx(std::vector<test_event_entry>& events, transaction& t
       destinations.push_back(tx_destination_entry(cp, cash_back, account.get_keys().m_account_address));
     }
   }
-  
+
   destinations.push_back(tx_destination_entry(coin_type(backing_currency, NotContract, BACKED_BY_N_A),
                                               amount, dest_account.get_keys().m_account_address));
-  
+
   CHECK_AND_ASSERT_MES(txb.add_fuse_contract(contract_id, backing_currency, amount,
                                              backing_account.get_keys(), backing_sources,
                                              contract_account.get_keys(), contract_sources,
@@ -170,7 +170,7 @@ bool make_fuse_contract_tx(std::vector<test_event_entry>& events, transaction& t
                        false, "Couldn't add_fuse_contract");
   CHECK_AND_ASSERT_MES(txb.finalize(mod), false, "Couldn't finalize");
   CHECK_AND_ASSERT_MES(txb.get_finalized_tx(tx_fuse_contract), false, "Couldn't get finalized tx");
-  
+
   events.push_back(tx_fuse_contract);
   tx = tx_fuse_contract;
   return true;
@@ -186,18 +186,18 @@ bool make_grade_contract_tx(std::vector<test_event_entry>& events, transaction& 
   transaction tx_grade_contract;
   tx_builder txb;
   txb.init(0, std::vector<uint8_t>(), true);
-  
+
   std::vector<tx_destination_entry> dests;
   if (grading_fee_amount > 0) {
     dests.push_back(tx_destination_entry(coin_type(grading_fee_currency, NotContract, BACKED_BY_N_A),
                                          grading_fee_amount, grading_fees_dest.get_keys().m_account_address));
   }
-  
+
   CHECK_AND_ASSERT_MES(txb.add_grade_contract(contract_id, grade, sec, dests), false,
                        "Couldn't add_grade_contract");
   CHECK_AND_ASSERT_MES(txb.finalize(mod), false, "Couldn't finalize");
   CHECK_AND_ASSERT_MES(txb.get_finalized_tx(tx_grade_contract), false, "Couldn't get finalized tx");
-  
+
   events.push_back(tx_grade_contract);
   tx = tx_grade_contract;
   return true;

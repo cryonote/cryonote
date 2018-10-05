@@ -34,7 +34,7 @@ namespace cryptonote
               m_mempool(*m_pblockchain_storage),
               m_blockchain_storage(*m_pblockchain_storage),
               m_miner(this),
-              m_miner_address(boost::value_initialized<account_public_address>()), 
+              m_miner_address(boost::value_initialized<account_public_address>()),
               m_starter_message_showed(false),
               m_callback(NULL)
   {
@@ -177,7 +177,7 @@ namespace cryptonote
     if(tx_blob.size() > get_max_tx_size())
     {
       LOG_PRINT_L0("WRONG TRANSACTION BLOB, too big size " << tx_blob.size() << ", rejected");
-      tvc.m_verifivation_failed = true;
+      tvc.m_verification_failed = true;
       return false;
     }
 
@@ -188,7 +188,7 @@ namespace cryptonote
     if(!parse_tx_from_blob(tx, tx_hash, tx_prefixt_hash, tx_blob))
     {
       LOG_PRINT_L0("WRONG TRANSACTION BLOB, Failed to parse, rejected");
-      tvc.m_verifivation_failed = true;
+      tvc.m_verification_failed = true;
       return false;
     }
     //std::cout << "!"<< tx.vin.size() << std::endl;
@@ -196,19 +196,19 @@ namespace cryptonote
     if(!check_tx_syntax(tx))
     {
       LOG_PRINT_L0("WRONG TRANSACTION BLOB, Failed to check tx " << tx_hash << " syntax, rejected");
-      tvc.m_verifivation_failed = true;
+      tvc.m_verification_failed = true;
       return false;
     }
 
     if(!check_tx_semantic(tx, keeped_by_block))
     {
       LOG_PRINT_L0("WRONG TRANSACTION BLOB, Failed to check tx " << tx_hash << " semantic, rejected");
-      tvc.m_verifivation_failed = true;
+      tvc.m_verification_failed = true;
       return false;
     }
 
     bool r = add_new_tx(tx, tx_hash, tx_prefixt_hash, tx_blob.size(), tvc, keeped_by_block);
-    if(tvc.m_verifivation_failed)
+    if(tvc.m_verification_failed)
     {LOG_PRINT_RED_L0("Transaction verification failed: " << tx_hash);}
     else if(tvc.m_verifivation_impossible)
     {LOG_PRINT_RED_L0("Transaction verification impossible: " << tx_hash);}
@@ -234,7 +234,7 @@ namespace cryptonote
     crypto::hash tx_hash;
     if (!get_transaction_hash(tx, tx_hash))
       return false;
-    
+
     if(tx.ins().empty())
     {
       LOG_PRINT_RED_L0("tx with empty inputs, rejected for tx id= " << tx_hash);
@@ -246,7 +246,7 @@ namespace cryptonote
       LOG_PRINT_RED_L0("unsupported input types for tx id= " << tx_hash);
       return false;
     }
-    
+
     if(!check_outputs_types_supported(tx))
     {
       LOG_PRINT_RED_L0("unsupported output types for tx id= " << tx_hash);
@@ -321,11 +321,11 @@ namespace cryptonote
     CHECK_AND_ASSERT_MES(m_blockchain_storage.get_block_by_hash(tail_id, tail_block),
                          false, "Could not get latest block hash");
     uint64_t adjusted_now = m_blockchain_storage.get_adjusted_time();
-    
+
     uint64_t next_block_height = tail_height + 1;
     is_dpos = config::in_pos_era(next_block_height);
     time_since_last_block = tail_block.timestamp > adjusted_now ? 0 : adjusted_now - tail_block.timestamp;
-    
+
     if (is_dpos)
     {
       if (time_since_last_block < CRYPTONOTE_DPOS_BLOCK_MINIMUM_BLOCK_SPACING)
@@ -334,7 +334,7 @@ namespace cryptonote
         signing_delegate_address = null_public_address;
         return true;
       }
-        
+
       delegate_id_t did;
       CHECK_AND_ASSERT_MES(m_blockchain_storage.get_signing_delegate(tail_block, adjusted_now, did),
                            false, "could not get_signing_delegate for dpos block");
@@ -345,7 +345,7 @@ namespace cryptonote
     {
       signing_delegate_address = null_public_address;
     }
-    
+
     return true;
   }
   //-----------------------------------------------------------------------------------------------
@@ -434,7 +434,7 @@ namespace cryptonote
     m_miner.resume();
 
 
-    CHECK_AND_ASSERT_MES(!bvc.m_verifivation_failed, false, "mined block failed verification");
+    CHECK_AND_ASSERT_MES(!bvc.m_verification_failed, false, "mined block failed verification");
     if(bvc.m_added_to_main_chain)
     {
       cryptonote_connection_context exclude_context = boost::value_initialized<cryptonote_connection_context>();
@@ -474,22 +474,22 @@ namespace cryptonote
   bool core::add_new_block(const block& b, block_verification_context& bvc)
   {
     bool r = m_blockchain_storage.add_new_block(b, bvc);
-    
+
     if (r)
     {
       NOTIFY_NEW_SIGNED_HASH::request arg = AUTO_VAL_INIT(arg);
       arg.hop = 0;
-      
+
       if (crypto::g_hash_cache.get_signed_longhash_entry(get_block_hash(b), arg.entry))
       {
         cryptonote_connection_context null_context;
         m_pprotocol->relay_signed_hash(arg, null_context);
       }
-      
+
       if (m_callback)
         m_callback->on_new_block_added(get_block_height(b), b);
     }
-    
+
     return r;
   }
   //-----------------------------------------------------------------------------------------------
@@ -499,7 +499,7 @@ namespace cryptonote
     if(block_blob.size() > get_max_block_size())
     {
       LOG_PRINT_L0("WRONG BLOCK BLOB, too big size " << block_blob.size() << ", rejected");
-      bvc.m_verifivation_failed = true;
+      bvc.m_verification_failed = true;
       return false;
     }
 
@@ -508,7 +508,7 @@ namespace cryptonote
     if(!parse_and_validate_block_from_blob(block_blob, b))
     {
       LOG_PRINT_L0("Failed to parse and validate new block");
-      bvc.m_verifivation_failed = true;
+      bvc.m_verification_failed = true;
       return false;
     }
     // if block fails to add, bvc will contain the error - this function returns true for having been able to try to handle it
@@ -586,14 +586,14 @@ namespace cryptonote
   {
     if(!m_starter_message_showed)
     {
-      LOG_PRINT_L0(ENDL << "**********************************************************************" << ENDL 
-        << "The daemon will start synchronizing with the network. It may take up to several hours." << ENDL 
+      LOG_PRINT_L0(ENDL << "**********************************************************************" << ENDL
+        << "The daemon will start synchronizing with the network. It may take up to several hours." << ENDL
         << ENDL
         << "You can set the level of process detailization* through \"set_log <level>\" command*, where <level> is between 0 (no details) and 4 (very verbose)." << ENDL
         << ENDL
         << "Use \"help\" command to see the list of available commands." << ENDL
         << ENDL
-        << "Note: in case you need to interrupt the process, use \"exit\" command. Otherwise, the current progress won't be saved." << ENDL 
+        << "Note: in case you need to interrupt the process, use \"exit\" command. Otherwise, the current progress won't be saved." << ENDL
         << "**********************************************************************");
       m_starter_message_showed = true;
     }

@@ -35,23 +35,23 @@ namespace cryptonote
       {
         // for now only keep initial cryptonote rule with the key_images
         txin_info operator()(const txin_to_key& inp) const { return txin_to_key_info(inp); }
-        
+
         txin_info operator()(const txin_gen& inp) const { return txin_invalid_info(); }
         txin_info operator()(const txin_to_script& inp) const { return txin_invalid_info(); }
         txin_info operator()(const txin_to_scripthash& inp) const { return txin_invalid_info(); }
-        
+
         txin_info operator()(const txin_mint& inp) const { return txin_no_conflict_info(); }
         txin_info operator()(const txin_remint& inp) const { return txin_no_conflict_info(); }
-        
+
         txin_info operator()(const txin_create_contract& inp) const { return txin_no_conflict_info(); }
         txin_info operator()(const txin_mint_contract& inp) const { return txin_no_conflict_info(); }
         txin_info operator()(const txin_grade_contract& inp) const { return txin_no_conflict_info(); }
         txin_info operator()(const txin_resolve_bc_coins& inp) const { return txin_no_conflict_info(); }
         txin_info operator()(const txin_fuse_bc_coins& inp) const { return txin_no_conflict_info(); }
-        
+
         txin_info operator()(const txin_register_delegate& inp) const { return txin_no_conflict_info(); }
         txin_info operator()(const txin_vote& inp) const { return txin_no_conflict_info(); }
-        
+
         /*txin_info operator()(const txin_mint& inp) const { return txin_mint_info(inp); }
         txin_info operator()(const txin_remint& inp) const { return txin_remint_info(inp); }
 
@@ -60,12 +60,12 @@ namespace cryptonote
         txin_info operator()(const txin_grade_contract& inp) const { return txin_grade_contract_info(inp); }
         txin_info operator()(const txin_resolve_bc_coins& inp) const { return txin_no_conflict_info(inp); }
         txin_info operator()(const txin_fuse_bc_coins& inp) const { return txin_no_conflict_info(inp); }
-        
-        
+
+
         txin_info operator()(const txin_register_delegate& inp) const { return txin_register_delegate_info(inp); }
         txin_info operator()(const txin_vote& inp) const { return txin_vote_info(inp); }*/
       };
-      
+
       info = boost::apply_visitor(get_txin_info_visitor(), inp);
       if (info.type() == typeid(txin_invalid_info))
       {
@@ -85,10 +85,10 @@ namespace cryptonote
   {
     detail::txin_info info;
     CHECK_AND_ASSERT(detail::get_txin_info(inp, info), false);
-    
+
     if (info.type() == typeid(detail::txin_no_conflict_info))
         return true;
-        
+
     auto& info_set = m_txin_infos[info];
     CHECK_AND_ASSERT_MES(kept_by_block || info_set.size() == 0, false,
                          "internal error: keeped_by_block=" << kept_by_block
@@ -104,25 +104,25 @@ namespace cryptonote
   {
     detail::txin_info info;
     CHECK_AND_ASSERT(detail::get_txin_info(inp, info), false);
-    
+
     if (info.type() == typeid(detail::txin_no_conflict_info))
         return true;
-    
+
     auto it = m_txin_infos.find(info);
     CHECK_AND_ASSERT_MES(it != m_txin_infos.end(), false,
                          "failed to find transaction input in infos. info=" << info << ENDL
                          << "transaction id = " << tx_id);
-    
+
     auto& info_set = it->second;
     CHECK_AND_ASSERT_MES(info_set.size(), false,
                          "empty info set, info=" << info << ENDL
                          << "transaction id = " << tx_id);
-    
+
     auto it_in_set = info_set.find(tx_id);
     CHECK_AND_ASSERT_MES(it_in_set != info_set.end(), false,
                          "transaction id not found in info set, info=" << info << ENDL
                          << "transaction id = " << tx_id);
-    
+
     info_set.erase(it_in_set);
     if(!info_set.size())
     {
@@ -133,7 +133,7 @@ namespace cryptonote
       m_txin_infos.erase(it);
 #endif
     }
-    
+
     return true;
   }
   //---------------------------------------------------------------------------------
@@ -141,10 +141,10 @@ namespace cryptonote
   {
     detail::txin_info info;
     CHECK_AND_ASSERT(detail::get_txin_info(inp, info), false);
-    
+
     if (info.type() == typeid(detail::txin_no_conflict_info))
         return true;
-    
+
     CHECK_AND_ASSERT_MES(m_txin_infos.find(info) == m_txin_infos.end(), false,
                          "input conflicts with existing input: " << info);
     return true;
@@ -154,14 +154,14 @@ namespace cryptonote
   {
     if(!check_inputs_types_supported(tx) || !check_outputs_types_supported(tx))
     {
-      tvc.m_verifivation_failed = true;
+      tvc.m_verification_failed = true;
       return false;
     }
 
     uint64_t fee;
     if(!check_inputs_outputs(tx, fee))
     {
-      tvc.m_verifivation_failed = true;
+      tvc.m_verification_failed = true;
       return false;
     }
 
@@ -173,14 +173,14 @@ namespace cryptonote
       tvc.m_added_to_pool = false;
       return true; // not a failure
     }
-      
+
     //check key images for transaction if it is not kept by block
     if(!kept_by_block)
     {
       if(!check_can_add_tx(tx))
       {
         LOG_ERROR("Cannot add transaction with id= "<< id << ", conflicts with existing transactions");
-        tvc.m_verifivation_failed = true;
+        tvc.m_verification_failed = true;
         return false;
       }
     }
@@ -207,7 +207,7 @@ namespace cryptonote
       }else
       {
         LOG_PRINT_L0("tx used wrong inputs, rejected");
-        tvc.m_verifivation_failed = true;
+        tvc.m_verification_failed = true;
         return false;
       }
     }else
@@ -229,16 +229,16 @@ namespace cryptonote
         tvc.m_should_be_relayed = true;
     }
 
-    tvc.m_verifivation_failed = true;
-    
+    tvc.m_verification_failed = true;
+
     BOOST_FOREACH(const auto& inp, tx.ins())
     {
       if (!add_inp(id, inp, kept_by_block))
         return false;
     }
-    
+
     //succeed
-    tvc.m_verifivation_failed = false;
+    tvc.m_verification_failed = false;
     if (0 != m_callback)
       m_callback->on_tx_added(id, tx);
     return true;
@@ -255,15 +255,15 @@ namespace cryptonote
   bool tx_memory_pool::remove_transaction_data(const transaction& tx)
   {
     CRITICAL_REGION_LOCAL(m_transactions_lock);
-    
+
     auto id = get_transaction_hash(tx);
-    
+
     BOOST_FOREACH(const auto& inp, tx.ins())
     {
       if (!remove_inp(id, inp))
         return false;
     }
-    
+
     return true;
   }
   //---------------------------------------------------------------------------------
@@ -335,13 +335,13 @@ namespace cryptonote
     // Additional checks besides blockchain_storage::validate_tx, e.g.
     // no double-spend within txs in the mempool, no conflicting currencies/contracts
     CRITICAL_REGION_LOCAL(m_transactions_lock);
-    
+
     BOOST_FOREACH(const auto& inp, tx.ins())
     {
       if (!check_can_add_inp(inp))
         return false;
     }
-    
+
     return true;
   }
   //---------------------------------------------------------------------------------
@@ -372,7 +372,7 @@ namespace cryptonote
     {
       if (txd.max_used_block_height >= m_blockchain.get_current_blockchain_height())
         return false;
-      
+
       if (m_blockchain.get_block_id_by_height(txd.max_used_block_height) != txd.max_used_block_id)
       {
         //if we already failed on this height and id, skip actual inputs check
@@ -380,7 +380,7 @@ namespace cryptonote
           return false;
       }
     }
-    
+
     //always check the inputs, there may be txs that can't be added because of keeped by block txs
     if (!m_blockchain.validate_tx(txd.tx, false, &txd.max_used_block_height))
     {
@@ -431,14 +431,14 @@ namespace cryptonote
     struct has_grade_visitor: tx_input_visitor_base_opt<bool, false, false>
     {
       using tx_input_visitor_base_opt<bool, false, false>::operator();
-      
+
       bool operator()(const txin_grade_contract& inp) const
       {
         return true;
       }
     };
   }
-  
+
   bool tx_memory_pool::fill_block_template(block &bl, size_t median_size, uint64_t already_generated_coins,
                                            size_t &total_size, uint64_t &fee)
   {
@@ -446,12 +446,12 @@ namespace cryptonote
 
     total_size = 0;
     fee = 0;
-    
+
     tx_input_compat_checker icc;
 
     size_t max_total_size = 2 * median_size - CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE;
     std::unordered_set<crypto::hash> added_txs;
-    
+
     // first pass: prioritize grading txs so people can't mint & fuse to prevent a contract from being graded
     // second pass: proceed as usual
     int pass = 0;
@@ -462,10 +462,10 @@ namespace cryptonote
       {
         if (added_txs.count(txe.first) > 0) //already added it
           continue;
-        
+
         if (max_total_size < total_size + txe.second.blob_size)
           continue;
-        
+
         if (only_grading && !tools::any_apply_visitor(detail::has_grade_visitor(), txe.second.tx.ins()))
           continue;
 
@@ -478,7 +478,7 @@ namespace cryptonote
         fee += txe.second.fee;
         icc.add_tx(txe.second.tx);
       }
-      
+
       pass++;
       if (pass == 2)
         break;

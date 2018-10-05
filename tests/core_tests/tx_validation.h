@@ -2,7 +2,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#pragma once 
+#pragma once
 
 #include "chaingen.h"
 #include "test_chain_unit_base.h"
@@ -22,20 +22,20 @@ struct get_tx_validation_base : public test_chain_unit_base
   virtual bool check_tx_verification_context(const cryptonote::tx_verification_context& tvc, bool tx_added, size_t event_idx, const cryptonote::transaction& /*tx*/)
   {
     if (m_tx_not_added == event_idx)
-      return !tvc.m_verifivation_failed && !tx_added;
-    
+      return !tvc.m_verification_failed && !tx_added;
+
     if (m_invalid_tx_index == event_idx)
-      return tvc.m_verifivation_failed;
+      return tvc.m_verification_failed;
     else
-      return !tvc.m_verifivation_failed && tx_added;
+      return !tvc.m_verification_failed && tx_added;
   }
 
   virtual bool check_block_verification_context(const cryptonote::block_verification_context& bvc, size_t event_idx, const cryptonote::block& /*block*/)
   {
     if (m_invalid_block_index == event_idx)
-      return bvc.m_verifivation_failed;
+      return bvc.m_verification_failed;
     else
-      return !bvc.m_verifivation_failed;
+      return !bvc.m_verification_failed;
   }
 
   bool mark_invalid_block(core_t& /*c*/, size_t ev_index, const std::vector<test_event_entry>& /*events*/)
@@ -49,7 +49,7 @@ struct get_tx_validation_base : public test_chain_unit_base
     m_invalid_tx_index = ev_index + 1;
     return true;
   }
-  
+
   bool mark_tx_not_added(core_t& c, size_t ev_index, const std::vector<test_event_entry>& events)
   {
     m_tx_not_added = ev_index + 1;

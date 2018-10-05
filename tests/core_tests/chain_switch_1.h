@@ -3,7 +3,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#pragma once 
+#pragma once
 
 #include "chaingen.h"
 #include "test_chain_unit_base.h"
@@ -13,7 +13,7 @@
 /************************************************************************/
 class gen_chain_switch_1 : public test_chain_unit_base
 {
-public: 
+public:
   gen_chain_switch_1();
 
   virtual bool generate(std::vector<test_event_entry>& events) const;
@@ -39,35 +39,35 @@ struct chain_switch_1_base : public test_chain_unit_base
     REGISTER_CALLBACK_METHOD(chain_switch_1_base, mark_invalid_tx);
     REGISTER_CALLBACK_METHOD(chain_switch_1_base, mark_invalid_block);
   }
-  
+
   virtual bool check_tx_verification_context(const cryptonote::tx_verification_context& tvc, bool tx_added, size_t event_idx, const cryptonote::transaction& /*tx*/)
   {
     if (m_invalid_tx_index == event_idx)
-      return tvc.m_verifivation_failed;
+      return tvc.m_verification_failed;
     else
-      return !tvc.m_verifivation_failed && tx_added;
+      return !tvc.m_verification_failed && tx_added;
   }
-  
+
   virtual bool check_block_verification_context(const cryptonote::block_verification_context& bvc, size_t event_idx, const cryptonote::block& /*block*/)
   {
     if (m_invalid_block_index == event_idx)
-      return bvc.m_verifivation_failed;
+      return bvc.m_verification_failed;
     else
-      return !bvc.m_verifivation_failed;
+      return !bvc.m_verification_failed;
   }
-  
+
   bool mark_invalid_block(core_t& /*c*/, size_t ev_index, const std::vector<test_event_entry>& /*events*/)
   {
     m_invalid_block_index = ev_index + 1;
     return true;
   }
-  
+
   bool mark_invalid_tx(core_t& /*c*/, size_t ev_index, const std::vector<test_event_entry>& /*events*/)
   {
     m_invalid_tx_index = ev_index + 1;
     return true;
   }
-  
+
 private:
   size_t m_invalid_tx_index;
   size_t m_invalid_block_index;
