@@ -2,7 +2,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#pragma  once
+#pragma once
 
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/variables_map.hpp>
@@ -37,30 +37,46 @@ namespace cryptonote
     static void init_options(boost::program_options::options_description& desc);
     bool init(const boost::program_options::variables_map& vm);
     bool check_core_ready();
-  private:
 
-    CHAIN_HTTP_TO_MAP2(connection_context); //forward http requests to uri map
+  private:
+    CHAIN_HTTP_TO_MAP2(connection_context); // forward http requests to uri map
 
     BEGIN_URI_MAP2()
+      MAP_URI_AUTO_JON2("/get_height", on_get_height, COMMAND_RPC_GET_HEIGHT)
       MAP_URI_AUTO_JON2("/getheight", on_get_height, COMMAND_RPC_GET_HEIGHT)
+      MAP_URI_AUTO_BIN2("/get_blocks.bin", on_get_blocks, COMMAND_RPC_GET_BLOCKS_FAST)
       MAP_URI_AUTO_BIN2("/getblocks.bin", on_get_blocks, COMMAND_RPC_GET_BLOCKS_FAST)
       MAP_URI_AUTO_BIN2("/get_o_indexes.bin", on_get_indexes, COMMAND_RPC_GET_TX_GLOBAL_OUTPUTS_INDEXES)
+      MAP_URI_AUTO_BIN2("/get_random_outs.bin", on_get_random_outs, COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS)
       MAP_URI_AUTO_BIN2("/getrandom_outs.bin", on_get_random_outs, COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS)
+      MAP_URI_AUTO_BIN2("/get_key_image_seqs.bin", on_get_key_image_seqs, COMMAND_RPC_GET_KEY_IMAGE_SEQS)
       MAP_URI_AUTO_BIN2("/getkeyimageseqs.bin", on_get_key_image_seqs, COMMAND_RPC_GET_KEY_IMAGE_SEQS)
+      MAP_URI_AUTO_JON2("/get_transactions", on_get_transactions, COMMAND_RPC_GET_TRANSACTIONS)
       MAP_URI_AUTO_JON2("/gettransactions", on_get_transactions, COMMAND_RPC_GET_TRANSACTIONS)
+      MAP_URI_AUTO_JON2("/send_raw_transaction", on_send_raw_tx, COMMAND_RPC_SEND_RAW_TX)
       MAP_URI_AUTO_JON2("/sendrawtransaction", on_send_raw_tx, COMMAND_RPC_SEND_RAW_TX)
       MAP_URI_AUTO_JON2("/start_mining", on_start_mining, COMMAND_RPC_START_MINING)
       MAP_URI_AUTO_JON2("/stop_mining", on_stop_mining, COMMAND_RPC_STOP_MINING)
+      MAP_URI_AUTO_JON2("/get_info", on_get_info, COMMAND_RPC_GET_INFO)
       MAP_URI_AUTO_JON2("/getinfo", on_get_info, COMMAND_RPC_GET_INFO)
+      MAP_URI_AUTO_JON2("/get_autovote_delegates", on_get_autovote_delegates, COMMAND_RPC_GET_AUTOVOTE_DELEGATES)
       MAP_URI_AUTO_JON2("/getautovotedelegates", on_get_autovote_delegates, COMMAND_RPC_GET_AUTOVOTE_DELEGATES)
       BEGIN_JSON_RPC_MAP("/json_rpc")
+        MAP_JON_RPC("get_block_count",           on_getblockcount,              COMMAND_RPC_GETBLOCKCOUNT)
         MAP_JON_RPC("getblockcount",             on_getblockcount,              COMMAND_RPC_GETBLOCKCOUNT)
-        MAP_JON_RPC_WE("getblockhash",        on_getblockhash,               COMMAND_RPC_GETBLOCKHASH)
+        MAP_JON_RPC_WE("get_block_hash",         on_getblockhash,               COMMAND_RPC_GETBLOCKHASH)
+        MAP_JON_RPC_WE("getblockhash",           on_getblockhash,               COMMAND_RPC_GETBLOCKHASH)
+        MAP_JON_RPC_WE("get_block_template",     on_getblocktemplate,           COMMAND_RPC_GETBLOCKTEMPLATE)
         MAP_JON_RPC_WE("getblocktemplate",       on_getblocktemplate,           COMMAND_RPC_GETBLOCKTEMPLATE)
+        MAP_JON_RPC_WE("submit_block",           on_submitblock,                COMMAND_RPC_SUBMITBLOCK)
         MAP_JON_RPC_WE("submitblock",            on_submitblock,                COMMAND_RPC_SUBMITBLOCK)
+        MAP_JON_RPC_WE("get_last_block_header",  on_get_last_block_header,      COMMAND_RPC_GET_LAST_BLOCK_HEADER)
         MAP_JON_RPC_WE("getlastblockheader",     on_get_last_block_header,      COMMAND_RPC_GET_LAST_BLOCK_HEADER)
+        MAP_JON_RPC_WE("get_block_header_by_hash", on_get_block_header_by_hash,   COMMAND_RPC_GET_BLOCK_HEADER_BY_HASH)
         MAP_JON_RPC_WE("getblockheaderbyhash",   on_get_block_header_by_hash,   COMMAND_RPC_GET_BLOCK_HEADER_BY_HASH)
+        MAP_JON_RPC_WE("get_block_header_by_height", on_get_block_header_by_height, COMMAND_RPC_GET_BLOCK_HEADER_BY_HEIGHT)
         MAP_JON_RPC_WE("getblockheaderbyheight", on_get_block_header_by_height, COMMAND_RPC_GET_BLOCK_HEADER_BY_HEIGHT)
+        MAP_JON_RPC_WE("get_delegate_infos",       on_getdelegateinfos,           COMMAND_RPC_GET_DELEGATE_INFOS)
         MAP_JON_RPC_WE("getdelegateinfos",       on_getdelegateinfos,           COMMAND_RPC_GET_DELEGATE_INFOS)
       END_JSON_RPC_MAP()
     END_URI_MAP2()
@@ -77,7 +93,7 @@ namespace cryptonote
     bool on_get_info(const COMMAND_RPC_GET_INFO::request& req, COMMAND_RPC_GET_INFO::response& res, connection_context& cntx);
     bool on_get_autovote_delegates(const COMMAND_RPC_GET_AUTOVOTE_DELEGATES::request& req, COMMAND_RPC_GET_AUTOVOTE_DELEGATES::response& res, connection_context& cntx);
 
-    //json_rpc
+    // json_rpc
     bool on_getblockcount(const COMMAND_RPC_GETBLOCKCOUNT::request& req, COMMAND_RPC_GETBLOCKCOUNT::response& res, connection_context& cntx);
     bool on_getblockhash(const COMMAND_RPC_GETBLOCKHASH::request& req, COMMAND_RPC_GETBLOCKHASH::response& res, epee::json_rpc::error& error_resp, connection_context& cntx);
     bool on_getblocktemplate(const COMMAND_RPC_GETBLOCKTEMPLATE::request& req, COMMAND_RPC_GETBLOCKTEMPLATE::response& res, epee::json_rpc::error& error_resp, connection_context& cntx);
@@ -89,7 +105,7 @@ namespace cryptonote
     //-----------------------
     bool handle_command_line(const boost::program_options::variables_map& vm);
 
-    //utils
+    // utils
     uint64_t get_block_reward(const block& blk);
     bool fill_block_header_responce(const block& blk, bool orphan_status, uint64_t height, const crypto::hash& hash, block_header_responce& responce);
     bool fill_delegate_info_responce(const bs_delegate_info& info, delegate_info_responce& responce);
