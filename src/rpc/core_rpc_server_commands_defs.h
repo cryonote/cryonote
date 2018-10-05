@@ -288,7 +288,7 @@ namespace cryptonote
     };
   };
 
-    
+
   //-----------------------------------------------
   struct COMMAND_RPC_STOP_MINING
   {
@@ -355,15 +355,23 @@ namespace cryptonote
       uint64_t difficulty;
       uint64_t height;
       uint64_t reserved_offset;
+      uint64_t expected_reward; // TODO
+      std::string prev_hash;
       blobdata blocktemplate_blob;
+      blobdata blockhashing_blob;
       std::string status;
+      bool untrusted;
 
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(difficulty)
         KV_SERIALIZE(height)
         KV_SERIALIZE(reserved_offset)
+        KV_SERIALIZE(expected_reward)
+        KV_SERIALIZE(prev_hash)
         KV_SERIALIZE(blocktemplate_blob)
+        KV_SERIALIZE(blockhashing_blob)
         KV_SERIALIZE(status)
+        KV_SERIALIZE(untrusted)
       END_KV_SERIALIZE_MAP()
     };
   };
@@ -371,7 +379,7 @@ namespace cryptonote
   struct COMMAND_RPC_SUBMITBLOCK
   {
     typedef std::vector<std::string> request;
-    
+
     struct response
     {
       std::string status;
@@ -381,7 +389,7 @@ namespace cryptonote
       END_KV_SERIALIZE_MAP()
     };
   };
-  
+
   struct block_header_responce
   {
       uint8_t major_version;
@@ -397,7 +405,7 @@ namespace cryptonote
       uint64_t reward;
       uint64_t already_generated_coins;
       delegate_id_t signing_delegate_id;
-    
+
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(major_version)
         KV_SERIALIZE(minor_version)
@@ -414,7 +422,7 @@ namespace cryptonote
         KV_SERIALIZE(signing_delegate_id)
       END_KV_SERIALIZE_MAP()
   };
-  
+
   struct COMMAND_RPC_GET_LAST_BLOCK_HEADER
   {
     typedef std::list<std::string> request;
@@ -423,7 +431,7 @@ namespace cryptonote
     {
       std::string status;
       block_header_responce block_header;
-      
+
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(block_header)
         KV_SERIALIZE(status)
@@ -431,7 +439,7 @@ namespace cryptonote
     };
 
   };
-  
+
   struct COMMAND_RPC_GET_BLOCK_HEADER_BY_HASH
   {
     struct request
@@ -447,7 +455,7 @@ namespace cryptonote
     {
       std::string status;
       block_header_responce block_header;
-      
+
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(block_header)
         KV_SERIALIZE(status)
@@ -471,7 +479,7 @@ namespace cryptonote
     {
       std::string status;
       block_header_responce block_header;
-      
+
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(block_header)
         KV_SERIALIZE(status)
@@ -479,7 +487,7 @@ namespace cryptonote
     };
 
   };
-  
+
   struct COMMAND_RPC_GET_AUTOVOTE_DELEGATES
   {
     struct request
@@ -499,21 +507,21 @@ namespace cryptonote
       END_KV_SERIALIZE_MAP()
     };
   };
-  
+
   struct delegate_info_responce
   {
     delegate_id_t delegate_id;
     std::string public_address;
-    
+
     uint64_t total_votes;
-    
+
     uint64_t processed_blocks;
     uint64_t missed_blocks;
     uint64_t fees_received;
-    
+
     uint64_t vote_rank;
     uint64_t autoselect_rank;
-    
+
     BEGIN_KV_SERIALIZE_MAP()
       KV_SERIALIZE(delegate_id)
       KV_SERIALIZE(public_address)
@@ -525,7 +533,7 @@ namespace cryptonote
       KV_SERIALIZE(autoselect_rank)
     END_KV_SERIALIZE_MAP()
   };
-  
+
   struct COMMAND_RPC_GET_DELEGATE_INFOS
   {
     struct request
@@ -535,12 +543,12 @@ namespace cryptonote
         KV_SERIALIZE(delegate_ids)
       END_KV_SERIALIZE_MAP()
     };
-    
+
     struct response
     {
       std::string status;
       std::vector<delegate_info_responce> delegate_infos;
-      
+
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(status)
         KV_SERIALIZE(delegate_infos)
