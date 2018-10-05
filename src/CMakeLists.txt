@@ -87,31 +87,9 @@ if(QT4_FOUND)
   set(CMAKE_FIND_LIBRARY_SUFFIXES ${OLD_SUFFIXES})
   file(GLOB_RECURSE QTWALLET qtwallet/*)
   list(APPEND QTWALLET daemon/daemon_options.cpp)
-
-  # Supress policy CMP0071 warning
-  set(SKIP_AUTOMOC_FILES
-    ui_aboutdialog.h
-    ui_addressbookpage.h
-    ui_askpassphrasedialog.h
-    ui_coincontroldialog.h
-    ui_dposdialog.h
-    ui_editaddressdialog.h
-    ui_helpmessagedialog.h
-    ui_intro.h
-    ui_openuridialog.h
-    ui_optionsdialog.h
-    ui_overviewpage.h
-    ui_receivecoinsdialog.h
-    ui_receiverequestdialog.h
-    ui_rpcconsole.h
-    ui_sendcoinsdialog.h
-    ui_sendcoinsentry.h
-    ui_signverifymessagedialog.h
-    ui_transactiondescdialog.h
-    qrc_bitcoin.cxx
-    qrc_bitcoin_trans.cxx)
-
-  set_property(SOURCE ${SKIP_AUTOMOC_FILES} PROPERTY SKIP_AUTOMOC ON)
+  
+  # This ensure that AUTOMOC doesn't run on generated files.
+  cmake_policy(SET CMP0071 OLD)
 
   # Remove test files
   file(GLOB_RECURSE QTWALLET_TEST qtwallet/test/*)
