@@ -93,8 +93,7 @@ static_assert(sizeof(union cn_slow_hash_state) == (INIT_SIZE_BYTE + 64) ||
 
 void cn_slow_hash(const void *data, size_t length, char *hash)
 {
-  //uint8_t long_state[MEMORY];
-  uint8_t *long_state = malloc(MEMORY * sizeof(uint8_t)); // avoid large stack allocation
+  uint8_t *long_state = (uint8_t*)malloc(MEMORY); // avoid large stack allocation
   union cn_slow_hash_state state;
   uint8_t text[INIT_SIZE_BYTE];
   uint8_t a[AES_BLOCK_SIZE];
