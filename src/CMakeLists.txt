@@ -56,7 +56,7 @@ set_property(TARGET common crypto_core crypto cryptonote_core rpc wallet PROPERT
 set_property(TARGET daemon simplewallet connectivity_tool simpleminer PROPERTY FOLDER "prog")
 set_property(TARGET daemon PROPERTY OUTPUT_NAME "cryonoted")
 
-set_property(SOURCE crypto_core/jh.c crypto_core/crypto-ops.c crypto_core/blake256.c crypto_core/hash-extra-skein.c PROPERTY COTIRE_EXCLUDED TRUE)
+set_property(SOURCE crypto_core/crypto-ops.c crypto_core/blake256.c PROPERTY COTIRE_EXCLUDED TRUE)
 set_target_properties(daemon simplewallet PROPERTIES COTIRE_UNITY_LINK_LIBRARIES_INIT COPY_UNITY)
 if (NOT USE_PCH)
   set_property(DIRECTORY . PROPERTY COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
@@ -64,6 +64,7 @@ endif()
 set_property(TARGET common crypto crypto_core cryptonote_core rpc wallet daemon simplewallet PROPERTY
     COTIRE_PREFIX_HEADER_INCLUDE_PATH
     "${CMAKE_SOURCE_DIR}/contrib;${CMAKE_SOURCE_DIR}/external;${CMAKE_SOURCE_DIR}/include")
+
 cotire(common crypto crypto_core cryptonote_core rpc wallet daemon simplewallet)
 set_property(TARGET common_unity crypto_unity crypto_core_unity cryptonote_core_unity rpc_unity wallet_unity PROPERTY FOLDER "libs")
 set_property(TARGET daemon_unity simplewallet_unity PROPERTY FOLDER "prog")
@@ -75,19 +76,18 @@ add_dependencies(simplewallet_unity version)
 # QT Wallet
 find_package(Qt4 QUIET COMPONENTS QtCore QtGui QtNetwork QtTest)
 if (QT4_FOUND)
-  add_definitions( -DENABLE_WALLET )
+  add_definitions(-DENABLE_WALLET)
   include(${QT_USE_FILE})
   add_definitions(${QT_DEFINITIONS})
-  set(CMAKE_AUTOMOC TRUE)
-
-  SET(OLD_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
+  set(CMAKE_AUTOMOC ON)
+  set(OLD_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
   if(STATIC)
-    SET(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+    set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
   endif()
-  SET(CMAKE_FIND_LIBRARY_SUFFIXES ${OLD_SUFFIXES})
-
+  set(CMAKE_FIND_LIBRARY_SUFFIXES ${OLD_SUFFIXES})
   file(GLOB_RECURSE QTWALLET qtwallet/*)
   list(APPEND QTWALLET daemon/daemon_options.cpp)
+
   # Remove test files
   file(GLOB_RECURSE QTWALLET_TEST qtwallet/test/*)
   foreach(TEST_FILE ${QTWALLET_TEST})
@@ -103,11 +103,9 @@ if (QT4_FOUND)
   endif()
 
   source_group(qtwallet FILES ${QTWALLET})
-
   file(GLOB_RECURSE QTWALLET_FORM_FILES qtwallet/forms/*)
   #file(GLOB_RECURSE QTWALLET_QRC_FILES qtwallet/*.qrc)
   set(QTWALLET_QRC_FILES qtwallet/bitcoin.qrc)
-
   qt4_wrap_ui(QTWALLET_FORM_HEADERS ${QTWALLET_FORM_FILES})
 
   # Deal with the translations
@@ -122,10 +120,10 @@ if (QT4_FOUND)
     add_custom_command(
       OUTPUT ${OUTPUT_FILE}
       COMMAND lrelease "${QTWALLET_LANG_FILE}" -qm "${OUTPUT_FILE}"
-      MAIN_DEPENDENCY ${QTWALLET_LANG_FILE}
-    )
+      MAIN_DEPENDENCY ${QTWALLET_LANG_FILE})
     list(APPEND QM_FILES ${OUTPUT_FILE})
   endforeach()
+
   # Copy the qrc file containing above to the destination first
   set(QTWALLET_TRANS_STEM bitcoin_trans)
   set(QTWALLET_TRANS_SRCFILE ${CMAKE_CURRENT_SOURCE_DIR}/qtwallet/${QTWALLET_TRANS_STEM}.qrc)
@@ -135,16 +133,15 @@ if (QT4_FOUND)
   add_custom_command(
     OUTPUT ${QTWALLET_TRANS_INFILE}
     COMMAND ${CMAKE_COMMAND} -E copy ${QTWALLET_TRANS_SRCFILE} ${QTWALLET_TRANS_INFILE}
-    MAIN_DEPENDENCY ${QTWALLET_TRANS_SRCFILE}
-  )
+    MAIN_DEPENDENCY ${QTWALLET_TRANS_SRCFILE})
+
   # Run the resource compiler on the dest file
   add_custom_command(
     OUTPUT ${QTWALLET_TRANS_OUTFILE}
     COMMAND ${QT_RCC_EXECUTABLE}
     ARGS ${rcc_options} -name ${QTWALLET_TRANS_STEM} -o ${QTWALLET_TRANS_OUTFILE} ${QTWALLET_TRANS_INFILE}
     MAIN_DEPENDENCY ${QTWALLET_TRANS_INFILE}
-    DEPENDS ${QM_FILES}
-  )
+    DEPENDS ${QM_FILES})
 
   qt4_add_resources(QTWALLET_QRC_SOURCES ${QTWALLET_QRC_FILES})
   include_directories(${CMAKE_CURRENT_BINARY_DIR}) # for the ui_*.h files
@@ -162,7 +159,6 @@ if (QT4_FOUND)
   set_property(SOURCE ${QTWALLET_QRC_SOURCES} ${QTWALLET_TRANS_OUTFILE} qtwallet/irc/cv/gui/WindowManager.cpp PROPERTY COTIRE_EXCLUDED TRUE)
   set_target_properties(qtwallet PROPERTIES COTIRE_UNITY_LINK_LIBRARIES_INIT COPY_UNITY)
   cotire(qtwallet)
-  add_dependencies(qtwallet_unity qtwallet_automoc)
 endif()
 
 # add program which just outputs the version

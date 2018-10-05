@@ -36,9 +36,11 @@ VotingRecord::VotingRecord(const VotingRecord& other)
 {
 }
 
-VotingRecord::~VotingRecord() { }
+VotingRecord::~VotingRecord()
+{
+}
 
-/*VotingRecord::VotingRecord(VotingRecord&& other) noexcept
+VotingRecord::VotingRecord(VotingRecord&& other) noexcept
     : info(std::move(other.info))
     , isTopDelegate(other.isTopDelegate)
     , isAutoselected(other.isAutoselected)
@@ -46,10 +48,10 @@ VotingRecord::~VotingRecord() { }
 {
 }
 
-VotingRecord::~VotingRecord()
-{
-    info.reset(nullptr);
-}
+//VotingRecord::~VotingRecord()
+//{
+//    info.reset(nullptr);
+//}
 
 VotingRecord& VotingRecord::operator= (const VotingRecord& other)
 {
@@ -65,4 +67,4 @@ VotingRecord& VotingRecord::operator= (VotingRecord&& other) noexcept
     std::swap(isAutoselected, other.isAutoselected);
     std::swap(isUserSelected, other.isUserSelected);
     return *this;
-}*/
+}

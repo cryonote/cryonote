@@ -20,23 +20,23 @@ public:
     VotingRecord(const cryptonote::bs_delegate_info& theInfo, bool isTop, bool isAuto, bool isUser, bool isThisWallet);
     VotingRecord(const VotingRecord& other);
     ~VotingRecord();
-    
-    /*VotingRecord(VotingRecord&& other) noexcept;
+
+    VotingRecord(VotingRecord&& other) noexcept;
     VotingRecord& operator= (const VotingRecord& other);
-    VotingRecord& operator= (VotingRecord&& other) noexcept;*/
-    
+    VotingRecord& operator= (VotingRecord&& other) noexcept;
+
     /** The latest stats */
     std::unique_ptr<cryptonote::bs_delegate_info> info;
 
     /** Whether the delegate is currently a top delegate */
     bool isTopDelegate;
-    
+
     /** Whether the delegate is being autoselected */
     bool isAutoselected;
-    
+
     /** Whether the delegate is being user-selected */
     bool isUserSelected;
-    
+
     /** If the record represents this wallet */
     bool isThisWallet;
 };

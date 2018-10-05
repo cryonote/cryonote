@@ -58,7 +58,7 @@ set_property(TARGET coretests crypto-tests functional_tests difficulty-tests gte
 # add_test(unit_tests unit_tests)
 add_test(crypto crypto-tests ${CMAKE_CURRENT_SOURCE_DIR}/crypto/tests.txt)
 add_test(difficulty difficulty-tests ${CMAKE_CURRENT_SOURCE_DIR}/difficulty/data.txt)
-foreach(hash IN ITEMS fast slow tree extra-blake extra-groestl extra-jh extra-skein)
+foreach(hash IN ITEMS fast slow tree extra-blake)
   add_test(hash-${hash} hash-tests ${hash} ${CMAKE_CURRENT_SOURCE_DIR}/hash/tests-${hash}.txt)
 endforeach(hash)
 add_test(hash-target hash-target-tests)

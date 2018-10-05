@@ -58,7 +58,7 @@ public:
 
     VotingTableModel *parent;
     CWallet *wallet;
-    
+
     uint64_t amountUnvoted;
 
     /* Local cache of delegates. Sorted by delegate id.
@@ -70,13 +70,13 @@ public:
     void refreshDelegates()
     {
         cachedDelegates.clear();
-        
+
         auto infos = GetDelegateInfos();
-        
+
         LOCK(wallet->cs_wallet);
         const auto& userDelegates = wallet->GetWallet2()->user_delegates();
         auto our_address = wallet->GetWallet2()->get_public_address();
-        
+
         BOOST_FOREACH(const auto& info, infos)
         {
             cachedDelegates.append(VotingRecord(info, info.cached_vote_rank < cryptonote::config::dpos_num_delegates,
@@ -86,7 +86,7 @@ public:
         }
         amountUnvoted = wallet->GetWallet2()->get_amount_unvoted();
     }
-    
+
     int size()
     {
         return cachedDelegates.size();
@@ -137,7 +137,7 @@ int VotingTableModel::columnCount(const QModelIndex &parent) const
 QString VotingTableModel::formatTooltip(const VotingRecord *rec) const
 {
     auto unit = BitcoinUnits::XPB;
-    
+
     QString tooltip;
     tooltip += tr("Blocks Processed:") + " " + QString::number(rec->info->processed_blocks);
     tooltip += "\n" + tr("Blocks Missed:") + " " + QString::number(rec->info->missed_blocks);
@@ -152,9 +152,9 @@ QVariant VotingTableModel::data(const QModelIndex &index, int role) const
 {
     if(!index.isValid())
         return QVariant();
-    
+
     VotingRecord *rec = static_cast<VotingRecord*>(index.internalPointer());
-    
+
     switch(role)
     {
     case Qt::DisplayRole:
@@ -217,7 +217,7 @@ QVariant VotingTableModel::data(const QModelIndex &index, int role) const
     case IsAutoSelectedRole:
         return rec->isAutoselected;
     }
-    
+
     return QVariant();
 }
 
@@ -259,16 +259,16 @@ Qt::ItemFlags VotingTableModel::flags(const QModelIndex &index) const
 {
     if(!index.isValid())
         return 0;
-    
+
     Qt::ItemFlags retval = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
-    
+
     if (index.column() == Selected)
     {
         retval |= Qt::ItemIsUserCheckable;
         if (!isVotingUserDelegates())
             retval &= ~Qt::ItemIsEnabled;
     }
-    
+
     return retval;
 }
 
@@ -291,7 +291,7 @@ void VotingTableModel::updateDelegates()
     beginResetModel();
     priv->refreshDelegates();
     endResetModel();
-    
+
     cachedNumDelegates = priv->cachedDelegates.size();
     emit amountUnvotedChanged();
 }
@@ -315,12 +315,12 @@ void VotingTableModel::toggleUserDelegate(const QModelIndex& index)
 {
     if (!index.isValid())
         return;
-    
+
     VotingRecord *rec = static_cast<VotingRecord*>(index.internalPointer());
-    
+
     {
         LOCK(priv->wallet->cs_wallet);
-        
+
         cryptonote::delegate_votes votes = priv->wallet->GetWallet2()->user_delegates();
         if (rec->isUserSelected)
         {
