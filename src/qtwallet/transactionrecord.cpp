@@ -8,7 +8,6 @@
 
 #include "cryptonote_core/cryptonote_basic_impl.h"
 
-#include "interface/base58.h"
 #include "interface/wallet.h"
 #include "interface/main.h"
 #include "bitcoin/util.h"
@@ -35,11 +34,11 @@ bool TransactionRecord::showTransaction(const CWalletTx &wtx)
 QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *wallet, const CWalletTx &wtx)
 {
     QList<TransactionRecord> parts;
-    
+
     // Three parts: mined credits, non-mined credits, and debits.
     uint64_t nMined, nCredit, nDebit;
     wtx.GetCreditDebit(nMined, nCredit, nDebit);
-    
+
     bool isPayment = wtx.IsPayment(*wallet);
     std::string paymentId;
     if (isPayment)
@@ -49,7 +48,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     }
 
     LOG_PRINT_L2("inMain=" << wtx.IsInMainChain() << ", nMined=" << nMined << ", nDebit=" << nDebit << ", nCredit=" << nCredit);
-    
+
     // Mined credits are easy
     if (nMined > 0)
     {
@@ -59,9 +58,9 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         rec.idx = parts.size();
         parts.append(rec);
     }
-    
+
     // If there's a known transfer, use it to figure out what's up
-    
+
     if (wtx.optKnownTransfers)
     {
         auto& kd = *wtx.optKnownTransfers;
@@ -80,7 +79,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 continue;
             }
             nDebit -= nThisAmount;
-            
+
             auto rec = TransactionRecord(wtx.txHash, wtx.nTimestamp,
                                          isPayment ? TransactionRecord::PayToAddress : TransactionRecord::SendToAddress,
                                          cryptonote::get_account_address_as_str(dest.addr),
@@ -92,7 +91,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             {
                 rec.type = TransactionRecord::SendToSelf;
                 rec.address = "";
-                
+
                 if (nCredit < dest.amount)
                 {
                     LOG_PRINT_RED_L0("Known transfer to self greater than credit amount?");
@@ -102,18 +101,18 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 {
                     nCredit -= dest.amount;
                 }
-                
+
                 rec.debit -= dest.amount; // leave fee in if fee was included here
                 rec.credit = 0;
             }
-            
+
             parts.append(rec);
-            
+
             LOG_PRINT_L2("accounted sending " << dest.amount << ", includedFee=?" << fIncludeFee << " to self or other");
-            
+
             fIncludeFee = false;
         }
-        
+
         LOG_PRINT_L2("after transfers, nDebit=" << nDebit << ", nCredit=" << nCredit);
         if (kd.m_xpb_change > nCredit)
         {
@@ -134,7 +133,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             nDebit -= kd.m_xpb_change;
         }
     }
-    
+
     // If there are left-overs...
     // If net is negative but have both credit & debit, assume user sent & got change back
     if (nCredit > 0 && nDebit > 0 && nDebit > nCredit)
@@ -169,7 +168,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             parts.append(rec);
         }
     }
-    
+
     /*uint64_t m_block_height;
     cryptonote::transaction m_tx;
     size_t m_internal_output_index;
@@ -177,8 +176,8 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     bool m_spent;
     cryptonote::transaction m_spent_by_tx;
     crypto::key_image m_key_image; //TODO: key_image stored twice :(*/
-    
-    
+
+
     /*int64_t nTime = wtx.GetTxTime();
     int64_t nCredit = wtx.GetCredit();
     int64_t nDebit = wtx.GetDebit();
@@ -293,7 +292,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             parts.append(TransactionRecord(hash, nTime, TransactionRecord::Other, "", nNet, 0));
         }
     }*/
-    
+
     return parts;
 }
 
@@ -304,7 +303,7 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx)
         return;
     if (!pwalletMain)
         return;
-    
+
     // Determine transaction status
 
     // Sort order, unrecorded transactions sort to the top

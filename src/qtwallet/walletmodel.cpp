@@ -18,7 +18,6 @@
 #include "cryptonote_core/cryptonote_format_utils.h"
 #include "wallet/wallet_errors.h"
 
-#include "interface/base58.h"
 #include "interface/main.h"
 #include "interface/wallet.h"
 #include "interface/placeholders.h"
@@ -87,7 +86,7 @@ std::string WalletModel::getPublicAddress() const
 {
     if (!wallet->HasWallet2())
         return "";
-    
+
     return cryptonote::get_account_address_as_str(wallet->GetWallet2()->get_public_address());
 }
 
@@ -115,7 +114,7 @@ void WalletModel::updateStatus()
 void WalletModel::pollBalanceChanged()
 {
     static int64_t cachedWalletBlocks = 0;
-    
+
     // Get required locks upfront. This avoids the GUI from getting stuck on
     // periodical polls if the core is holding the locks for a longer time -
     // for example, during a wallet rescan.
@@ -124,18 +123,18 @@ void WalletModel::pollBalanceChanged()
         return;
     if (!pcore)
         return;
-    
+
     TRY_LOCK(wallet->cs_wallet, lockWallet);
     if(!lockWallet)
         return;
-    
+
     int64_t walletBlocks = WalletProcessedHeight();
     int64_t daemonBlocks = DaemonProcessedHeight();
-  
+
     if (daemonBlocks != cachedNumBlocks || walletBlocks != cachedWalletBlocks)
     {
         cachedNumBlocks = daemonBlocks;
-        
+
         checkBalanceChanged();
         checkDelegateInfoChanged();
         if (transactionTableModel)
@@ -163,14 +162,14 @@ void WalletModel::checkBalanceChanged()
 void WalletModel::checkDelegateInfoChanged()
 {
     cryptonote::bs_delegate_info inf;
-    
+
     bool amDelegate = GetDelegateInfo(wallet->GetWallet2()->get_public_address(), inf);
-    
+
     if (!amDelegate)
     {
         inf.delegate_id = 0;
     }
-    
+
     if (*cachedDelegateInfo != inf)
     {
         *cachedDelegateInfo = inf;
@@ -212,21 +211,21 @@ bool processPaymentId(const QString& qPaymentIdStr, std::vector<uint8_t>& extra)
     std::string paymentIdStr = qPaymentIdStr.toStdString();
     if (paymentIdStr.empty())
         return true;
-    
+
     crypto::hash paymentId;
     if (!cryptonote::parse_payment_id(paymentIdStr, paymentId))
     {
         return false;
     }
-    
+
     std::string extraNonce;
     cryptonote::set_payment_id_to_tx_extra_nonce(extraNonce, paymentId);
-    
+
     if (!cryptonote::add_extra_nonce_to_tx_extra(extra, extraNonce))
     {
         return false;
     }
-    
+
     return true;
 }
 
@@ -285,11 +284,11 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         transaction.setTransactionFee(nTransactionFee);
         return AmountWithFeeExceedsBalance;
     }
-    
+
     std::vector<uint8_t> extra;
     if (!processPaymentId(transaction.getPaymentId(), extra))
         return InvalidPaymentId;
-    
+
     int64_t nFeeRequired = nTransactionFee < (int64_t)DEFAULT_FEE ? (int64_t)DEFAULT_FEE : nTransactionFee;
     transaction.setTransactionFee(nFeeRequired);
 
@@ -323,43 +322,43 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
 WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &transaction)
 {
     std::vector<cryptonote::tx_destination_entry> dsts;
-    
+
     const QList<SendCoinsRecipient> &recipients = transaction.getRecipients();
-    
+
     foreach(const SendCoinsRecipient &rcp, recipients)
     {
         cryptonote::tx_destination_entry de;
         if(!get_account_address_from_str(de.addr, rcp.address.toStdString()))
             return InvalidAddress;
-        
+
         de.amount = rcp.amount;
-        
+
         if (0 == de.amount)
             return InvalidAmount;
-        
+
         dsts.push_back(de);
     }
-    
+
     uint64_t unlockTime = 0;
     std::vector<uint8_t> extra;
-    
+
     qint64 minFakeOuts, fakeOuts;
     transaction.getFakeOuts(minFakeOuts, fakeOuts);
-    
+
     bool registeringDelegate;
     cryptonote::delegate_id_t delegateId;
     qint64 registrationFee;
-    
+
     registeringDelegate = transaction.getRegisteringDelegate(delegateId, registrationFee);
-    
+
     if (registeringDelegate && !recipients.empty())
         return TransactionCreationFailed;
-    
+
     if (!processPaymentId(transaction.getPaymentId(), extra))
         return InvalidPaymentId;
-    
+
     LOG_PRINT_GREEN("Fee is " << transaction.getTransactionFee() << ", default fee is " << DEFAULT_FEE << ", nTransactionFee is " << nTransactionFee << ", fake outs are " << minFakeOuts << "/" << fakeOuts << ", registrationFee is " << registrationFee, LOG_LEVEL_0);
-    
+
     try
     {
         cryptonote::transaction tx;
@@ -395,10 +394,10 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
     {
         if (e.available() + e.scanty_outs_amount() < e.tx_amount())
             return AmountExceedsBalance;
-        
+
         if (e.available() + e.scanty_outs_amount() < e.tx_amount() + e.fee())
             return AmountWithFeeExceedsBalance;
-        
+
         return SendCoinsReturn(NotEnoughOutsToMix, e.scanty_outs_amount());
     }
     catch (const tools::error::not_enough_outs_to_mix& e)

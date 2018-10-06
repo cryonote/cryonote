@@ -7,7 +7,6 @@
 #include "bitcoinunits.h"
 #include "guiutil.h"
 
-#include "interface/base58.h"
 //#include "db.h"
 #include "interface/main.h"
 #include "transactionrecord.h"
@@ -51,7 +50,7 @@ QString TransactionDesc::toHTML(CWallet *wallet, CWalletTx &wtx, int vout, int u
 
     strHTML.reserve(4000);
     strHTML += "<html><font face='verdana, arial, helvetica, sans-serif'>";
-    
+
     //
     // Status
     //
@@ -70,18 +69,18 @@ QString TransactionDesc::toHTML(CWallet *wallet, CWalletTx &wtx, int vout, int u
     {
         strHTML += "<b>" + tr("Source") + ":</b> " + tr("Anonymous Pebblecoin Address") + "<br>";
     }
-    
+
     //
     // To
     //
     // TODO
-    
+
     //
     // Amount
     //
     uint64_t nMined, nCredit, nDebit;
     wtx.GetCreditDebit(nMined, nCredit, nDebit);
-    
+
     if (nMined) {
         strHTML += "<b>" + tr("Mined") + ":</b> " + BitcoinUnits::formatWithUnit(unit, nMined) + "<br>";;
     }
@@ -91,22 +90,22 @@ QString TransactionDesc::toHTML(CWallet *wallet, CWalletTx &wtx, int vout, int u
     if (nDebit) {
         strHTML += "<b>" + tr("Debit") + ":</b> " + BitcoinUnits::formatWithUnit(unit, nDebit) + "<br>";;
     }
-    
+
     int64_t nNet = 0;
     nNet += nMined;
     nNet += nCredit;
     nNet -= nDebit;
-    
+
     strHTML += "<b>" + tr("Net amount") + ":</b> " + BitcoinUnits::formatWithUnit(unit, nNet, true) + "<br>";
 
     strHTML += "<b>" + tr("Transaction ID") + ":</b> " + QString::fromStdString(wtx.txHash) + "<br>";
-    
+
     if (wtx.IsPayment(*wallet))
     {
         std::string paymentId;
         tools::wallet2::payment_details pd;
         wtx.GetPaymentInfo(*wallet, paymentId, pd);
-        
+
         strHTML += "<b>" + tr("Payment ID") + ":</b> " + QString::fromStdString(paymentId) + "<br>";
     }
 

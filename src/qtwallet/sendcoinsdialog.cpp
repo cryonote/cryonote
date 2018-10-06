@@ -12,7 +12,6 @@
 #include "common/ui_interface.h"
 #include "cryptonote_core/cryptonote_format_utils.h"
 
-#include "interface/base58.h"
 #include "addresstablemodel.h"
 #include "bitcoinunits.h"
 #include "coincontroldialog.h"
@@ -184,10 +183,10 @@ void SendCoinsDialog::on_sendButton_clicked()
 
     // prepare transaction for getting txFee earlier
     WalletModelTransaction currentTransaction(recipients);
-    
+
     currentTransaction.setFakeOuts(ui->coinMixSpinBox->value(), ui->coinMixSpinBox->value());
     currentTransaction.setPaymentId(ui->paymentID->text());
-    
+
     WalletModel::SendCoinsReturn prepareStatus;
     /*if (model->getOptionsModel()->getCoinControlFeatures()) // coin control enabled
         prepareStatus = model->prepareTransaction(currentTransaction, CoinControlDialog::coinControl);
@@ -230,7 +229,7 @@ void SendCoinsDialog::on_sendButton_clicked()
     questionString.append(tr("Total Amount %1 (= %2)")
         .arg(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), totalAmount))
         .arg(alternativeUnits.join(" " + tr("or") + " ")));
-    
+
     if (!currentTransaction.getPaymentId().isEmpty())
     {
         questionString.append("<hr /><b>");
@@ -248,7 +247,7 @@ void SendCoinsDialog::on_sendButton_clicked()
         fNewRecipientAllowed = true;
         return;
     }
-  
+
     // now send the prepared transaction
     WalletModel::SendCoinsReturn sendStatus = model->sendCoins(currentTransaction);
     // process sendStatus and on error generate message shown to user
@@ -273,7 +272,7 @@ void SendCoinsDialog::clear()
     addEntry();
 
     updateTabsAndLabels();
-    
+
     ui->paymentID->setText("");
     ui->coinMixSpinBox->setValue(3);
 }

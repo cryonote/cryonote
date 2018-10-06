@@ -4,8 +4,6 @@
 
 #include "bitcoinaddressvalidator.h"
 
-#include "interface/base58.h"
-
 #include "cryptonote_core/account.h"
 #include "cryptonote_core/cryptonote_basic_impl.h"
 
@@ -91,11 +89,11 @@ BitcoinAddressCheckValidator::BitcoinAddressCheckValidator(QObject *parent) :
 QValidator::State BitcoinAddressCheckValidator::validate(QString &input, int &pos) const
 {
     Q_UNUSED(pos);
-  
+
     // Validate the passed Pebblecoin address
     cryptonote::account_public_address addr;
     if (cryptonote::get_account_address_from_str(addr, input.toStdString()))
         return QValidator::Acceptable;
-    
+
     return QValidator::Invalid;
 }

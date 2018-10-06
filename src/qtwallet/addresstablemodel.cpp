@@ -11,7 +11,6 @@
 #include "common/types.h"
 #include "cryptonote_core/cryptonote_basic_impl.h"
 
-#include "interface/base58.h"
 #include "interface/wallet.h"
 #include "interface/script.h"
 #include "guiutil.h"
@@ -450,11 +449,11 @@ QString AddressTableModel::labelForAddress(const QString &address) const
 {
     if (address.isEmpty())
         return QString();
-    
+
     cryptonote::account_public_address addr;
     if(!get_account_address_from_str(addr, address.toStdString()))
         return QString();
-    
+
     {
         LOG_PRINT_L4("LOCK(cs_wallet) AddressTableModel::labelForAddress");
         LOCK(wallet->cs_wallet); // mapAddressBook
@@ -463,7 +462,7 @@ QString AddressTableModel::labelForAddress(const QString &address) const
         if (mi != wallet->mapAddressBook.end())
             return QString::fromStdString(mi->second.name);
     }
-    
+
     return QString();
 }
 

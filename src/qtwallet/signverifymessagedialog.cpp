@@ -9,7 +9,6 @@
 #include "guiutil.h"
 #include "walletmodel.h"
 
-#include "interface/base58.h"
 #include "interface/init.h"
 #include "interface/wallet.h"
 
