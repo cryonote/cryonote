@@ -1,5 +1,12 @@
 cmake_minimum_required(VERSION 3.2)
 
+if(POLICY CMP0058)
+  # Ninja requires custom command byproducts to be explicit
+  cmake_policy(SET CMP0058 NEW)
+endif()
+
+project(cryonote)
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(cotire)
 
@@ -63,7 +70,7 @@ else()
   if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
     set(WARNINGS "${WARNINGS} -Wno-error=mismatched-tags -Wno-error=null-conversion -Wno-overloaded-shift-op-parentheses -Wno-error=shift-count-overflow -Wno-error=tautological-constant-out-of-range-compare -Wno-error=unused-private-field -Wno-error=unneeded-internal-declaration")
   else()
-    set(WARNINGS "${WARNINGS} -Wlogical-op -Wno-error=maybe-uninitialized")
+    set(WARNINGS "${WARNINGS} -Wlong-long -Werror=uninitialized")
   endif()
   if(MINGW)
     set(WARNINGS "${WARNINGS} -Wno-error=unused-value")
