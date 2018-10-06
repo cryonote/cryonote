@@ -57,7 +57,7 @@ namespace cryptonote {
     uint64_t penalty_per_era = standard_reward / (num_reward_eras - 1);
   }
 
-  uint64_t get_base_reward(uint64_t target_block_height)
+  uint64_t get_base_reward(uint64_t target_block_height, uint64_t already_generated_coins)
   {
     using namespace detail;
 
@@ -67,6 +67,11 @@ namespace cryptonote {
     }
 
     if (config::in_pos_era(target_block_height)) // no more rewards once switch to DPOS
+    {
+      return 0;
+    }
+
+    if (already_generated_coins >= MONEY_SUPPLY) // exceeded maximum money supply
     {
       return 0;
     }
@@ -96,7 +101,7 @@ namespace cryptonote {
   }
 
   bool get_block_reward(size_t median_size, size_t current_block_size, uint64_t already_generated_coins, uint64_t target_block_height, uint64_t &reward) {
-    uint64_t base_reward = get_base_reward(target_block_height);
+    uint64_t base_reward = get_base_reward(target_block_height, already_generated_coins);
     LOG_PRINT_L4("Base reward for height " << target_block_height << " is " << base_reward);
 
     // make it soft
