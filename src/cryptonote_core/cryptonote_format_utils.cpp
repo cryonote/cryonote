@@ -786,15 +786,8 @@ namespace cryptonote
   //---------------------------------------------------------------
   bool generate_genesis_block(block& bl)
   {
-    //genesis block
+    // genesis block
     bl = boost::value_initialized<block>();
-
-    /*account_public_address ac = boost::value_initialized<account_public_address>();
-    std::vector<size_t> sz;
-    construct_miner_tx(0, 0, 0, 0, 0, ac, bl.miner_tx); // zero fee in genesis
-    blobdata txb = tx_to_blob(bl.miner_tx);
-    std::string hex_tx_represent = string_tools::buff_to_hex_nodelimer(txb);
-    LOG_PRINT_L4("genesis hex_tx_represent: " << hex_tx_represent);*/
 
     if (GENESIS_NONCE_STRING == NULL)
     {
@@ -817,7 +810,8 @@ namespace cryptonote
       return false;
     }
 
-    //hard code coinbase tx in genesis block, because "tru" generating tx use random, but genesis should be always the same
+    // hard code coinbase tx in genesis block, because "true" generating tx use random,
+    // but genesis should be always the same.
     std::string genesis_coinbase_tx_hex = GENESIS_COINBASE_TX_HEX;
 
     blobdata tx_bl;
@@ -830,7 +824,6 @@ namespace cryptonote
 
     crypto::hash nonce_hash = crypto::cn_fast_hash(GENESIS_NONCE_STRING, strlen(GENESIS_NONCE_STRING));
     bl.nonce = *(reinterpret_cast<uint32_t *>(&nonce_hash));
-
     LOG_PRINT_GREEN("Genesis block nonce is: " << bl.nonce, LOG_LEVEL_0);
 
     crypto::hash block_id = null_hash;

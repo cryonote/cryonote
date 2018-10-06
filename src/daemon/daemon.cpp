@@ -56,6 +56,7 @@ int main(int argc, char* argv[])
   command_line::add_arg(desc_cmd_only, arg_os_version);
   command_line::add_arg(desc_cmd_only, command_line::arg_data_dir);
   command_line::add_arg(desc_cmd_only, arg_config_file);
+  command_line::add_arg(desc_cmd_only, arg_print_genesis_tx);
 
   command_line::add_arg(desc_cmd_sett, arg_log_file);
   command_line::add_arg(desc_cmd_sett, arg_log_level);
@@ -104,6 +105,19 @@ int main(int argc, char* argv[])
       po::store(po::parse_config_file<char>(config_path.string<std::string>().c_str(), desc_cmd_sett), vm);
     }
 
+    // generate and print the new genesis tx hash
+    if (command_line::get_arg(vm, arg_print_genesis_tx))
+    {
+      cryptonote::block& bl = boost::value_initialized<cryptonote::block>();
+      cryptonote::account_public_address ac = boost::value_initialized<cryptonote::account_public_address>();
+      std::vector<size_t> sz;
+      construct_miner_tx(0, 0, 0, 0, 0, ac, bl.miner_tx); // zero fee in genesis
+      cryptonote::blobdata txb = tx_to_blob(bl.miner_tx);
+      std::string hex_tx_represent = string_tools::buff_to_hex_nodelimer(txb);
+      LOG_PRINT_L0("genesis hex_tx_represent: " << hex_tx_represent);
+      return false;
+    }
+
     // see if there's testnet in the config file
     if (command_line::get_arg(vm, arg_testnet_on) || cryptonote::config::testnet_only)
     {
@@ -111,11 +125,12 @@ int main(int argc, char* argv[])
     }
 
     po::notify(vm);
-
     return true;
   });
   if (!r)
+  {
     return 1;
+  }
 
   //set up logging options
   boost::filesystem::path log_file_path(command_line::get_arg(vm, arg_log_file));
@@ -135,10 +150,14 @@ int main(int argc, char* argv[])
   LOG_PRINT("Module folder: " << argv[0], LOG_LEVEL_0);
 
   if (!crypto::process_options(vm, command_line::has_arg(vm, miner_opt::arg_start_mining)))
+  {
     return 1;
+  }
 
   if (!cryptonote_opt::handle_command_line(vm))
+  {
     return 1;
+  }
 
   bool res = true;
   cryptonote::checkpoints checkpoints;
@@ -194,7 +213,8 @@ int main(int argc, char* argv[])
   CHECK_AND_ASSERT_MES(res, 1, "Failed to initialize core rpc server.");
   LOG_PRINT_L0("Core rpc server started ok");
 
-  tools::signal_handler::install([&dch, &p2psrv] {
+  tools::signal_handler::install([&dch, &p2psrv]
+  {
     dch.stop_handling();
     p2psrv.send_stop_signal();
   });

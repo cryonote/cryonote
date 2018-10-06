@@ -12,6 +12,7 @@
 namespace daemon_opt
 {
   extern const command_line::arg_descriptor<std::string> arg_config_file;
+  extern const command_line::arg_descriptor<bool> arg_print_genesis_tx;
   extern const command_line::arg_descriptor<std::string> arg_pid_file;
   extern const command_line::arg_descriptor<bool> arg_os_version;
   extern const command_line::arg_descriptor<std::string> arg_log_file;
