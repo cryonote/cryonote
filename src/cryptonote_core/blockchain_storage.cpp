@@ -77,11 +77,11 @@ void blockchain_storage::print_sizes() const
 //------------------------------------------------------------------
 static void config_stxxl()
 {
-  static bool configed = false;
-  if (!configed) {
+  static bool configurated = false;
+  if (!configurated) {
     // config stxxl to not allocate much at all, should only need to use the vector on disk
     stxxl::config::get_instance()->add_disk(stxxl::disk_config("stxxl.tmp", 1, "memory autogrow"));
-    configed = true;
+    configurated = true;
   }
 }
 //------------------------------------------------------------------
