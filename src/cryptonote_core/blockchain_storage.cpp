@@ -2124,20 +2124,20 @@ bool blockchain_storage::check_tx_in_to_key(const transaction& tx, size_t i, con
                        << " mismatch with outputs keys count for inputs=" << vi.m_keys.size());
 
   if (m_is_in_checkpoint_zone)
+  {
     return true;
+  }
 
   crypto::hash tx_prefix_hash = (tx_prefix_hash_ == null_hash) ? get_transaction_prefix_hash(tx) : tx_prefix_hash_;
   // need vector of addresses for check_ring_signature, so ...
   std::vector<const crypto::public_key*> vec_pkeys;
-  for (auto& key : vi.m_keys) {
+  for (auto& key : vi.m_keys)
+  {
     vec_pkeys.push_back(&key);
   }
-  if (!crypto::validate_key_image(inp.k_image))
-  {
-    LOG_ERROR("Invalid key image: " << inp.k_image << ", amount: " << print_money(inp.amount)
-      << ", tx: " << tx_prefix_hash);
-    return false;
-  }
+  CHECK_AND_ASSERT_MES(crypto::validate_key_image(inp.k_image), false,
+                        "Invalid key image: " << inp.k_image << ", amount: "
+                        << print_money(inp.amount) << ", tx: " << tx_prefix_hash);
   CHECK_AND_ASSERT_MES(crypto::check_ring_signature(tx_prefix_hash, inp.k_image, vec_pkeys, tx.signatures[i].data()),
                        false, "Ring signature check failed");
   return true;
@@ -2400,7 +2400,9 @@ bool blockchain_storage::check_tx_in_register_delegate(const transaction& tx, si
 
   uint64_t for_height = m_pblockchain_entries->size();
   if (m_popping_block)
+  {
     for_height -= 1;
+  }
 
   uint64_t required_fee = std::max(average_past_block_fees(for_height) * DPOS_REGISTRATION_FEE_MULTIPLE,
                                    DPOS_MIN_REGISTRATION_FEE);
@@ -2462,7 +2464,8 @@ bool blockchain_storage::check_tx_out_to_key(const transaction& tx, size_t i, co
   return true;
 }
 //------------------------------------------------------------------
-namespace bs_visitor_detail {
+namespace bs_visitor_detail
+{
   struct add_transaction_input_visitor: public tx_input_visitor_base
   {
     using tx_input_visitor_base::operator();
