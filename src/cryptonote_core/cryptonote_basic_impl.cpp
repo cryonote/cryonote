@@ -57,7 +57,7 @@ namespace cryptonote {
     uint64_t penalty_per_era = standard_reward / (num_reward_eras - 1);
   }
 
-  uint64_t get_base_reward(uint64_t target_block_height, uint64_t already_generated_coins)
+  uint64_t get_base_reward(uint64_t target_block_height)
   {
     using namespace detail;
 
@@ -67,11 +67,6 @@ namespace cryptonote {
     }
 
     if (config::in_pos_era(target_block_height)) // no more rewards once switch to DPOS
-    {
-      return 0;
-    }
-
-    if (already_generated_coins >= MONEY_SUPPLY) // exceeded maximum money supply
     {
       return 0;
     }
@@ -101,7 +96,16 @@ namespace cryptonote {
   }
 
   bool get_block_reward(size_t median_size, size_t current_block_size, uint64_t already_generated_coins, uint64_t target_block_height, uint64_t &reward) {
-    uint64_t base_reward = get_base_reward(target_block_height, already_generated_coins);
+    uint64_t base_reward = get_base_reward(target_block_height);
+    uint64_t remaining_supply = (MONEY_SUPPLY - already_generated_coins);
+
+    // ensure the base (reward base_reward + already_generated_coins) never exceeds
+    // remaining supply (MONEY_SUPPLY - already_generated_coins)...
+    if (base_reward > remaining_supply)
+    {
+      base_reward = std::min(remaining_supply, base_reward);
+    }
+
     LOG_PRINT_L4("Base reward for height " << target_block_height << " is " << base_reward);
 
     // make it soft
@@ -116,7 +120,7 @@ namespace cryptonote {
       return true;
     }
 
-    if(current_block_size > 2 * median_size)
+    if (current_block_size > 2 * median_size)
     {
       LOG_PRINT_L4("Block cumulative size is too big: " << current_block_size << ", expected less than " << 2 * median_size);
       return false;
@@ -273,19 +277,23 @@ namespace cryptonote {
   }*/
 
   // rough & ready easy equality for sanity checking only
-  bool operator ==(const cryptonote::transaction& a, const cryptonote::transaction& b) {
+  bool operator ==(const cryptonote::transaction& a, const cryptonote::transaction& b)
+  {
     return cryptonote::get_transaction_hash(a) == cryptonote::get_transaction_hash(b);
   }
 
-  bool operator ==(const cryptonote::block& a, const cryptonote::block& b) {
+  bool operator ==(const cryptonote::block& a, const cryptonote::block& b)
+  {
     return cryptonote::get_block_hash(a) == cryptonote::get_block_hash(b);
   }
 
-  bool operator !=(const cryptonote::transaction& a, const cryptonote::transaction& b) {
+  bool operator !=(const cryptonote::transaction& a, const cryptonote::transaction& b)
+  {
     return !(a == b);
   }
 
-  bool operator !=(const cryptonote::block& a, const cryptonote::block& b) {
+  bool operator !=(const cryptonote::block& a, const cryptonote::block& b)
+  {
     return !(a == b);
   }
   //-----------------------------------------------------------------------
