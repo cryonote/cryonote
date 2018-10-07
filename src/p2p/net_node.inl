@@ -314,8 +314,8 @@ namespace nodetool
   template<class t_payload_net_handler>
   bool node_server<t_payload_net_handler>::run()
   {
-    //here you can set worker threads count
-    int thrds_count = 10;
+    // here you can set worker threads count
+    int thread_count = 10;
 
     m_net_server.add_idle_handler(boost::bind(&node_server<t_payload_net_handler>::idle_worker, this), 1000);
     m_net_server.add_idle_handler(boost::bind(&t_payload_net_handler::on_idle, &m_payload_handler), 1000);
@@ -323,9 +323,9 @@ namespace nodetool
     boost::thread::attributes attrs;
     attrs.set_stack_size(THREAD_STACK_SIZE);
 
-    //go to loop
-    LOG_PRINT("Run net_service loop( " << thrds_count << " threads)...", LOG_LEVEL_0);
-    if(!m_net_server.run_server(thrds_count, true, attrs))
+    // go to loop
+    LOG_PRINT("Run net_service loop(" << thread_count << " threads)...", LOG_LEVEL_0);
+    if(!m_net_server.run_server(thread_count, true, attrs))
     {
       LOG_ERROR("Failed to run net tcp server!");
     }
@@ -352,7 +352,6 @@ namespace nodetool
   template<class t_payload_net_handler>
   bool node_server<t_payload_net_handler>::store_config()
   {
-
     TRY_ENTRY();
     if (!tools::create_directories_if_necessary(m_config_folder))
     {
@@ -373,7 +372,6 @@ namespace nodetool
     a << *this;
     return true;
     CATCH_ENTRY_L0("blockchain_storage::save", false);
-
     return true;
   }
   //-----------------------------------------------------------------------------------
@@ -385,8 +383,6 @@ namespace nodetool
     return true;
   }
   //-----------------------------------------------------------------------------------
-
-
   template<class t_payload_net_handler>
   bool node_server<t_payload_net_handler>::do_handshake_with_peer(peerid_type& pi, p2p_connection_context& context_, bool just_take_peerlist)
   {
