@@ -536,7 +536,7 @@ namespace cryptonote
     {
       // we know objects that we need, request this objects
       NOTIFY_REQUEST_GET_OBJECTS::request req;
-      req.require_signed_hashes = true;
+      req.require_signed_hashes = !cryptonote::config::testnet;
       {
         size_t count = 0;
         auto it = context.m_needed_objects.begin();
