@@ -9,13 +9,15 @@
 #include "cryptonote_config.h"
 #include "checkpoints.h"
 
-#define ADD_CHECKPOINT(h, hash)  CHECK_AND_ASSERT(checkpoints.add_checkpoint(h, hash), false);
+#define ADD_CHECKPOINT(height, hash)  CHECK_AND_ASSERT(checkpoints.add_checkpoint(height, hash), false);
 
-namespace cryptonote {
+namespace cryptonote
+{
   inline bool create_checkpoints(cryptonote::checkpoints& checkpoints)
   {
     if (cryptonote::config::testnet)
     {
+      ADD_CHECKPOINT(0, "c72c922ba53c4364ab8fa7e3571163d84125874dbb70167da7c8e44d4992f8a1");
     }
     else
     {
