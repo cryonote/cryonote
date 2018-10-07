@@ -74,10 +74,10 @@ namespace cryptonote_opt
   };
 
   genesis_info testnet_info = {
-    "",
-    UINT64_C(0),
-    "",
-    "",
+    "The Times 06/Oct/2018 U.S. General Considered Nuclear Response in Vietnam War, Cables Show",
+    UINT64_C(1538882260),
+    "011e01ff0000210135fc47419149a3999944f4abb5ba022b792f0f02d86afe295d6b9eb7a01ebd9e",
+    "c72c922ba53c4364ab8fa7e3571163d84125874dbb70167da7c8e44d4992f8a1",
     "",
     "",
   };
