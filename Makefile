@@ -21,7 +21,6 @@ daemon-debug: build-daemon-debug
 qtwallet-debug: build-qtwallet-debug
 simplewallet-debug: build-simplewallet-debug
 
-
 cmake-release:
 	mkdir -p build/release
 	cd build/release && cmake -D CMAKE_BUILD_TYPE=Release -D STATIC=YES ../..
