@@ -217,6 +217,7 @@ namespace nodetool
   {
     if (cryptonote::config::testnet)
     {
+      ADD_HARDCODED_SEED_NODE("142.44.210.5:7802");
     }
     else
     {
