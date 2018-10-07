@@ -7,8 +7,9 @@
 #include <algorithm>
 #include <string>
 
-#include <miniupnpc/miniupnpc.h>
-#include <miniupnpc/upnpcommands.h>
+#include <miniupnp/miniupnpc/miniupnpc.h>
+#include <miniupnp/miniupnpc/upnpcommands.h>
+#include <miniupnp/miniupnpc/upnperrors.h>
 
 #include "string_tools.h"
 #include "math_helper.h"
