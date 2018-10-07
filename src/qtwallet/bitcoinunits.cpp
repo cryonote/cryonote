@@ -18,9 +18,9 @@ BitcoinUnits::BitcoinUnits(QObject *parent):
 QList<BitcoinUnits::Unit> BitcoinUnits::availableUnits()
 {
     QList<BitcoinUnits::Unit> unitlist;
-    unitlist.append(XPB);
-    unitlist.append(mXPB);
-    unitlist.append(uXPB);
+    unitlist.append(XCN);
+    unitlist.append(mXCN);
+    unitlist.append(uXCN);
     return unitlist;
 }
 
@@ -28,9 +28,9 @@ bool BitcoinUnits::valid(int unit)
 {
     switch(unit)
     {
-    case XPB:
-    case mXPB:
-    case uXPB:
+    case XCN:
+    case mXCN:
+    case uXCN:
         return true;
     default:
         return false;
@@ -41,9 +41,9 @@ QString BitcoinUnits::name(int unit)
 {
     switch(unit)
     {
-    case XPB: return QString("XPB");
-    case mXPB: return QString("mXPB");
-    case uXPB: return QString::fromUtf8("μXPB");
+    case XCN: return QString("XCN");
+    case mXCN: return QString("mXCN");
+    case uXCN: return QString::fromUtf8("μXCN");
     default: return QString("???");
     }
 }
@@ -52,9 +52,9 @@ QString BitcoinUnits::description(int unit)
 {
     switch(unit)
     {
-    case XPB: return QString("Pebbles");
-    case mXPB: return QString("Grains (1 / 1,000)");
-    case uXPB: return QString("Atoms (1 / 1,000,000)");
+    case XCN: return QString("Pebbles");
+    case mXCN: return QString("Grains (1 / 1,000)");
+    case uXCN: return QString("Atoms (1 / 1,000,000)");
     default: return QString("???");
     }
 }
@@ -63,9 +63,9 @@ qint64 BitcoinUnits::factor(int unit)
 {
     switch(unit)
     {
-    case XPB:  return ICOIN;
-    case mXPB: return ICOIN / 1000;
-    case uXPB: return ICOIN / 1000 / 1000;
+    case XCN:  return ICOIN;
+    case mXCN: return ICOIN / 1000;
+    case uXCN: return ICOIN / 1000 / 1000;
     default:   return ICOIN;
     }
 }
@@ -74,9 +74,9 @@ qint64 BitcoinUnits::maxAmount(int unit)
 {
     switch(unit)
     {
-    case XPB:  return Q_INT64_C(21000000);
-    case mXPB: return Q_INT64_C(21000000000);
-    case uXPB: return Q_INT64_C(21000000000000);
+    case XCN:  return Q_INT64_C(21000000);
+    case mXCN: return Q_INT64_C(21000000000);
+    case uXCN: return Q_INT64_C(21000000000000);
     default:   return 0;
     }
 }
@@ -85,9 +85,9 @@ int BitcoinUnits::amountDigits(int unit)
 {
     switch(unit)
     {
-    case XPB: return 8; // 21,000,000 (# digits, without commas)
-    case mXPB: return 11; // 21,000,000,000
-    case uXPB: return 14; // 21,000,000,000,000
+    case XCN: return 8; // 21,000,000 (# digits, without commas)
+    case mXCN: return 11; // 21,000,000,000
+    case uXCN: return 14; // 21,000,000,000,000
     default: return 0;
     }
 }
@@ -96,9 +96,9 @@ int BitcoinUnits::decimals(int unit)
 {
     switch(unit)
     {
-    case XPB: return 8;
-    case mXPB: return 5;
-    case uXPB: return 2;
+    case XCN: return 8;
+    case mXCN: return 5;
+    case uXCN: return 2;
     default: return 0;
     }
 }

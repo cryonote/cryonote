@@ -31,7 +31,7 @@ using namespace epee;
 
 namespace cryptonote
 {
-  tx_destination_entry::tx_destination_entry() : cp(CP_XPB), amount(0), addr(AUTO_VAL_INIT(addr)) { }
+  tx_destination_entry::tx_destination_entry() : cp(CP_XCN), amount(0), addr(AUTO_VAL_INIT(addr)) { }
   tx_destination_entry::tx_destination_entry(const coin_type& cp_in, uint64_t a, const account_public_address &ad)
       : cp(cp_in), amount(a), addr(ad) { }
   //---------------------------------------------------------------
@@ -120,14 +120,14 @@ namespace cryptonote
       tx_out out;
       summary_amounts += out.amount = out_amounts[no];
       out.target = tk;
-      tx.add_out(out, CP_XPB);
+      tx.add_out(out, CP_XCN);
     }
 
     CHECK_AND_ASSERT_MES(summary_amounts == block_reward, false, "Failed to construct miner tx, summary_amounts = " << summary_amounts << " not equal block_reward = " << block_reward);
 
     //lock
     tx.unlock_time = height + CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW;
-    tx.add_in(in, CP_XPB);
+    tx.add_in(in, CP_XCN);
     //LOG_PRINT("MINER_TX generated ok, block_reward=" << print_money(block_reward) << "("  << print_money(block_reward - fee) << "+" << print_money(fee)
     //  << "), current_block_size=" << current_block_size << ", already_generated_coins=" << already_generated_coins << ", tx_id=" << get_transaction_hash(tx), LOG_LEVEL_2);
     return true;
@@ -401,9 +401,9 @@ namespace cryptonote
         return true;
       }
       bool operator()(const txin_register_delegate& inp) {
-        if (!sub_amount(amounts[CP_XPB], inp.registration_fee))
+        if (!sub_amount(amounts[CP_XCN], inp.registration_fee))
         {
-          LOG_ERROR("Not enough XPBs for delegate registration fee");
+          LOG_ERROR("Not enough XCNs for delegate registration fee");
           return false;
         }
         return true;
@@ -484,7 +484,7 @@ namespace cryptonote
       }
     }
 
-    fee = in[CP_XPB] - out[CP_XPB];
+    fee = in[CP_XCN] - out[CP_XCN];
     return true;
   }
   bool check_inputs_outputs(const transaction& tx, uint64_t& fee)
@@ -775,7 +775,7 @@ namespace cryptonote
   {
     struct currency_getter {
       uint64_t currency_decimals(coin_type type) const {
-        if (type == CP_XPB)
+        if (type == CP_XCN)
           return CRYPTONOTE_DISPLAY_DECIMAL_POINT;
         return 0;
       }

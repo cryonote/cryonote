@@ -66,7 +66,7 @@ namespace cryptonote
 
     tx_source_entry()
         : real_output(0), real_output_in_tx_index(0),
-          type(InToKey), cp(CP_XPB),
+          type(InToKey), cp(CP_XCN),
           amount_in(0), amount_out(0), contract_resolving(CURRENCY_N_A) { }
   };
 

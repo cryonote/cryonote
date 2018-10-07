@@ -98,7 +98,7 @@ namespace boost
       a & x.m_tx_hash;
       a & x.m_dests;
       a & x.m_fee;
-      a & x.m_xpb_change;
+      a & x.m_xcn_change;
       if (ver >= (boost::serialization::version_type)(1))
       {
         a & x.m_all_change;

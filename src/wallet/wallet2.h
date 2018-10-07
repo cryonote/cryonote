@@ -83,7 +83,7 @@ namespace tools
     crypto::hash m_tx_hash;
     std::vector<cryptonote::tx_destination_entry> m_dests;
     uint64_t m_fee;
-    uint64_t m_xpb_change;
+    uint64_t m_xcn_change;
     cryptonote::currency_map m_all_change;
     // mint/remint
     uint64_t m_currency_minted;

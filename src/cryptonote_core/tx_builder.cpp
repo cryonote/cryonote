@@ -203,8 +203,8 @@ namespace cryptonote
       }
       
       if (!m_ignore_checks) {
-        if (vote && in_cp != CP_XPB) {
-          LOG_ERROR("Can only vote with XPBs");
+        if (vote && in_cp != CP_XCN) {
+          LOG_ERROR("Can only vote with XCNs");
           return false;
         }
       }
@@ -610,15 +610,15 @@ namespace cryptonote
     txin.delegate_id = delegate_id;
     txin.delegate_address = delegate_address;
     txin.registration_fee = registration_fee;
-    this->add_in(txin, CP_XPB);
+    this->add_in(txin, CP_XCN);
     
     CHECK_AND_ASSERT(add_dests_unchecked(change_dests, output_amounts), false);
     
     if (!m_ignore_checks)
     {
-      CHECK_AND_ASSERT_MES(input_amounts[CP_XPB] >= registration_fee, false,
+      CHECK_AND_ASSERT_MES(input_amounts[CP_XCN] >= registration_fee, false,
                            "Not enough sources to cover registration fee");
-      CHECK_AND_ASSERT_MES(sub_amount(input_amounts[CP_XPB], registration_fee), false,
+      CHECK_AND_ASSERT_MES(sub_amount(input_amounts[CP_XCN], registration_fee), false,
                            "Failed to subtract fee amount in add_register_delegate");
       CHECK_AND_ASSERT(check_inputs_outputs(input_amounts, output_amounts), false);
     }
@@ -639,7 +639,7 @@ namespace cryptonote
     txin.delegate_id = delegate_id;
     txin.delegate_address = delegate_address;
     txin.registration_fee = registration_fee;
-    this->add_in(txin, CP_XPB);
+    this->add_in(txin, CP_XCN);
     
     m_state = InProgress;
     

@@ -15,7 +15,7 @@ namespace
 {
   void split_miner_tx_outs(transaction& miner_tx, uint64_t amount_1)
   {
-    uint64_t total_amount = get_outs_money_amount(miner_tx)[CP_XPB];
+    uint64_t total_amount = get_outs_money_amount(miner_tx)[CP_XCN];
     uint64_t amount_2 = total_amount - amount_1;
     txout_target_v target = miner_tx.outs()[0].target;
 
@@ -24,12 +24,12 @@ namespace
     tx_out out1;
     out1.amount = amount_1;
     out1.target = target;
-    miner_tx.add_out(out1, CP_XPB);
+    miner_tx.add_out(out1, CP_XCN);
 
     tx_out out2;
     out2.amount = amount_2;
     out2.target = target;
-    miner_tx.add_out(out2, CP_XPB);
+    miner_tx.add_out(out2, CP_XCN);
   }
 
   void append_tx_source_entry(std::vector<cryptonote::tx_source_entry>& sources, const transaction& tx, size_t out_idx)
@@ -151,10 +151,10 @@ bool gen_uint_overflow_2::generate(std::vector<test_event_entry>& events) const
 
   std::vector<cryptonote::tx_destination_entry> destinations;
   const account_public_address& bob_addr = bob_account.get_keys().m_account_address;
-  destinations.push_back(tx_destination_entry(CP_XPB, MONEY_SUPPLY, bob_addr));
-  destinations.push_back(tx_destination_entry(CP_XPB, MONEY_SUPPLY - 1, bob_addr));
+  destinations.push_back(tx_destination_entry(CP_XCN, MONEY_SUPPLY, bob_addr));
+  destinations.push_back(tx_destination_entry(CP_XCN, MONEY_SUPPLY - 1, bob_addr));
   // sources.front().amount = destinations[0].amount + destinations[2].amount + destinations[3].amount + TESTS_DEFAULT_FEE
-  destinations.push_back(tx_destination_entry(CP_XPB, sources.front().amount_out - MONEY_SUPPLY - MONEY_SUPPLY + 1 - TESTS_DEFAULT_FEE, bob_addr));
+  destinations.push_back(tx_destination_entry(CP_XCN, sources.front().amount_out - MONEY_SUPPLY - MONEY_SUPPLY + 1 - TESTS_DEFAULT_FEE, bob_addr));
 
   cryptonote::transaction tx_1;
   if (!construct_tx(miner_account.get_keys(), sources, destinations, std::vector<uint8_t>(), tx_1, 0))
@@ -185,7 +185,7 @@ bool gen_uint_overflow_2::generate(std::vector<test_event_entry>& events) const
 
   destinations.clear();
   cryptonote::tx_destination_entry de;
-  de.cp = CP_XPB;
+  de.cp = CP_XCN;
   de.addr = alice_account.get_keys().m_account_address;
   de.amount = MONEY_SUPPLY - TESTS_DEFAULT_FEE;
   destinations.push_back(de);

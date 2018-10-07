@@ -580,7 +580,7 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
     bool bAllowFree = false; //AllowFree(dPriority);
   
     // actually update labels
-    int nDisplayUnit = BitcoinUnits::XPB;
+    int nDisplayUnit = BitcoinUnits::XCN;
     if (model && model->getOptionsModel())
         nDisplayUnit = model->getOptionsModel()->getDisplayUnit();
 
@@ -613,7 +613,7 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
     l5->setStyleSheet((nBytes >= 1000) ? "color:red;" : "");                            // Bytes >= 1000
     l6->setStyleSheet((dPriority > 0 && !bAllowFree) ? "color:red;" : "");              // Priority < "medium"
     l7->setStyleSheet((fLowOutput) ? "color:red;" : "");                                // Low Output = "yes"
-    l8->setStyleSheet((nChange > 0 && nChange < ICENT) ? "color:red;" : "");             // Change < 0.01XPB
+    l8->setStyleSheet((nChange > 0 && nChange < ICENT) ? "color:red;" : "");             // Change < 0.01XCN
 
     // tool tips
     QString toolTip1 = tr("This label turns red, if the transaction size is greater than 1000 bytes.") + "<br /><br />";

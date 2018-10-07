@@ -297,7 +297,7 @@ bool gen_block_miner_tx_has_2_tx_gen_in::generate(std::vector<test_event_entry>&
 
   txin_gen in;
   in.height = get_block_height(blk_0) + 1;
-  miner_tx.add_in(in, CP_XPB);
+  miner_tx.add_in(in, CP_XCN);
 
   block blk_1;
   generator.construct_block_manually(blk_1, blk_0, miner_account, test_generator::bf_miner_tx, 0, 0, 0, crypto::hash(), 0, miner_tx);
@@ -321,7 +321,7 @@ bool gen_block_miner_tx_has_2_in::generate(std::vector<test_event_entry>& events
   tx_source_entry se;
   std::cout << "vouts in miner_tx: " << blk_0.miner_tx.ins().size() << std::endl;
   se.type = tx_source_entry::InToKey;
-  se.cp = CP_XPB;
+  se.cp = CP_XCN;
   se.amount_in = se.amount_out = blk_0.miner_tx.outs()[0].amount;
   se.outputs.push_back(std::make_pair(0, boost::get<txout_to_key>(blk_0.miner_tx.outs()[0].target).key));
   se.real_output = 0;
@@ -342,7 +342,7 @@ bool gen_block_miner_tx_has_2_in::generate(std::vector<test_event_entry>& events
     return false;
 
   MAKE_MINER_TX_MANUALLY(miner_tx, blk_0);
-  miner_tx.add_in(tmp_tx.ins()[0], CP_XPB);
+  miner_tx.add_in(tmp_tx.ins()[0], CP_XCN);
 
   block blk_1;
   generator.construct_block_manually(blk_1, blk_0r, miner_account, test_generator::bf_miner_tx, 0, 0, 0, crypto::hash(), 0, miner_tx);
@@ -366,7 +366,7 @@ bool gen_block_miner_tx_with_txin_to_key::generate(std::vector<test_event_entry>
 
   tx_source_entry se;
   se.type = tx_source_entry::InToKey;
-  se.cp = CP_XPB;
+  se.cp = CP_XCN;
   se.amount_in = se.amount_out = blk_1.miner_tx.outs()[0].amount;
   se.outputs.push_back(std::make_pair(0, boost::get<txout_to_key>(blk_1.miner_tx.outs()[0].target).key));
   se.real_output = 0;
@@ -464,7 +464,7 @@ bool gen_block_miner_tx_has_out_to_alice::generate(std::vector<test_event_entry>
   out_to_alice.amount = miner_tx.outs()[0].amount / 2;
   tx_tester(miner_tx).vout[0].amount -= out_to_alice.amount;
   out_to_alice.target = txout_to_key(out_eph_public_key);
-  miner_tx.add_out(out_to_alice, CP_XPB);
+  miner_tx.add_out(out_to_alice, CP_XCN);
 
   block blk_1;
   generator.construct_block_manually(blk_1, blk_0, miner_account, test_generator::bf_miner_tx, 0, 0, 0, crypto::hash(), 0, miner_tx);
@@ -498,7 +498,7 @@ bool gen_block_is_too_big::generate(std::vector<test_event_entry>& events) const
   // Creating a huge miner_tx, it will have a lot of outs
   MAKE_MINER_TX_MANUALLY(miner_tx, blk_0);
   static const size_t tx_out_count = CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE / 2;
-  uint64_t amount = get_outs_money_amount(miner_tx)[CP_XPB];
+  uint64_t amount = get_outs_money_amount(miner_tx)[CP_XCN];
   uint64_t portion = amount / tx_out_count;
   uint64_t remainder = amount % tx_out_count;
   txout_target_v target = miner_tx.outs()[0].target;
@@ -508,14 +508,14 @@ bool gen_block_is_too_big::generate(std::vector<test_event_entry>& events) const
     tx_out o;
     o.amount = portion;
     o.target = target;
-    miner_tx.add_out(o, CP_XPB);
+    miner_tx.add_out(o, CP_XCN);
   }
   if (0 < remainder)
   {
     tx_out o;
     o.amount = remainder;
     o.target = target;
-    miner_tx.add_out(o, CP_XPB);
+    miner_tx.add_out(o, CP_XCN);
   }
 
   // Block reward will be incorrect, as it must be reduced if cumulative block size is very big,

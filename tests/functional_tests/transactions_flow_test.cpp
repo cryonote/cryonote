@@ -146,7 +146,7 @@ bool transactions_flow_test(std::string& working_folder,
 
   //wait for money, until balance will have enough money
   w1.refresh(blocks_fetched, received_money, ok);
-  while(w1.unlocked_balance()[cryptonote::CP_XPB] < amount_to_transfer)
+  while(w1.unlocked_balance()[cryptonote::CP_XCN] < amount_to_transfer)
   {
     misc_utils::sleep_no_w(1000);
     w1.refresh(blocks_fetched, received_money, ok);
@@ -159,7 +159,7 @@ bool transactions_flow_test(std::string& working_folder,
   {
     tools::wallet2::transfer_container incoming_transfers;
     w1.get_transfers(incoming_transfers);
-    if(incoming_transfers.size() > FIRST_N_TRANSFERS && get_money_in_first_transfers(incoming_transfers, FIRST_N_TRANSFERS) < w1.unlocked_balance()[cryptonote::CP_XPB] )
+    if(incoming_transfers.size() > FIRST_N_TRANSFERS && get_money_in_first_transfers(incoming_transfers, FIRST_N_TRANSFERS) < w1.unlocked_balance()[cryptonote::CP_XCN] )
     {
       //lets go!
       size_t count = 0;
@@ -194,7 +194,7 @@ bool transactions_flow_test(std::string& working_folder,
   for(i = 0; i != transactions_count; i++)
   {
     uint64_t amount_to_tx = (amount_to_transfer - transfered_money) > transfer_size ? transfer_size: (amount_to_transfer - transfered_money);
-    while(w1.unlocked_balance()[cryptonote::CP_XPB] < amount_to_tx + DEFAULT_FEE)
+    while(w1.unlocked_balance()[cryptonote::CP_XCN] < amount_to_tx + DEFAULT_FEE)
     {
       misc_utils::sleep_no_w(1000);
       LOG_PRINT_L0("not enough money, waiting for cashback or mining");
@@ -243,7 +243,7 @@ bool transactions_flow_test(std::string& working_folder,
     misc_utils::sleep_no_w(cryptonote::config::difficulty_blocks_estimate_timespan()*1000);//wait two blocks before sync on another wallet on another daemon
   }
 
-  uint64_t money_2 = w2.balance()[cryptonote::CP_XPB];
+  uint64_t money_2 = w2.balance()[cryptonote::CP_XCN];
   if(money_2 == transfered_money)
   {
     LOG_PRINT_GREEN("-----------------------FINISHING TRANSACTIONS FLOW TEST OK-----------------------", LOG_LEVEL_0);

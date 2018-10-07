@@ -53,11 +53,11 @@ bool gen_contracts_create_mint::generate(std::vector<test_event_entry>& events) 
   MAKE_NEXT_BLOCK_TX_LIST(events, blk_1, blk_0r, miner_account, txs);
   
   SEND_CONTRACT_TX(events, tx_send_contract, 0xbe7,
-                   alice, 10, CURRENCY_XPB,
+                   alice, 10, CURRENCY_XCN,
                    alice, bob, blk_1);
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_1, miner_account, tx_send_contract);
   
-  MAKE_TX_CP(events, tx_fwd, bob, carol, 5, blk_2, coin_type(0xbe7, ContractCoin, CURRENCY_XPB));
+  MAKE_TX_CP(events, tx_fwd, bob, carol, 5, blk_2, coin_type(0xbe7, ContractCoin, CURRENCY_XCN));
   MAKE_NEXT_BLOCK_TX1(events, blk_3, blk_2, miner_account, tx_fwd);
   
   return true;
@@ -73,7 +73,7 @@ bool gen_contracts_grade::generate(std::vector<test_event_entry>& events) const
   MAKE_NEXT_BLOCK_TX_LIST(events, blk_1, blk_0r, miner_account, txs);
   
   SEND_CONTRACT_TX(events, tx_send_contract, 0xbe7,
-                   alice, 10, CURRENCY_XPB,
+                   alice, 10, CURRENCY_XCN,
                    alice, bob, blk_1);
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_1, miner_account, tx_send_contract);
   
@@ -94,11 +94,11 @@ bool gen_contracts_grade_with_fee::generate(std::vector<test_event_entry>& event
   MAKE_NEXT_BLOCK_TX_LIST(events, blk_1, blk_0r, miner_account, txs);
   
   SEND_CONTRACT_TX(events, tx_send_contract, 0xbe7,
-                   alice, 10, CURRENCY_XPB,
+                   alice, 10, CURRENCY_XCN,
                    alice, bob, blk_1);
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_1, miner_account, tx_send_contract);
   
-  GRADE_CONTRACT_TX_FULL(events, tx_grade, 0xbe7, 0, grading_key.sec, carol, 1, CURRENCY_XPB, tools::identity());
+  GRADE_CONTRACT_TX_FULL(events, tx_grade, 0xbe7, 0, grading_key.sec, carol, 1, CURRENCY_XCN, tools::identity());
   MAKE_NEXT_BLOCK_TX1(events, blk_3, blk_2, miner_account, tx_grade);
   
   return true;
@@ -114,7 +114,7 @@ bool gen_contracts_grade_spend_backing::generate(std::vector<test_event_entry>& 
   MAKE_NEXT_BLOCK_TX_LIST(events, blk_1, blk_0r, miner_account, txs);
   
   SEND_CONTRACT_TX(events, tx_send_contract, 0xbe7,
-                   alice, 100, CURRENCY_XPB,
+                   alice, 100, CURRENCY_XCN,
                    alice, bob, blk_1);
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_1, miner_account, tx_send_contract);
   
@@ -122,7 +122,7 @@ bool gen_contracts_grade_spend_backing::generate(std::vector<test_event_entry>& 
   MAKE_NEXT_BLOCK_TX1(events, blk_3, blk_2, miner_account, tx_grade);
   LOG_PRINT_YELLOW("Making spend txout_backing tx...", LOG_LEVEL_0);
   // alice should be able to spend 75 or less
-  MAKE_TX_MIX_CP_FEE(events, tx_alice_spend, alice, carol, 75, 0, blk_3, CP_XPB, 0)
+  MAKE_TX_MIX_CP_FEE(events, tx_alice_spend, alice, carol, 75, 0, blk_3, CP_XCN, 0)
   MAKE_NEXT_BLOCK_TX1(events, blk_4, blk_3, miner_account, tx_alice_spend);
   
   return true;
@@ -138,7 +138,7 @@ bool gen_contracts_grade_spend_backing_cant_overspend_misgrade::generate(std::ve
   MAKE_NEXT_BLOCK_TX_LIST(events, blk_1, blk_0r, miner_account, txs);
   
   SEND_CONTRACT_TX(events, tx_send_contract, 0xbe7,
-                   alice, 100, CURRENCY_XPB,
+                   alice, 100, CURRENCY_XCN,
                    alice, bob, blk_1);
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_1, miner_account, tx_send_contract);
   
@@ -148,21 +148,21 @@ bool gen_contracts_grade_spend_backing_cant_overspend_misgrade::generate(std::ve
 
   // can't spend more than the grade
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_MIX_CP_FEE_MOD(events, tx_bad_spend_1, alice, carol, 75, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_MIX_CP_FEE_MOD(events, tx_bad_spend_1, alice, carol, 75, 0, blk_3, CP_XCN, 0,
                          [](transaction& tx) { tx_tester(tx).vout[0].amount = 76; });
   // can't grade it more
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_MIX_CP_FEE_MOD(events, tx_bad_spend_2, alice, carol, 75, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_MIX_CP_FEE_MOD(events, tx_bad_spend_2, alice, carol, 75, 0, blk_3, CP_XCN, 0,
                          [](transaction& tx) { boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]).graded_amount = 76; });
   // can't grade it less
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_MIX_CP_FEE_MOD(events, tx_bad_spend_3, alice, carol, 75, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_MIX_CP_FEE_MOD(events, tx_bad_spend_3, alice, carol, 75, 0, blk_3, CP_XCN, 0,
                          [](transaction& tx) {
                            boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]).graded_amount = 74;
                            tx_tester(tx).vout[0].amount = 74; // avoid failing in/out check
                          });
   // *can* spend less, though (rest goes to fees)
-  MAKE_TX_MIX_CP_FEE_MOD(events, tx_ok_spend_4, alice, carol, 75, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_MIX_CP_FEE_MOD(events, tx_ok_spend_4, alice, carol, 75, 0, blk_3, CP_XCN, 0,
                          [](transaction& tx) { tx_tester(tx).vout[0].amount = 70; });
   
   MAKE_NEXT_BLOCK_TX1(events, blk_4, blk_3, miner_account, tx_ok_spend_4);
@@ -180,7 +180,7 @@ bool gen_contracts_grade_spend_contract::generate(std::vector<test_event_entry>&
   MAKE_NEXT_BLOCK_TX_LIST(events, blk_1, blk_0r, miner_account, txs);
   
   SEND_CONTRACT_TX(events, tx_send_contract, 0xbe7,
-                   alice, 100, CURRENCY_XPB,
+                   alice, 100, CURRENCY_XCN,
                    alice, bob, blk_1);
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_1, miner_account, tx_send_contract);
   
@@ -188,7 +188,7 @@ bool gen_contracts_grade_spend_contract::generate(std::vector<test_event_entry>&
   MAKE_NEXT_BLOCK_TX1(events, blk_3, blk_2, miner_account, tx_grade);
   LOG_PRINT_YELLOW("Making spend contract coins tx...", LOG_LEVEL_0);
   // bob should be able to spend 25 or less
-  MAKE_TX_MIX_CP_FEE(events, tx_bob_spend, bob, carol, 25, 0, blk_3, CP_XPB, 0)
+  MAKE_TX_MIX_CP_FEE(events, tx_bob_spend, bob, carol, 25, 0, blk_3, CP_XCN, 0)
   MAKE_NEXT_BLOCK_TX1(events, blk_4, blk_3, miner_account, tx_bob_spend);
   
   return true;
@@ -204,7 +204,7 @@ bool gen_contracts_grade_send_then_spend_contract::generate(std::vector<test_eve
   MAKE_NEXT_BLOCK_TX_LIST(events, blk_1, blk_0r, miner_account, txs);
   
   SEND_CONTRACT_TX(events, tx_send_contract, 0xbe7,
-                   alice, 100, CURRENCY_XPB,
+                   alice, 100, CURRENCY_XCN,
                    alice, bob, blk_1);
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_1, miner_account, tx_send_contract);
   
@@ -212,11 +212,11 @@ bool gen_contracts_grade_send_then_spend_contract::generate(std::vector<test_eve
   MAKE_NEXT_BLOCK_TX1(events, blk_3, blk_2, miner_account, tx_grade);
   
   // can still send contract coins
-  MAKE_TX_MIX_CP_FEE(events, tx_relay_contract, bob, dave, 100, 0, blk_3, coin_type(0xbe7, ContractCoin, CURRENCY_XPB), 0);
+  MAKE_TX_MIX_CP_FEE(events, tx_relay_contract, bob, dave, 100, 0, blk_3, coin_type(0xbe7, ContractCoin, CURRENCY_XCN), 0);
   MAKE_NEXT_BLOCK_TX1(events, blk_4, blk_3, miner_account, tx_relay_contract);
   
   // dave should noew be able to spend them
-  MAKE_TX_MIX_CP_FEE(events, tx_dave_spend, dave, carol, 25, 0, blk_4, CP_XPB, 0)
+  MAKE_TX_MIX_CP_FEE(events, tx_dave_spend, dave, carol, 25, 0, blk_4, CP_XCN, 0)
   MAKE_NEXT_BLOCK_TX1(events, blk_5, blk_4, miner_account, tx_dave_spend);
   
   return true;
@@ -232,7 +232,7 @@ bool gen_contracts_grade_cant_send_and_spend_contract_1::generate(std::vector<te
   MAKE_NEXT_BLOCK_TX_LIST(events, blk_1, blk_0r, miner_account, txs);
   
   SEND_CONTRACT_TX(events, tx_send_contract, 0xbe7,
-                   alice, 100, CURRENCY_XPB,
+                   alice, 100, CURRENCY_XCN,
                    alice, bob, blk_1);
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_1, miner_account, tx_send_contract);
   
@@ -240,9 +240,9 @@ bool gen_contracts_grade_cant_send_and_spend_contract_1::generate(std::vector<te
   MAKE_NEXT_BLOCK_TX1(events, blk_3, blk_2, miner_account, tx_grade);
   
   // can't have them both in mempool at once
-  MAKE_TX_MIX_CP_FEE(events, tx_bob_spend, bob, carol, 25, 0, blk_3, CP_XPB, 0)
+  MAKE_TX_MIX_CP_FEE(events, tx_bob_spend, bob, carol, 25, 0, blk_3, CP_XCN, 0)
   events.pop_back(); // to allow the next tx to be created
-  MAKE_TX_MIX_CP_FEE(events, tx_relay_contract, bob, dave, 100, 0, blk_3, coin_type(0xbe7, ContractCoin, CURRENCY_XPB), 0);
+  MAKE_TX_MIX_CP_FEE(events, tx_relay_contract, bob, dave, 100, 0, blk_3, coin_type(0xbe7, ContractCoin, CURRENCY_XCN), 0);
   events.pop_back();
   // put things back in the order the should be
   events.push_back(tx_bob_spend);
@@ -268,7 +268,7 @@ bool gen_contracts_grade_cant_send_and_spend_contract_2::generate(std::vector<te
   MAKE_NEXT_BLOCK_TX_LIST(events, blk_1, blk_0r, miner_account, txs);
   
   SEND_CONTRACT_TX(events, tx_send_contract, 0xbe7,
-                   alice, 100, CURRENCY_XPB,
+                   alice, 100, CURRENCY_XCN,
                    alice, bob, blk_1);
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_1, miner_account, tx_send_contract);
   
@@ -276,9 +276,9 @@ bool gen_contracts_grade_cant_send_and_spend_contract_2::generate(std::vector<te
   MAKE_NEXT_BLOCK_TX1(events, blk_3, blk_2, miner_account, tx_grade);
   
   // can't have them both in mempool at once
-  MAKE_TX_MIX_CP_FEE(events, tx_relay_contract, bob, dave, 100, 0, blk_3, coin_type(0xbe7, ContractCoin, CURRENCY_XPB), 0);
+  MAKE_TX_MIX_CP_FEE(events, tx_relay_contract, bob, dave, 100, 0, blk_3, coin_type(0xbe7, ContractCoin, CURRENCY_XCN), 0);
   events.pop_back(); // to allow the next tx to be created
-  MAKE_TX_MIX_CP_FEE(events, tx_bob_spend, bob, carol, 25, 0, blk_3, CP_XPB, 0)
+  MAKE_TX_MIX_CP_FEE(events, tx_bob_spend, bob, carol, 25, 0, blk_3, CP_XCN, 0)
   events.pop_back();
   // put things back in the order the should be
   events.push_back(tx_relay_contract);
@@ -304,7 +304,7 @@ bool gen_contracts_grade_spend_contract_cant_overspend_misgrade::generate(std::v
   MAKE_NEXT_BLOCK_TX_LIST(events, blk_1, blk_0r, miner_account, txs);
   
   SEND_CONTRACT_TX(events, tx_send_contract, 0xbe7,
-                   alice, 100, CURRENCY_XPB,
+                   alice, 100, CURRENCY_XCN,
                    alice, bob, blk_1);
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_1, miner_account, tx_send_contract);
   
@@ -314,24 +314,24 @@ bool gen_contracts_grade_spend_contract_cant_overspend_misgrade::generate(std::v
 
   // can't spend more than the grade
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_MIX_CP_FEE_MOD(events, tx_bad_spend_1, bob, carol, 25, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_MIX_CP_FEE_MOD(events, tx_bad_spend_1, bob, carol, 25, 0, blk_3, CP_XCN, 0,
                          [](transaction& tx) { tx_tester(tx).vout[0].amount = 26; });
 
   // can't grade it more
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_MIX_CP_FEE_MOD(events, tx_bad_spend_2, bob, carol, 25, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_MIX_CP_FEE_MOD(events, tx_bad_spend_2, bob, carol, 25, 0, blk_3, CP_XCN, 0,
                          [](transaction& tx) { boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]).graded_amount = 26; });
 
   // can't grade it less
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_MIX_CP_FEE_MOD(events, tx_bad_spend_3, bob, carol, 25, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_MIX_CP_FEE_MOD(events, tx_bad_spend_3, bob, carol, 25, 0, blk_3, CP_XCN, 0,
                          [](transaction& tx) {
                            boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]).graded_amount = 24;
                            tx_tester(tx).vout[0].amount = 24;
                          });
   
   // *can* spend less, though (rest goes to fees)
-  MAKE_TX_MIX_CP_FEE_MOD(events, tx_ok_spend_4, bob, carol, 25, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_MIX_CP_FEE_MOD(events, tx_ok_spend_4, bob, carol, 25, 0, blk_3, CP_XCN, 0,
                          [](transaction& tx) { tx_tester(tx).vout[0].amount = 20; });
   
   MAKE_NEXT_BLOCK_TX1(events, blk_4, blk_3, miner_account, tx_ok_spend_4);
@@ -351,17 +351,17 @@ bool gen_contracts_grade_spend_fee::generate(std::vector<test_event_entry>& even
   MAKE_NEXT_BLOCK_TX_LIST(events, blk_1, blk_0r, miner_account, txs);
   
   SEND_CONTRACT_TX(events, tx_send_contract, 0xbe7,
-                   alice, 100, CURRENCY_XPB,
+                   alice, 100, CURRENCY_XCN,
                    alice, bob, blk_1);
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_1, miner_account, tx_send_contract);
   
   // 100 coins -> 5 coin spendable in fees
   GRADE_CONTRACT_TX_FULL(events, tx_grade, 0xbe7, GRADE_SCALE_MAX / 4, grading_key.sec,
-                         carol, 5, CURRENCY_XPB, tools::identity());
+                         carol, 5, CURRENCY_XCN, tools::identity());
   MAKE_NEXT_BLOCK_TX1(events, blk_3, blk_2, miner_account, tx_grade);
   LOG_PRINT_YELLOW("Making spend fee tx...", LOG_LEVEL_0);
   // carol should be able to spend the fee
-  MAKE_TX_MIX_CP_FEE(events, tx_fee_spend, carol, alice, 5, 0, blk_3, CP_XPB, 0)
+  MAKE_TX_MIX_CP_FEE(events, tx_fee_spend, carol, alice, 5, 0, blk_3, CP_XCN, 0)
   MAKE_NEXT_BLOCK_TX1(events, blk_4, blk_3, miner_account, tx_fee_spend);
   
   return true;
@@ -379,31 +379,31 @@ bool gen_contracts_grade_spend_fee_cant_overspend_misgrade::generate(std::vector
   MAKE_NEXT_BLOCK_TX_LIST(events, blk_1, blk_0r, miner_account, txs);
   
   SEND_CONTRACT_TX(events, tx_send_contract, 0xbe7,
-                   alice, 100, CURRENCY_XPB,
+                   alice, 100, CURRENCY_XCN,
                    alice, bob, blk_1);
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_1, miner_account, tx_send_contract);
   
   // fee should be 5, can't grade it as more or less
   DO_CALLBACK(events, "mark_invalid_tx");
   GRADE_CONTRACT_TX_FULL(events, tx_grade1, 0xbe7, GRADE_SCALE_MAX / 4, grading_key.sec,
-                         carol, 6, CURRENCY_XPB, tools::identity());
+                         carol, 6, CURRENCY_XCN, tools::identity());
   
   DO_CALLBACK(events, "mark_invalid_tx");
   GRADE_CONTRACT_TX_FULL(events, tx_grade2, 0xbe7, GRADE_SCALE_MAX / 4, grading_key.sec,
-                         carol, 4, CURRENCY_XPB, tools::identity());
+                         carol, 4, CURRENCY_XCN, tools::identity());
   
   // can't give more than the fee
   DO_CALLBACK(events, "mark_invalid_tx");
   GRADE_CONTRACT_TX_FULL(events, tx_grade3, 0xbe7, GRADE_SCALE_MAX / 4, grading_key.sec,
-                         carol, 5, CURRENCY_XPB,
+                         carol, 5, CURRENCY_XCN,
                          [](transaction& tx) { tx_tester(tx).vout[0].amount = 6; });
 
   // *can* give less than the fee
   GRADE_CONTRACT_TX_FULL(events, tx_grade4, 0xbe7, GRADE_SCALE_MAX / 4, grading_key.sec,
-                         carol, 5, CURRENCY_XPB,
+                         carol, 5, CURRENCY_XCN,
                          [](transaction& tx) { tx_tester(tx).vout[0].amount = 4; });
   MAKE_NEXT_BLOCK_TX1(events, blk_3, blk_2, miner_account, tx_grade4);
-  MAKE_TX_MIX_CP_FEE(events, tx_fee_spend, carol, alice, 4, 0, blk_3, CP_XPB, 0)
+  MAKE_TX_MIX_CP_FEE(events, tx_fee_spend, carol, alice, 4, 0, blk_3, CP_XCN, 0)
   MAKE_NEXT_BLOCK_TX1(events, blk_4, blk_3, miner_account, tx_fee_spend);
 
   return true;
@@ -422,27 +422,27 @@ bool gen_contracts_grade_spend_all_rounding::generate(std::vector<test_event_ent
   
   // send two contracts totaling 100
   SEND_CONTRACT_TX(events, tx_send_contract1, 0xbe7,
-                   alice, 33, CURRENCY_XPB,
+                   alice, 33, CURRENCY_XCN,
                    alice, bob, blk_1);
   MAKE_NEXT_BLOCK_TX1(events, blk_1b, blk_1, miner_account, tx_send_contract1);
   SEND_CONTRACT_TX(events, tx_send_contract2, 0xbe7,
-                   alice, 66, CURRENCY_XPB,
+                   alice, 66, CURRENCY_XCN,
                    alice, bob, blk_1b);
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_1b, miner_account, tx_send_contract2);
   
   // 99 coins -> floor(99*.07) = 6 coin spendable in fees
   GRADE_CONTRACT_TX_FULL(events, tx_grade, 0xbe7, GRADE_SCALE_MAX / 4, grading_key.sec,
-                         carol, 6, CURRENCY_XPB, tools::identity());
+                         carol, 6, CURRENCY_XCN, tools::identity());
   MAKE_NEXT_BLOCK_TX1(events, blk_3, blk_2, miner_account, tx_grade);
   
   // alice can spend floor(33*.75) = 24 - ceil(24*.07) = 22
   //               + floor(66*.75) = 49 - ceil(49*.07) = 45
-  MAKE_TX_MIX_CP_FEE(events, tx_alice_spend, alice, carol, 67, 0, blk_3, CP_XPB, 0)
+  MAKE_TX_MIX_CP_FEE(events, tx_alice_spend, alice, carol, 67, 0, blk_3, CP_XCN, 0)
   // bob can spend floor(33*.25) = 8 - ceil(8*.07) = 7
   //             + floor(66*.25) = 16 - ceil(16*.07) = 14
-  MAKE_TX_MIX_CP_FEE(events, tx_bob_spend, bob, carol, 21, 0, blk_3, CP_XPB, 0)
+  MAKE_TX_MIX_CP_FEE(events, tx_bob_spend, bob, carol, 21, 0, blk_3, CP_XCN, 0)
   // carol can spend floor(99*.07) = 6
-  MAKE_TX_MIX_CP_FEE(events, tx_fee_spend, carol, alice, 6, 0, blk_3, CP_XPB, 0)
+  MAKE_TX_MIX_CP_FEE(events, tx_fee_spend, carol, alice, 6, 0, blk_3, CP_XCN, 0)
   
   std::list<transaction> tx_list;
   tx_list.push_back(tx_alice_spend);
@@ -548,10 +548,10 @@ bool gen_contracts_resolve_backing_cant_change_contract::generate(std::vector<te
   
   // send both
   SEND_CONTRACT_TX(events, tx_send, 0xbe7,
-                   alice, 1000, CURRENCY_XPB,
+                   alice, 1000, CURRENCY_XCN,
                    alice, bob, blk_1);
   SEND_CONTRACT_TX(events, tx_send2, 0xbe72,
-                   bob, 1000, CURRENCY_XPB,
+                   bob, 1000, CURRENCY_XCN,
                    bob, alice, blk_1);
   MAKE_NEXT_BLOCK_TX1(events, blk_2pre, blk_1, miner_account, tx_send);
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_2pre, miner_account, tx_send2);
@@ -564,7 +564,7 @@ bool gen_contracts_resolve_backing_cant_change_contract::generate(std::vector<te
   // can't resolve 0xbe7 using 0xbe72's grade
   // be it the same amount:
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad1, alice, carol, 500, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad1, alice, carol, 500, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  auto& inp = boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]);
                  inp.contract = 0xbe72;
@@ -572,7 +572,7 @@ bool gen_contracts_resolve_backing_cant_change_contract::generate(std::vector<te
   
   // or taking advantage of it:
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad2, alice, carol, 500, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad2, alice, carol, 500, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  auto& inp = boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]);
                  inp.contract = 0xbe72;
@@ -600,13 +600,13 @@ bool gen_contracts_resolve_backing_expired::generate(std::vector<test_event_entr
   MAKE_NEXT_BLOCK_TX_LIST(events, blk_1, blk_0r, miner_account, txs);
   
   SEND_CONTRACT_TX(events, tx_send, 0xbe7,
-                   alice, 1000, CURRENCY_XPB,
+                   alice, 1000, CURRENCY_XCN,
                    alice, emily, blk_1);
   SEND_CONTRACT_TX(events, tx_send2, 0xbe7,
-                   bob, 1000, CURRENCY_XPB,
+                   bob, 1000, CURRENCY_XCN,
                    bob, emily, blk_1);
   SEND_CONTRACT_TX(events, tx_send3, 0xbe72,
-                   carol, 1000, CURRENCY_XPB,
+                   carol, 1000, CURRENCY_XCN,
                    carol, emily, blk_1);
   MAKE_NEXT_BLOCK_TX1(events, blk_2pre, blk_1, miner_account, tx_send);
   MAKE_NEXT_BLOCK_TX1(events, blk_2x, blk_2pre, miner_account, tx_send2);
@@ -614,11 +614,11 @@ bool gen_contracts_resolve_backing_expired::generate(std::vector<test_event_entr
   
   // 0xbe7 gets graded, 0xbe72 doesn't, gets the fees (400 * 2 = 800)
   GRADE_CONTRACT_TX_FULL(events, tx_grade, 0xbe7, 0, grading_key.sec,
-                         emily, 800, CURRENCY_XPB, tools::identity());
+                         emily, 800, CURRENCY_XCN, tools::identity());
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_2y, miner_account, tx_grade);
   
   // alice sends before it would have expired, at the grade of 0, with fees: 1000 - 400 = 600
-  MAKE_TX_MIX_CP_FEE(events, tx_alice_spend, alice, emily, 600, 0, blk_2, CP_XPB, 0)
+  MAKE_TX_MIX_CP_FEE(events, tx_alice_spend, alice, emily, 600, 0, blk_2, CP_XCN, 0)
   MAKE_NEXT_BLOCK_TX1(events, blk_2r_pre, blk_2, miner_account, tx_alice_spend);
   
   // enough time passes to expire
@@ -626,24 +626,24 @@ bool gen_contracts_resolve_backing_expired::generate(std::vector<test_event_entr
   
   // bob sends 1000 from same contract as alice, this should be at same rate of 600 (would be 500 if it expired)
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bob_spend_bad, bob, emily, 600, 0, blk_2r, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bob_spend_bad, bob, emily, 600, 0, blk_2r, CP_XCN, 0,
                [](transaction& tx) {
                  boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]).graded_amount = 500;
                  tx_tester(tx).vout[0].amount = 500;
                });
   
-  MAKE_TX_MIX_CP_FEE(events, tx_bob_spend, bob, emily, 600, 0, blk_2r, CP_XPB, 0);
+  MAKE_TX_MIX_CP_FEE(events, tx_bob_spend, bob, emily, 600, 0, blk_2r, CP_XCN, 0);
   
   MAKE_NEXT_BLOCK_TX1(events, blk_3, blk_2r, miner_account, tx_bob_spend);
   // carol would spend at default rate: no fee, default grade is 1/2, so 500 left from the 1000
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_carol_spend_bad, carol, emily, 500, 0, blk_2r, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_carol_spend_bad, carol, emily, 500, 0, blk_2r, CP_XCN, 0,
                [](transaction& tx) {
                  boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]).graded_amount = 600;
                  tx_tester(tx).vout[0].amount = 600;
                });
   
-  MAKE_TX_MIX_CP_FEE(events, tx_carol_spend, carol, emily, 500, 0, blk_3, CP_XPB, 0);
+  MAKE_TX_MIX_CP_FEE(events, tx_carol_spend, carol, emily, 500, 0, blk_3, CP_XCN, 0);
   
   MAKE_NEXT_BLOCK_TX1(events, blk_4, blk_3, miner_account, tx_carol_spend);
 
@@ -665,10 +665,10 @@ bool gen_contracts_resolve_contract_cant_change_contract::generate(std::vector<t
   
   // send both
   SEND_CONTRACT_TX(events, tx_send, 0xbe7,
-                   carol, 1000, CURRENCY_XPB,
+                   carol, 1000, CURRENCY_XCN,
                    carol, alice, blk_1);
   SEND_CONTRACT_TX(events, tx_send2, 0xbe72,
-                   carol, 1000, CURRENCY_XPB,
+                   carol, 1000, CURRENCY_XCN,
                    carol, bob, blk_1);
   MAKE_NEXT_BLOCK_TX1(events, blk_2pre, blk_1, miner_account, tx_send);
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_2pre, miner_account, tx_send2);
@@ -681,7 +681,7 @@ bool gen_contracts_resolve_contract_cant_change_contract::generate(std::vector<t
   // can't resolve 0xbe7 using 0xbe72's grade
   // be it the same amount:
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad1, alice, carol, 500, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad1, alice, carol, 500, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  auto& inp = boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]);
                  inp.contract = 0xbe72;
@@ -689,7 +689,7 @@ bool gen_contracts_resolve_contract_cant_change_contract::generate(std::vector<t
   
   // or taking advantage of it:
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad2, alice, carol, 500, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad2, alice, carol, 500, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  auto& inp = boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]);
                  inp.contract = 0xbe72;
@@ -717,13 +717,13 @@ bool gen_contracts_resolve_contract_expired::generate(std::vector<test_event_ent
   MAKE_NEXT_BLOCK_TX_LIST(events, blk_1, blk_0r, miner_account, txs);
   
   SEND_CONTRACT_TX(events, tx_send, 0xbe7,
-                   emily, 1000, CURRENCY_XPB,
+                   emily, 1000, CURRENCY_XCN,
                    emily, alice, blk_1);
   SEND_CONTRACT_TX(events, tx_send2, 0xbe7,
-                   emily, 1000, CURRENCY_XPB,
+                   emily, 1000, CURRENCY_XCN,
                    emily, bob, blk_1);
   SEND_CONTRACT_TX(events, tx_send3, 0xbe72,
-                   emily, 1000, CURRENCY_XPB,
+                   emily, 1000, CURRENCY_XCN,
                    emily, carol, blk_1);
   MAKE_NEXT_BLOCK_TX1(events, blk_2pre, blk_1, miner_account, tx_send);
   MAKE_NEXT_BLOCK_TX1(events, blk_2x, blk_2pre, miner_account, tx_send2);
@@ -731,11 +731,11 @@ bool gen_contracts_resolve_contract_expired::generate(std::vector<test_event_ent
   
   // 0xbe7 gets graded, 0xbe72 doesn't, gets the fees (400 * 2 = 800)
   GRADE_CONTRACT_TX_FULL(events, tx_grade, 0xbe7, GRADE_SCALE_MAX / 4, grading_key.sec,
-                         emily, 800, CURRENCY_XPB, tools::identity());
+                         emily, 800, CURRENCY_XCN, tools::identity());
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_2y, miner_account, tx_grade);
   
   // alice sends before it would have expired, at the grade of 0, with fees: 250 - 100 = 150
-  MAKE_TX_MIX_CP_FEE(events, tx_alice_spend, alice, dave, 150, 0, blk_2, CP_XPB, 0)
+  MAKE_TX_MIX_CP_FEE(events, tx_alice_spend, alice, dave, 150, 0, blk_2, CP_XCN, 0)
   MAKE_NEXT_BLOCK_TX1(events, blk_2r_pre, blk_2, miner_account, tx_alice_spend);
   
   // enough time passes to expire
@@ -743,23 +743,23 @@ bool gen_contracts_resolve_contract_expired::generate(std::vector<test_event_ent
   
   // bob sends 1000 from same contract as alice, this should be at same rate of 150 (would be 500 if it expired)
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bob_spend_bad, bob, dave, 150, 0, blk_2r, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bob_spend_bad, bob, dave, 150, 0, blk_2r, CP_XCN, 0,
                [](transaction& tx) {
                  boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]).graded_amount = 500;
                  tx_tester(tx).vout[0].amount = 500;
                });
   
-  MAKE_TX_MIX_CP_FEE(events, tx_bob_spend, bob, dave, 150, 0, blk_2r, CP_XPB, 0);
+  MAKE_TX_MIX_CP_FEE(events, tx_bob_spend, bob, dave, 150, 0, blk_2r, CP_XCN, 0);
   
   MAKE_NEXT_BLOCK_TX1(events, blk_3, blk_2r, miner_account, tx_bob_spend);
   // carol would spend at default rate: no fee, default grade is 1/2, so 500 left from the 1000
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_carol_spend_bad, carol, dave, 500, 0, blk_2r, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_carol_spend_bad, carol, dave, 500, 0, blk_2r, CP_XCN, 0,
                [](transaction& tx) {
                  boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]).graded_amount = 150;
                  tx_tester(tx).vout[0].amount = 150;
                });
-  MAKE_TX_MIX_CP_FEE(events, tx_carol_spend, carol, dave, 500, 0, blk_3, CP_XPB, 0);
+  MAKE_TX_MIX_CP_FEE(events, tx_carol_spend, carol, dave, 500, 0, blk_3, CP_XCN, 0);
   
   MAKE_NEXT_BLOCK_TX1(events, blk_4, blk_3, miner_account, tx_carol_spend);
   
@@ -786,8 +786,8 @@ bool gen_contracts_extra_currency_checks::generate(std::vector<test_event_entry>
   DO_CALLBACK(events, "mark_invalid_tx");
   MAKE_MINT_TX_FULL(events, 0xbeef, "Beef futures", 1000, alice, txbad2, 2, null_pkey,
                     [](transaction& tx) {
-                      tx_tester(tx).vin_coin_types[0].backed_by_currency = CURRENCY_XPB;
-                      tx_tester(tx).vout_coin_types[0].backed_by_currency = CURRENCY_XPB;
+                      tx_tester(tx).vin_coin_types[0].backed_by_currency = CURRENCY_XCN;
+                      tx_tester(tx).vout_coin_types[0].backed_by_currency = CURRENCY_XCN;
                     });
   DO_CALLBACK(events, "mark_invalid_tx");
   MAKE_MINT_TX_FULL(events, 0xbeef, "Beef futures", 1000, alice, txbad3, 2, null_pkey,
@@ -807,8 +807,8 @@ bool gen_contracts_extra_currency_checks::generate(std::vector<test_event_entry>
   DO_CALLBACK(events, "mark_invalid_tx");
   MAKE_REMINT_TX_FULL(events, 0xbeef, 5555, alice, txbad5, grading_key.sec, null_pkey,
                       [](transaction& tx) {
-                        tx_tester(tx).vin_coin_types[0].backed_by_currency = CURRENCY_XPB;
-                        tx_tester(tx).vout_coin_types[0].backed_by_currency = CURRENCY_XPB;
+                        tx_tester(tx).vin_coin_types[0].backed_by_currency = CURRENCY_XCN;
+                        tx_tester(tx).vout_coin_types[0].backed_by_currency = CURRENCY_XCN;
                       });
   DO_CALLBACK(events, "mark_invalid_tx");
   MAKE_REMINT_TX_FULL(events, 0xbeef, 5555, alice, txbad6, grading_key.sec, null_pkey,
@@ -832,7 +832,7 @@ bool gen_contracts_create_checks::generate(std::vector<test_event_entry>& events
   // valid contract id (>= 256)
   DO_CALLBACK(events, "mark_invalid_tx"); CREATE_CONTRACT_TX(events, 0x0, "", bad1, grading_key.pub);
   DO_CALLBACK(events, "mark_invalid_tx"); CREATE_CONTRACT_TX(events, 0x15, "", bad2, grading_key.pub);
-  DO_CALLBACK(events, "mark_invalid_tx"); CREATE_CONTRACT_TX(events, CURRENCY_XPB, "", bad2a, grading_key.pub);
+  DO_CALLBACK(events, "mark_invalid_tx"); CREATE_CONTRACT_TX(events, CURRENCY_XCN, "", bad2a, grading_key.pub);
   DO_CALLBACK(events, "mark_invalid_tx"); CREATE_CONTRACT_TX(events, CURRENCY_INVALID, "", bad2b, grading_key.pub);
   DO_CALLBACK(events, "mark_invalid_tx"); CREATE_CONTRACT_TX(events, BACKED_BY_INVALID, "", bad2c, grading_key.pub);
   DO_CALLBACK(events, "mark_invalid_tx"); CREATE_CONTRACT_TX(events, CURRENCY_N_A, "", bad2d, grading_key.pub);
@@ -915,32 +915,32 @@ bool gen_contracts_mint_checks::generate(std::vector<test_event_entry>& events) 
   // mint currencies for use in some test cases
   MAKE_MINT_TX(events, 0xbeef, "Beef futures", 1000, alice, txmint, 2, null_pkey);
   send_list.push_back(txmint);
-  // send a valid contract to be able to use, alice has both a backing and 0xfaaf/XPB
-  SEND_CONTRACT_TX(events, tx_ok, 0xfaaf, alice, 1000, CURRENCY_XPB, alice, alice, blk_1almost);
+  // send a valid contract to be able to use, alice has both a backing and 0xfaaf/XCN
+  SEND_CONTRACT_TX(events, tx_ok, 0xfaaf, alice, 1000, CURRENCY_XCN, alice, alice, blk_1almost);
   send_list.push_back(tx_ok);
   MAKE_NEXT_BLOCK_TX_LIST(events, blk_1, blk_1almost, miner_account, send_list);
 
   // invalid contract id
   DO_CALLBACK(events, "mark_invalid_tx");
-  SEND_CONTRACT_TX_FULL(events, tx_bad1, CURRENCY_XPB,
-                        alice, 1000, CURRENCY_XPB,
+  SEND_CONTRACT_TX_FULL(events, tx_bad1, CURRENCY_XCN,
+                        alice, 1000, CURRENCY_XCN,
                         alice, bob, blk_1, tools::identity());
   // mis-match in_currency and .contract
   DO_CALLBACK(events, "mark_invalid_tx");
   SEND_CONTRACT_TX_FULL(events, tx_bad2, 0xbe7,
-                        alice, 1000, CURRENCY_XPB,
+                        alice, 1000, CURRENCY_XCN,
                         alice, bob, blk_1,
                         [](transaction& tx) { boost::get<txin_mint_contract>(tx_tester(tx).vin[1]).contract++; });
   // mis-match backed_by_currency
   DO_CALLBACK(events, "mark_invalid_tx");
   SEND_CONTRACT_TX_FULL(events, tx_bad3, 0xbe7,
-                        alice, 1000, CURRENCY_XPB,
+                        alice, 1000, CURRENCY_XCN,
                         alice, bob, blk_1,
                         [](transaction& tx) { boost::get<txin_mint_contract>(tx_tester(tx).vin[1]).backed_by_currency++; });
   // backed by currency mismatch: using currency that we don't have inputs for
   DO_CALLBACK(events, "mark_invalid_tx");
   SEND_CONTRACT_TX_FULL(events, tx_bad5, 0xbe7,
-                        alice, 1000, CURRENCY_XPB,
+                        alice, 1000, CURRENCY_XCN,
                         alice, bob, blk_1,
                         [](transaction& tx) {
                           boost::get<txin_mint_contract>(tx_tester(tx).vin[1]).backed_by_currency = 0xbeef;
@@ -950,14 +950,14 @@ bool gen_contracts_mint_checks::generate(std::vector<test_event_entry>& events) 
   // backed by currency mismatch: outputting coins of wrong backing
   DO_CALLBACK(events, "mark_invalid_tx");
   SEND_CONTRACT_TX_FULL(events, tx_bad5b, 0xbe7,
-                        alice, 1000, CURRENCY_XPB,
+                        alice, 1000, CURRENCY_XCN,
                         alice, bob, blk_1,
                         [](transaction& tx) {
                           tx_tester(tx).vout_coin_types[0].backed_by_currency++;
                         });
   DO_CALLBACK(events, "mark_invalid_tx");
   SEND_CONTRACT_TX_FULL(events, tx_bad5c, 0xbe7,
-                        alice, 1000, CURRENCY_XPB,
+                        alice, 1000, CURRENCY_XCN,
                         alice, bob, blk_1,
                         [](transaction& tx) {
                           tx_tester(tx).vout_coin_types[1].backed_by_currency--;
@@ -970,10 +970,10 @@ bool gen_contracts_mint_checks::generate(std::vector<test_event_entry>& events) 
     tx_builder txb;
     txb.init(0, std::vector<uint8_t>(), true); // ignore checks
     
-    // fill with 0xfaaf contract coins backed by XPB (sent at start of this function)
+    // fill with 0xfaaf contract coins backed by XCN (sent at start of this function)
     std::vector<tx_source_entry> sources;
     CHECK_AND_ASSERT_MES(fill_tx_sources(sources, events, blk_1, alice, 1000, 0,
-                                         coin_type(0xfaaf, ContractCoin, CURRENCY_XPB)), false,
+                                         coin_type(0xfaaf, ContractCoin, CURRENCY_XCN)), false,
                          "Couldn't fill sources");
     
     std::vector<tx_destination_entry> destinations;
@@ -993,12 +993,12 @@ bool gen_contracts_mint_checks::generate(std::vector<test_event_entry>& events) 
   // mis-match in amount, both more and less
   DO_CALLBACK(events, "mark_invalid_tx");
   SEND_CONTRACT_TX_FULL(events, tx_bad7, 0xbe7,
-                        alice, 1000, CURRENCY_XPB,
+                        alice, 1000, CURRENCY_XCN,
                         alice, bob, blk_1,
                         [](transaction& tx) { boost::get<txin_mint_contract>(tx_tester(tx).vin[1]).amount += 1; });
   DO_CALLBACK(events, "mark_invalid_tx");
   SEND_CONTRACT_TX_FULL(events, tx_bad8, 0xbe7,
-                        alice, 1000, CURRENCY_XPB,
+                        alice, 1000, CURRENCY_XCN,
                         alice, bob, blk_1,
                         [](transaction& tx) {
                           boost::get<txin_mint_contract>(tx_tester(tx).vin[1]).amount -= 1;
@@ -1006,14 +1006,14 @@ bool gen_contracts_mint_checks::generate(std::vector<test_event_entry>& events) 
   // can't send more backing/contract coins than were minted (standard in/out check)
   DO_CALLBACK(events, "mark_invalid_tx");
   SEND_CONTRACT_TX_FULL(events, tx_bad8b, 0xbe7,
-                        alice, 1000, CURRENCY_XPB,
+                        alice, 1000, CURRENCY_XCN,
                         alice, bob, blk_1,
                         [](transaction& tx) {
                           tx_tester(tx).vout[0].amount += 1;
                         });
   DO_CALLBACK(events, "mark_invalid_tx");
   SEND_CONTRACT_TX_FULL(events, tx_bad8c, 0xbe7,
-                        alice, 1000, CURRENCY_XPB,
+                        alice, 1000, CURRENCY_XCN,
                         alice, bob, blk_1,
                         [](transaction& tx) {
                           tx_tester(tx).vout[1].amount += 1;
@@ -1021,12 +1021,12 @@ bool gen_contracts_mint_checks::generate(std::vector<test_event_entry>& events) 
   // non-existent contract
   DO_CALLBACK(events, "mark_invalid_tx");
   SEND_CONTRACT_TX_FULL(events, tx_bad9, 0xfefefe,
-                        alice, 1000, CURRENCY_XPB,
+                        alice, 1000, CURRENCY_XCN,
                         alice, bob, blk_1, tools::identity());
   // non-existent currency
   DO_CALLBACK(events, "mark_invalid_tx");
   SEND_CONTRACT_TX_FULL(events, tx_bad11, 0xbe7,
-                        alice, 1000, CURRENCY_XPB,
+                        alice, 1000, CURRENCY_XCN,
                         alice, bob, blk_1,
                         [](transaction& tx) {
                           boost::get<txin_mint_contract>(tx_tester(tx).vin[1]).backed_by_currency = 0xaffaf;
@@ -1038,7 +1038,7 @@ bool gen_contracts_mint_checks::generate(std::vector<test_event_entry>& events) 
   // can't use two mints without more inputs
   DO_CALLBACK(events, "mark_invalid_tx");
   SEND_CONTRACT_TX_FULL(events, tx_bad11b, 0xbe7,
-                        alice, 1000, CURRENCY_XPB,
+                        alice, 1000, CURRENCY_XCN,
                         alice, bob, blk_1,
                         [](transaction& tx) {
                           // duplicate the txin_mint_contract
@@ -1052,7 +1052,7 @@ bool gen_contracts_mint_checks::generate(std::vector<test_event_entry>& events) 
   auto height = get_block_height(boost::get<block>(events.back()));
   DO_CALLBACK(events, "mark_invalid_tx");
   SEND_CONTRACT_TX(events, tx_bad12, 0xbe7,
-                   alice, 1000, CURRENCY_XPB,
+                   alice, 1000, CURRENCY_XCN,
                    alice, bob, blk_2);
   // send expired contract
   CREATE_CONTRACT_TX_FULL(events, 0xfaba, "", tx_contract_2, grading_key.pub,
@@ -1060,13 +1060,13 @@ bool gen_contracts_mint_checks::generate(std::vector<test_event_entry>& events) 
   MAKE_NEXT_BLOCK_TX1(events, blk_3, blk_2, miner_account, tx_contract_2); // H + 1
   // regular send works...
   SEND_CONTRACT_TX(events, tx_send, 0xfaba,
-                   alice, 100, CURRENCY_XPB,
+                   alice, 100, CURRENCY_XCN,
                    alice, bob, blk_3);
   MAKE_NEXT_BLOCK_TX1(events, blk_4, blk_3, miner_account, tx_send); // H + 2
   // but now it no longer should
   DO_CALLBACK(events, "mark_invalid_tx");
   SEND_CONTRACT_TX(events, tx_bad13, 0xfaba,  // block this tx would be on is H + 3
-                   alice, 100, CURRENCY_XPB,
+                   alice, 100, CURRENCY_XCN,
                    alice, bob, blk_4);
   
   // shouldn't have more than 2^64-1 of any contract coin...  but should be impossible
@@ -1098,18 +1098,18 @@ bool gen_contracts_grade_checks::generate(std::vector<test_event_entry>& events)
   GRADE_CONTRACT_TX(events, txbad2, 0x13, 0, grading_key.sec);
   // .contract matches .in_currency
   DO_CALLBACK(events, "mark_invalid_tx");
-  GRADE_CONTRACT_TX_FULL(events, txbad3, 0xbe7, 0, grading_key.sec, alice, 0, CURRENCY_XPB,
+  GRADE_CONTRACT_TX_FULL(events, txbad3, 0xbe7, 0, grading_key.sec, alice, 0, CURRENCY_XCN,
                          [&grading_key](transaction& tx) {
                            auto& txin = boost::get<txin_grade_contract>(tx_tester(tx).vin[0]);
                            txin.contract += 1;
                            re_sign_grade(txin, grading_key.sec);
                          });
   DO_CALLBACK(events, "mark_invalid_tx");
-  GRADE_CONTRACT_TX_FULL(events, txbad4, 0xbe7, 0, grading_key.sec, alice, 0, CURRENCY_XPB,
+  GRADE_CONTRACT_TX_FULL(events, txbad4, 0xbe7, 0, grading_key.sec, alice, 0, CURRENCY_XCN,
                          [](transaction& tx) { tx_tester(tx).vin_coin_types[0].currency += 1; });
   // backed_by is BACKED_BY_N_A
   DO_CALLBACK(events, "mark_invalid_tx");
-  GRADE_CONTRACT_TX_FULL(events, txbad5, 0xbe7, 0, grading_key.sec, alice, 0, CURRENCY_XPB,
+  GRADE_CONTRACT_TX_FULL(events, txbad5, 0xbe7, 0, grading_key.sec, alice, 0, CURRENCY_XCN,
                          [](transaction& tx) { tx_tester(tx).vin_coin_types[0].backed_by_currency = BACKED_BY_N_A + 1; });
   // grade scale max is too high
   DO_CALLBACK(events, "mark_invalid_tx");
@@ -1119,7 +1119,7 @@ bool gen_contracts_grade_checks::generate(std::vector<test_event_entry>& events)
   GRADE_CONTRACT_TX(events, txbad7, 0xbe7abba, 0, grading_key.sec);
   // can't pay fees in non-existent subcurrencies
   DO_CALLBACK(events, "mark_invalid_tx");
-  GRADE_CONTRACT_TX_FULL(events, txbad8, 0xbe7, 0, grading_key.sec, alice, 0, CURRENCY_XPB,
+  GRADE_CONTRACT_TX_FULL(events, txbad8, 0xbe7, 0, grading_key.sec, alice, 0, CURRENCY_XCN,
                          [&grading_key](transaction& tx) {
                            auto& txin = boost::get<txin_grade_contract>(tx_tester(tx).vin[0]);
                            txin.fee_amounts[0xabbabab] = 10;
@@ -1180,7 +1180,7 @@ bool gen_contracts_resolve_backing_checks::generate(std::vector<test_event_entry
   std::list<transaction> send_list2;
   for (size_t i=0; i < num_sends; i++) {
     SEND_CONTRACT_TX(events, tx_send, 0xbe7,
-                     alice, 1000, CURRENCY_XPB,
+                     alice, 1000, CURRENCY_XCN,
                      alice, bob, blk_1);
     send_list2.push_back(tx_send);
   }
@@ -1192,24 +1192,24 @@ bool gen_contracts_resolve_backing_checks::generate(std::vector<test_event_entry
   
   // txin of the resolve must be (backed_by_currency, NotContract, BACKED_BY_N_A)
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad1, alice, carol, 1000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad1, alice, carol, 1000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  tx_tester(tx).vin_coin_types[1].currency += 1;                 
                });
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad1b, alice, carol, 1000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad1b, alice, carol, 1000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  tx_tester(tx).vin_coin_types[1].contract_type = BackingCoin;
                });
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad1c, alice, carol, 1000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad1c, alice, carol, 1000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  tx_tester(tx).vin_coin_types[1].backed_by_currency += 1;
                });
 
   // must have coins of the desired resolution exist
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad1d, alice, carol, 1000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad1d, alice, carol, 1000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]).backing_currency += 1;
                  tx_tester(tx).vin_coin_types[1].currency += 1;
@@ -1218,35 +1218,35 @@ bool gen_contracts_resolve_backing_checks::generate(std::vector<test_event_entry
 
   // resolving contract w/ valid id
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad2, alice, carol, 1000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad2, alice, carol, 1000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  auto& inp = boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]);
                  inp.contract = 100;
                });
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad3, alice, carol, 1000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad3, alice, carol, 1000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  auto& inp = boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]);
-                 inp.contract = CURRENCY_XPB;
+                 inp.contract = CURRENCY_XCN;
                });
   
   // resolving non-existent contract
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad4, alice, carol, 1000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad4, alice, carol, 1000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  auto& inp = boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]);
                  inp.contract += 1;
                });
   // invalid is_backing_coins
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad4b, alice, carol, 1000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad4b, alice, carol, 1000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  auto& inp = boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]);
                  inp.is_backing_coins = 2;
                });
   // wrong type of coin
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad4c, alice, carol, 1000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad4c, alice, carol, 1000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  auto& inp = boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]);
                  inp.is_backing_coins = 1 - inp.is_backing_coins;
@@ -1254,7 +1254,7 @@ bool gen_contracts_resolve_backing_checks::generate(std::vector<test_event_entry
   // resolving wrong but existing contract is handled in gen_contracts_resolve_backing_cant_change_contract
   // resolve with too-large amount
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad7, alice, carol, 1000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad7, alice, carol, 1000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  auto& inp = boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]);
                  inp.graded_amount = 10000;
@@ -1265,7 +1265,7 @@ bool gen_contracts_resolve_backing_checks::generate(std::vector<test_event_entry
   {
     std::vector<cryptonote::tx_source_entry> sources;
     std::vector<cryptonote::tx_destination_entry> destinations;
-    if (!fill_tx_sources_and_destinations(events, blk_3, alice, carol, 1000, 0, 0, sources, destinations, CP_XPB))
+    if (!fill_tx_sources_and_destinations(events, blk_3, alice, carol, 1000, 0, 0, sources, destinations, CP_XCN))
       return false;
   
     cryptonote::keypair txkey, txkey2;
@@ -1319,7 +1319,7 @@ bool gen_contracts_resolve_contract_checks::generate(std::vector<test_event_entr
   std::list<transaction> send_list2;
   for (size_t i=0; i < num_sends; i++) {
     SEND_CONTRACT_TX(events, tx_send, 0xbe7,
-                     bob, 3000, CURRENCY_XPB,
+                     bob, 3000, CURRENCY_XCN,
                      bob, alice, blk_1);
     send_list2.push_back(tx_send);
   }
@@ -1331,24 +1331,24 @@ bool gen_contracts_resolve_contract_checks::generate(std::vector<test_event_entr
   
   // txin of the resolve must be (backed_by_currency, NotContract, BACKED_BY_N_A)
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad1, alice, carol, 1000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad1, alice, carol, 1000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  tx_tester(tx).vin_coin_types[1].currency += 1;
                });
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad1b, alice, carol, 1000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad1b, alice, carol, 1000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  tx_tester(tx).vin_coin_types[1].contract_type = BackingCoin;
                });
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad1c, alice, carol, 1000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad1c, alice, carol, 1000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  tx_tester(tx).vin_coin_types[1].backed_by_currency += 1;
                });
   
   // must have coins of the desired resolution exist
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad1d, alice, carol, 1000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad1d, alice, carol, 1000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]).backing_currency += 1;
                  tx_tester(tx).vin_coin_types[1].currency += 1;
@@ -1357,35 +1357,35 @@ bool gen_contracts_resolve_contract_checks::generate(std::vector<test_event_entr
   
   // resolving contract w/ valid id
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad2, alice, carol, 1000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad2, alice, carol, 1000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  auto& inp = boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]);
                  inp.contract = 100;
                });
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad3, alice, carol, 1000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad3, alice, carol, 1000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  auto& inp = boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]);
-                 inp.contract = CURRENCY_XPB;
+                 inp.contract = CURRENCY_XCN;
                });
   
   // resolving non-existent contract
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad4, alice, carol, 1000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad4, alice, carol, 1000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  auto& inp = boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]);
                  inp.contract += 1;
                });
   // invalid is_backing_coins
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad4b, alice, carol, 1000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad4b, alice, carol, 1000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  auto& inp = boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]);
                  inp.is_backing_coins = 2;
                });
   // wrong type of coin
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad4c, alice, carol, 1000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad4c, alice, carol, 1000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  auto& inp = boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]);
                  inp.is_backing_coins = 1 - inp.is_backing_coins;
@@ -1393,7 +1393,7 @@ bool gen_contracts_resolve_contract_checks::generate(std::vector<test_event_entr
   // resolving wrong but existing contract is handled in gen_contracts_resolve_backing_cant_change_contract
   // resolve with too-large amount
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad7, alice, carol, 1000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad7, alice, carol, 1000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  auto& inp = boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]);
                  inp.graded_amount = 10000;
@@ -1401,7 +1401,7 @@ bool gen_contracts_resolve_contract_checks::generate(std::vector<test_event_entr
   // resolve with a correct amount of zero is invalid
   // '2000' triggers two pairs of outputs, we invalidate the first pair
   DO_CALLBACK(events, "mark_invalid_tx");
-  MAKE_TX_FULL(events, tx_bad7b, alice, carol, 2000, 0, blk_3, CP_XPB, 0,
+  MAKE_TX_FULL(events, tx_bad7b, alice, carol, 2000, 0, blk_3, CP_XCN, 0,
                [](transaction& tx) {
                  auto& inp = boost::get<txin_resolve_bc_coins>(tx_tester(tx).vin[1]);
                  inp.source_amount = 2;
@@ -1414,7 +1414,7 @@ bool gen_contracts_resolve_contract_checks::generate(std::vector<test_event_entr
   {
     std::vector<cryptonote::tx_source_entry> sources;
     std::vector<cryptonote::tx_destination_entry> destinations;
-    if (!fill_tx_sources_and_destinations(events, blk_3, alice, carol, 1000, 0, 0, sources, destinations, CP_XPB))
+    if (!fill_tx_sources_and_destinations(events, blk_3, alice, carol, 1000, 0, 0, sources, destinations, CP_XCN))
       return false;
     
     cryptonote::keypair txkey, txkey2;
@@ -1450,24 +1450,24 @@ bool gen_contracts_create_mint_fuse::generate(std::vector<test_event_entry>& eve
   MAKE_NEXT_BLOCK_TX_LIST(events, blk_1, blk_0r, miner_account, txs);
   
   SEND_CONTRACT_TX(events, tx_send_contract, 0xbe7,
-                   alice, 10, CURRENCY_XPB,
+                   alice, 10, CURRENCY_XCN,
                    alice, bob, blk_1);
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_1, miner_account, tx_send_contract);
   // alice sends 7 backing coins to bob
-  MAKE_TX_CP(events, tx_fwd, alice, bob, 7, blk_2, coin_type(0xbe7, BackingCoin, CURRENCY_XPB));
+  MAKE_TX_CP(events, tx_fwd, alice, bob, 7, blk_2, coin_type(0xbe7, BackingCoin, CURRENCY_XCN));
   MAKE_NEXT_BLOCK_TX1(events, blk_3, blk_2, miner_account, tx_fwd);
   
   // bob fuses 7 coins
-  FUSE_CONTRACT_TX(events, tx_fuse, 0xbe7, CURRENCY_XPB, 7, bob, bob, dave, blk_3);
+  FUSE_CONTRACT_TX(events, tx_fuse, 0xbe7, CURRENCY_XCN, 7, bob, bob, dave, blk_3);
   MAKE_NEXT_BLOCK_TX1(events, blk_4, blk_3, miner_account, tx_fuse);
   // send the fused coins in a no-fee tx
-  MAKE_TX_MIX_CP_FEE(events, txspendfused, dave, emily, 7, 0, blk_4, CP_XPB, 0);
+  MAKE_TX_MIX_CP_FEE(events, txspendfused, dave, emily, 7, 0, blk_4, CP_XCN, 0);
   MAKE_NEXT_BLOCK_TX1(events, blk_5, blk_4, miner_account, txspendfused);
   
   // fuse remaining 3 from separate accounts
-  FUSE_CONTRACT_TX(events, tx_fuse2, 0xbe7, CURRENCY_XPB, 3, alice, bob, emily, blk_5);
+  FUSE_CONTRACT_TX(events, tx_fuse2, 0xbe7, CURRENCY_XCN, 3, alice, bob, emily, blk_5);
   MAKE_NEXT_BLOCK_TX1(events, blk_6, blk_5, miner_account, tx_fuse2);
-  MAKE_TX_MIX_CP_FEE(events, txspendfused2, emily, dave, 3, 0, blk_5, CP_XPB, 0);
+  MAKE_TX_MIX_CP_FEE(events, txspendfused2, emily, dave, 3, 0, blk_5, CP_XCN, 0);
   MAKE_NEXT_BLOCK_TX1(events, blk_7, blk_6, miner_account, txspendfused2);
   
   return true;
@@ -1485,21 +1485,21 @@ bool gen_contracts_create_mint_fuse_fee::generate(std::vector<test_event_entry>&
   
   // alice sends 100 to bob
   SEND_CONTRACT_TX(events, tx_send_contract, 0xbe7,
-                   alice, 100, CURRENCY_XPB,
+                   alice, 100, CURRENCY_XCN,
                    alice, bob, blk_1);
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_1, miner_account, tx_send_contract);
   
   // if graded now, fee claimed is 10 (not added to block)
-  GRADE_CONTRACT_TX_FULL(events, tx_grade, 0xbe7, 0, grading_key.sec, carol, 10, CURRENCY_XPB, tools::identity());
+  GRADE_CONTRACT_TX_FULL(events, tx_grade, 0xbe7, 0, grading_key.sec, carol, 10, CURRENCY_XCN, tools::identity());
   
   // bob & alice fuse 50 coins
-  FUSE_CONTRACT_TX(events, tx_fuse, 0xbe7, CURRENCY_XPB, 50, alice, bob, dave, blk_2);
+  FUSE_CONTRACT_TX(events, tx_fuse, 0xbe7, CURRENCY_XCN, 50, alice, bob, dave, blk_2);
   MAKE_NEXT_BLOCK_TX1(events, blk_3, blk_2, miner_account, tx_fuse);
   
   // if graded now, fee claimed is 5
   DO_CALLBACK(events, "mark_invalid_block");
   MAKE_NEXT_BLOCK_TX1(events, blk_4_bad, blk_3, miner_account, tx_grade);
-  GRADE_CONTRACT_TX_FULL(events, tx_grade_2, 0xbe7, 0, grading_key.sec, carol, 5, CURRENCY_XPB, tools::identity());
+  GRADE_CONTRACT_TX_FULL(events, tx_grade_2, 0xbe7, 0, grading_key.sec, carol, 5, CURRENCY_XCN, tools::identity());
   MAKE_NEXT_BLOCK_TX1(events, blk_4, blk_3, miner_account, tx_grade_2);
 
   return true;
@@ -1515,29 +1515,29 @@ bool gen_contracts_create_mint_fuse_checks::generate(std::vector<test_event_entr
   MAKE_NEXT_BLOCK_TX_LIST(events, blk_1, blk_0r, miner_account, txs);
   
   SEND_CONTRACT_TX(events, tx_send_contract, 0xbe7,
-                   alice, 1000, CURRENCY_XPB,
+                   alice, 1000, CURRENCY_XCN,
                    alice, bob, blk_1);
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_1, miner_account, tx_send_contract);
   
   // in_cp of the fuse tx is wrong
   DO_CALLBACK(events, "mark_invalid_tx");
-  FUSE_CONTRACT_TX_FULL(events, tx_bad1, 0xbe7, CURRENCY_XPB, 1000, alice, bob, emily, blk_2,
+  FUSE_CONTRACT_TX_FULL(events, tx_bad1, 0xbe7, CURRENCY_XCN, 1000, alice, bob, emily, blk_2,
                         [](transaction& tx) {
                           tx_tester(tx).vin_coin_types[2].currency += 1;
                         });
   DO_CALLBACK(events, "mark_invalid_tx");
-  FUSE_CONTRACT_TX_FULL(events, tx_bad2, 0xbe7, CURRENCY_XPB, 1000, alice, bob, emily, blk_2,
+  FUSE_CONTRACT_TX_FULL(events, tx_bad2, 0xbe7, CURRENCY_XCN, 1000, alice, bob, emily, blk_2,
                         [](transaction& tx) {
                           tx_tester(tx).vin_coin_types[2].contract_type = BackingCoin;
                         });
   DO_CALLBACK(events, "mark_invalid_tx");
-  FUSE_CONTRACT_TX_FULL(events, tx_bad3, 0xbe7, CURRENCY_XPB, 1000, alice, bob, emily, blk_2,
+  FUSE_CONTRACT_TX_FULL(events, tx_bad3, 0xbe7, CURRENCY_XCN, 1000, alice, bob, emily, blk_2,
                         [](transaction& tx) {
                           tx_tester(tx).vin_coin_types[2].backed_by_currency += 1;
                         });
   // invalid contract
   DO_CALLBACK(events, "mark_invalid_tx");
-  FUSE_CONTRACT_TX_FULL(events, tx_bad4, 0xbe7, CURRENCY_XPB, 1000, alice, bob, emily, blk_2,
+  FUSE_CONTRACT_TX_FULL(events, tx_bad4, 0xbe7, CURRENCY_XCN, 1000, alice, bob, emily, blk_2,
                         [](transaction& tx) {
                           auto& inp_fuse = boost::get<txin_fuse_bc_coins>(tx_tester(tx).vin[2]);
                           inp_fuse.contract = 0xbefefe;
@@ -1547,7 +1547,7 @@ bool gen_contracts_create_mint_fuse_checks::generate(std::vector<test_event_entr
                         });
   // invalid backing currency
   DO_CALLBACK(events, "mark_invalid_tx");
-  FUSE_CONTRACT_TX_FULL(events, tx_bad5, 0xbe7, CURRENCY_XPB, 1000, alice, bob, emily, blk_2,
+  FUSE_CONTRACT_TX_FULL(events, tx_bad5, 0xbe7, CURRENCY_XCN, 1000, alice, bob, emily, blk_2,
                         [](transaction& tx) {
                           auto& inp_fuse = boost::get<txin_fuse_bc_coins>(tx_tester(tx).vin[2]);
                           inp_fuse.backing_currency = 0xbefefe;
@@ -1558,7 +1558,7 @@ bool gen_contracts_create_mint_fuse_checks::generate(std::vector<test_event_entr
                         });
   // invalid amounts 1
   DO_CALLBACK(events, "mark_invalid_tx");
-  FUSE_CONTRACT_TX_FULL(events, tx_bad6, 0xbe7, CURRENCY_XPB, 1000, alice, bob, emily, blk_2,
+  FUSE_CONTRACT_TX_FULL(events, tx_bad6, 0xbe7, CURRENCY_XCN, 1000, alice, bob, emily, blk_2,
                         [](transaction& tx) {
                           auto& inp_backing = boost::get<txin_to_key>(tx_tester(tx).vin[0]);
                           auto& inp_contract = boost::get<txin_to_key>(tx_tester(tx).vin[1]);
@@ -1570,7 +1570,7 @@ bool gen_contracts_create_mint_fuse_checks::generate(std::vector<test_event_entr
                         });
   // invalid amounts 2
   DO_CALLBACK(events, "mark_invalid_tx");
-  FUSE_CONTRACT_TX_FULL(events, tx_bad7, 0xbe7, CURRENCY_XPB, 1000, alice, bob, emily, blk_2,
+  FUSE_CONTRACT_TX_FULL(events, tx_bad7, 0xbe7, CURRENCY_XCN, 1000, alice, bob, emily, blk_2,
                         [](transaction& tx) {
                           auto& inp_fuse = boost::get<txin_fuse_bc_coins>(tx_tester(tx).vin[2]);
                           inp_fuse.amount = 1500;
@@ -1578,7 +1578,7 @@ bool gen_contracts_create_mint_fuse_checks::generate(std::vector<test_event_entr
                         });
   // invalid amounts 3
   DO_CALLBACK(events, "mark_invalid_tx");
-  FUSE_CONTRACT_TX_FULL(events, tx_bad8, 0xbe7, CURRENCY_XPB, 1000, alice, bob, emily, blk_2,
+  FUSE_CONTRACT_TX_FULL(events, tx_bad8, 0xbe7, CURRENCY_XCN, 1000, alice, bob, emily, blk_2,
                         [](transaction& tx) {
                           auto& inp_fuse = boost::get<txin_fuse_bc_coins>(tx_tester(tx).vin[2]);
                           inp_fuse.amount = 1500;
@@ -1589,7 +1589,7 @@ bool gen_contracts_create_mint_fuse_checks::generate(std::vector<test_event_entr
   MAKE_NEXT_BLOCK_TX1(events, blk_3, blk_2, miner_account, tx_grade);
   auto height = get_block_height(boost::get<block>(events.back()));
   DO_CALLBACK(events, "mark_invalid_tx");
-  FUSE_CONTRACT_TX(events, tx_bad9, 0xbe7, CURRENCY_XPB, 0100, alice, bob, emily, blk_3);
+  FUSE_CONTRACT_TX(events, tx_bad9, 0xbe7, CURRENCY_XCN, 0100, alice, bob, emily, blk_3);
   
   // can't fuse expired contract
   MAKE_TX_LIST_START(events, txs2, miner_account, alice, 1000, blk_0r);
@@ -1598,12 +1598,12 @@ bool gen_contracts_create_mint_fuse_checks::generate(std::vector<test_event_entr
   txs2.push_back(tx_contract2);
   MAKE_NEXT_BLOCK_TX_LIST(events, blk_4, blk_3, miner_account, txs2);
   SEND_CONTRACT_TX(events, tx_send_contract2, 0xbe72,
-                   alice, 1000, CURRENCY_XPB,
+                   alice, 1000, CURRENCY_XCN,
                    alice, bob, blk_4);
   MAKE_NEXT_BLOCK_TX1(events, blk_5, blk_4, miner_account, tx_send_contract2);
   REWIND_BLOCKS_N(events, blk_5r, blk_5, miner_account, 10)
   DO_CALLBACK(events, "mark_invalid_tx");
-  FUSE_CONTRACT_TX(events, tx_bad10, 0xbe72, CURRENCY_XPB, 1000, alice, bob, emily, blk_5r);
+  FUSE_CONTRACT_TX(events, tx_bad10, 0xbe72, CURRENCY_XCN, 1000, alice, bob, emily, blk_5r);
   
   return true;
 }

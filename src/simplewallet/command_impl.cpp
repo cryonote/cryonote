@@ -211,9 +211,9 @@ bool simple_wallet::show_blockchain_height(const std::vector<std::string>& args)
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::transfer(const std::vector<std::string> &args_, uint64_t currency_id)
 {
-  if (currency_id != CURRENCY_XPB)
+  if (currency_id != CURRENCY_XCN)
   {
-    throw std::runtime_error("Sending non-xpb currencies not yet implemented");
+    throw std::runtime_error("Sending non-xcn currencies not yet implemented");
   }
   
   if (!try_connect_to_daemon())
@@ -274,11 +274,11 @@ bool simple_wallet::transfer(const std::vector<std::string> &args_, uint64_t cur
       return true;
     }
 
-    de.cp = CP_XPB;
+    de.cp = CP_XCN;
 
     bool ok;
     ok = cryptonote::parse_amount(de.amount, local_args[i + 1]);
-    // when non-xpb, account for different decimal point
+    // when non-xcn, account for different decimal point
     
     if(!ok || 0 == de.amount)
     {

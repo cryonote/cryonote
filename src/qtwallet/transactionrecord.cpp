@@ -65,7 +65,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     {
         auto& kd = *wtx.optKnownTransfers;
         bool fIncludeFee = true;
-        LOG_PRINT_L2("kd.m_fee = " << kd.m_fee << ", m_xpb_change=" << kd.m_xpb_change);
+        LOG_PRINT_L2("kd.m_fee = " << kd.m_fee << ", m_xcn_change=" << kd.m_xcn_change);
         BOOST_FOREACH(const auto& dest, kd.m_dests)
         {
             uint64_t nThisAmount = dest.amount;
@@ -114,23 +114,23 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         }
 
         LOG_PRINT_L2("after transfers, nDebit=" << nDebit << ", nCredit=" << nCredit);
-        if (kd.m_xpb_change > nCredit)
+        if (kd.m_xcn_change > nCredit)
         {
-            LOG_PRINT_RED_L0("Known transfer amount change " << cryptonote::print_money(kd.m_xpb_change) << " greater than credit amount " << cryptonote::print_money(nCredit) << "?");
+            LOG_PRINT_RED_L0("Known transfer amount change " << cryptonote::print_money(kd.m_xcn_change) << " greater than credit amount " << cryptonote::print_money(nCredit) << "?");
             nCredit = 0;
         }
         else
         {
-            nCredit -= kd.m_xpb_change;
+            nCredit -= kd.m_xcn_change;
         }
-        if (kd.m_xpb_change > nDebit)
+        if (kd.m_xcn_change > nDebit)
         {
-            LOG_PRINT_RED_L0("Known transfer amount change " << cryptonote::print_money(kd.m_xpb_change) << " greater than debit amount " << cryptonote::print_money(nDebit) << "?");
+            LOG_PRINT_RED_L0("Known transfer amount change " << cryptonote::print_money(kd.m_xcn_change) << " greater than debit amount " << cryptonote::print_money(nDebit) << "?");
             nDebit = 0;
         }
         else
         {
-            nDebit -= kd.m_xpb_change;
+            nDebit -= kd.m_xcn_change;
         }
     }
 

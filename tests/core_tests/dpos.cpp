@@ -205,10 +205,10 @@ bool gen_dpos_register_low_fee_2::generate(std::vector<test_event_entry>& events
   
   // send a few very high-fee transactions
   MAKE_TX_MIX_CP_FEE(events, tx_send, miner_account, alice, MK_COINS(100), 0, blk_0r,
-                     CP_XPB, MK_COINS(5));
+                     CP_XCN, MK_COINS(5));
   MAKE_NEXT_BLOCK_TX1(events, blk_1a, blk_0r, miner_account, tx_send);
   MAKE_TX_MIX_CP_FEE(events, tx_send2, miner_account, alice, MK_COINS(100), 0, blk_1a,
-                     CP_XPB, MK_COINS(5));
+                     CP_XCN, MK_COINS(5));
   MAKE_NEXT_BLOCK_TX1(events, blk_1, blk_1a, miner_account, tx_send2);
   
   // avg fee should be 10/16 = 0.625 per block, *DPOS_REGISTRATION_FEE_MULTIPLE
@@ -256,7 +256,7 @@ bool gen_dpos_register_invalid_id::generate(std::vector<test_event_entry>& event
                                      inreg.delegate_id = 0x333;
                                      inreg.delegate_address = dave.get_keys().m_account_address;
                                      inreg.registration_fee = MK_COINS(5);
-                                     tx.add_in(inreg, CP_XPB);
+                                     tx.add_in(inreg, CP_XCN);
                                    });
   SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_keeped_by_block, true);
   DO_CALLBACK(events, "mark_invalid_tx");
@@ -315,7 +315,7 @@ bool gen_dpos_register_invalid_address::generate(std::vector<test_event_entry>& 
                                      inreg.delegate_id = 0x555;
                                      inreg.delegate_address = carol.get_keys().m_account_address;
                                      inreg.registration_fee = MK_COINS(5);
-                                     tx.add_in(inreg, CP_XPB);
+                                     tx.add_in(inreg, CP_XCN);
                                    });
   SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_keeped_by_block, true);
   DO_CALLBACK(events, "mark_invalid_tx");
@@ -1081,7 +1081,7 @@ bool gen_dpos_timestamp_checks::generate(std::vector<test_event_entry>& events) 
   TEST_NEW_END();
 }
 
-// TODO: test can't register/vote with non-XPB coin types
+// TODO: test can't register/vote with non-XCN coin types
 
 bool gen_dpos_invalid_votes::generate(std::vector<test_event_entry>& events) const
 {
@@ -1140,7 +1140,7 @@ bool gen_dpos_invalid_votes::generate(std::vector<test_event_entry>& events) con
     txb.init();
     
     std::vector<tx_source_entry> sources;
-    CHECK_AND_ASSERT_MES(fill_tx_sources(sources, events, blk_pos_4, A[3], MK_COINS(5), 0, CP_XPB),
+    CHECK_AND_ASSERT_MES(fill_tx_sources(sources, events, blk_pos_4, A[3], MK_COINS(5), 0, CP_XCN),
                          false, "Couldn't fill sources");
     CHECK_AND_ASSERT_MES(txb.add_vote(A[3].get_keys(), sources, 2, make_votes(0x001)), false, "could not add_vote");
     CHECK_AND_ASSERT_MES(txb.add_vote(A[3].get_keys(), sources, 3, make_votes(0x001)), false, "could not add_vote");
@@ -1159,7 +1159,7 @@ bool gen_dpos_invalid_votes::generate(std::vector<test_event_entry>& events) con
     
     std::vector<tx_source_entry> sources;
     std::vector<tx_destination_entry> destinations;
-    if (!fill_tx_sources_and_destinations(events, blk_pos_4, A[3], A[3], MK_COINS(4), 0, 0, sources, destinations, CP_XPB))
+    if (!fill_tx_sources_and_destinations(events, blk_pos_4, A[3], A[3], MK_COINS(4), 0, 0, sources, destinations, CP_XCN))
       return false;
     
     CHECK_AND_ASSERT_MES(txb.add_send(A[3].get_keys(), sources, destinations), false, "could not add_send");
@@ -1177,7 +1177,7 @@ bool gen_dpos_invalid_votes::generate(std::vector<test_event_entry>& events) con
     
     std::vector<tx_source_entry> sources;
     std::vector<tx_destination_entry> destinations;
-    if (!fill_tx_sources_and_destinations(events, blk_pos_4, A[3], A[3], MK_COINS(4), 0, 0, sources, destinations, CP_XPB))
+    if (!fill_tx_sources_and_destinations(events, blk_pos_4, A[3], A[3], MK_COINS(4), 0, 0, sources, destinations, CP_XCN))
       return false;
     
     CHECK_AND_ASSERT_MES(txb.add_vote(A[3].get_keys(), sources, 2, make_votes(0x001)), false, "could not add_vote");
@@ -1431,20 +1431,20 @@ bool gen_dpos_altchain_voting_4::generate(std::vector<test_event_entry>& events)
     
     {
       std::vector<tx_source_entry> sources;
-      CHECK_AND_ASSERT_MES(fill_tx_sources(sources, events, blk_pos_4, A[3], MK_COINS(250), 0, CP_XPB),
+      CHECK_AND_ASSERT_MES(fill_tx_sources(sources, events, blk_pos_4, A[3], MK_COINS(250), 0, CP_XCN),
                            false, "Couldn't fill sources");
       CHECK_AND_ASSERT_MES(txb.add_vote(A[3].get_keys(), sources, 3, make_votes(0x002)), false, "could not add_vote");
     }
     {
       std::vector<tx_source_entry> sources;
-      CHECK_AND_ASSERT_MES(fill_tx_sources(sources, events, blk_pos_4, A[5], MK_COINS(250), 0, CP_XPB),
+      CHECK_AND_ASSERT_MES(fill_tx_sources(sources, events, blk_pos_4, A[5], MK_COINS(250), 0, CP_XCN),
                            false, "Couldn't fill sources");
       CHECK_AND_ASSERT_MES(txb.add_vote(A[5].get_keys(), sources, 0, make_votes(0x001)), false, "could not add_vote");
     }
     {
       std::vector<tx_source_entry> sources;
       std::vector<tx_destination_entry> destinations;
-      if (!fill_tx_sources_and_destinations(events, blk_pos_4, A[4], A[6], MK_COINS(15), 0, 0, sources, destinations, CP_XPB))
+      if (!fill_tx_sources_and_destinations(events, blk_pos_4, A[4], A[6], MK_COINS(15), 0, 0, sources, destinations, CP_XCN))
         return false;
       CHECK_AND_ASSERT_MES(txb.add_send(A[4].get_keys(), sources, destinations), false, "could not add_send");
     }

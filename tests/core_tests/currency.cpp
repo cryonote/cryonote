@@ -385,15 +385,15 @@ bool gen_currency_cant_spend_other_currency::generate(std::vector<test_event_ent
     tx_tester(last_tx).vout_coin_types[0].currency = 0xbeef4;
   }
   
-  // wrong existing currency (alice has beef6, not xpb) - fails ring signature check
+  // wrong existing currency (alice has beef6, not xcn) - fails ring signature check
   
   {
     DO_CALLBACK(events, "mark_invalid_tx");
     MAKE_TX_C(events, txbeef1, alice, bob, 1, blk_1, 0xbeef6);
     test_event_entry& last = events.back();
     cryptonote::transaction& last_tx = boost::get<cryptonote::transaction>(last);
-    tx_tester(last_tx).vin_coin_types[0].currency = CURRENCY_XPB;
-    tx_tester(last_tx).vout_coin_types[0].currency = CURRENCY_XPB;
+    tx_tester(last_tx).vin_coin_types[0].currency = CURRENCY_XCN;
+    tx_tester(last_tx).vout_coin_types[0].currency = CURRENCY_XCN;
   }
   
   return true;

@@ -413,11 +413,11 @@ namespace cryptonote
             vout_coin_types.clear();
             for (const auto& inp : vin) {
               (void)inp;
-              vin_coin_types.push_back(CP_XPB);
+              vin_coin_types.push_back(CP_XCN);
             }
             for (const auto& outp : vout) {
               (void)outp;
-              vout_coin_types.push_back(CP_XPB);
+              vout_coin_types.push_back(CP_XCN);
             }
           }
         } break;
@@ -555,11 +555,11 @@ namespace cryptonote
           {
             for (const auto& inp : vin) {
               (void)inp;
-              vin_coin_types.push_back(CP_XPB);
+              vin_coin_types.push_back(CP_XCN);
             }
             for (const auto& outp : vout) {
               (void)outp;
-              vout_coin_types.push_back(CP_XPB);
+              vout_coin_types.push_back(CP_XCN);
             }
           }
         } break;

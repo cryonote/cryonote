@@ -284,7 +284,7 @@ namespace cryptonote
     typedef std::map<uint64_t, outputs_vector> old_outputs_container;
     // outputs_container : {(coin_type, amount) : outputs_vector}
     // coin_type is essentially 3-tuple:
-      // 1st slot is currency/contract: CURRENCY_XPB for xpb, or the id of the currency or contract
+      // 1st slot is currency/contract: CURRENCY_XCN for xcn, or the id of the currency or contract
       // 2nd slot is a CoinConntractType indicating the coin's contract status
       // 3rd slot is BACKED_BY_N_A for NotContract, or the currency backing the contract/backing coin
     // 2nd part of pair is the amount

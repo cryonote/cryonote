@@ -136,7 +136,7 @@ int VotingTableModel::columnCount(const QModelIndex &parent) const
 
 QString VotingTableModel::formatTooltip(const VotingRecord *rec) const
 {
-    auto unit = BitcoinUnits::XPB;
+    auto unit = BitcoinUnits::XCN;
 
     QString tooltip;
     tooltip += tr("Blocks Processed:") + " " + QString::number(rec->info->processed_blocks);
@@ -165,7 +165,7 @@ QVariant VotingTableModel::data(const QModelIndex &index, int role) const
         case Rank:
             return (qint64)(rec->info->cached_vote_rank + 1);
         case Votes:
-            return BitcoinUnits::formatWithUnit(BitcoinUnits::XPB, rec->info->total_votes);
+            return BitcoinUnits::formatWithUnit(BitcoinUnits::XCN, rec->info->total_votes);
         case ID:
             return QString::number(rec->info->delegate_id);
         case Address:

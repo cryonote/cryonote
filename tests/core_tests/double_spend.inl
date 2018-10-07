@@ -98,7 +98,7 @@ bool gen_double_spend_in_tx<txs_keeped_by_block>::generate(std::vector<test_even
   std::vector<cryptonote::tx_source_entry> sources;
   cryptonote::tx_source_entry se;
   se.type = cryptonote::tx_source_entry::InToKey;
-  se.cp = cryptonote::CP_XPB;
+  se.cp = cryptonote::CP_XCN;
   se.amount_in = se.amount_out = tx_0.outs()[0].amount;
   se.outputs.push_back(std::make_pair(0, boost::get<cryptonote::txout_to_key>(tx_0.outs()[0].target).key));
   se.real_output = 0;

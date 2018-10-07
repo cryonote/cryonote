@@ -165,13 +165,13 @@ bool fill_tx_sources_and_destinations(const std::vector<test_event_entry>& event
                                       uint64_t amount, uint64_t fee, size_t nmix,
                                       std::vector<cryptonote::tx_source_entry>& sources,
                                       std::vector<cryptonote::tx_destination_entry>& destinations,
-                                      uint64_t currency=CURRENCY_XPB, bool ignore_unlock_times=false);
+                                      uint64_t currency=CURRENCY_XCN, bool ignore_unlock_times=false);
 bool fill_tx_sources_and_destinations(const std::vector<test_event_entry>& events, const cryptonote::block& blk_head,
                                       const cryptonote::account_base& from, const cryptonote::account_base& to,
                                       uint64_t amount, uint64_t fee, size_t nmix,
                                       std::vector<cryptonote::tx_source_entry>& sources,
                                       std::vector<cryptonote::tx_destination_entry>& destinations,
-                                      cryptonote::coin_type cp=cryptonote::CP_XPB, bool ignore_unlock_times=false);
+                                      cryptonote::coin_type cp=cryptonote::CP_XCN, bool ignore_unlock_times=false);
 
 bool construct_miner_tx_manually(size_t height, uint64_t already_generated_coins,
                                  const cryptonote::account_public_address& miner_address, cryptonote::transaction& tx,
@@ -572,22 +572,22 @@ bool do_replay_file(const std::string& filename, test_chain_unit_base& validator
 
 #define MAKE_TX_MIX_CP_FEE(VEC_EVENTS, TX_NAME, FROM, TO, AMOUNT, NMIX, HEAD, CP, FEE) MAKE_TX_FULL(VEC_EVENTS, TX_NAME, FROM, TO, AMOUNT, NMIX, HEAD, CP, FEE, tools::identity())
 
-#define MAKE_TX_MIX_CP(VEC_EVENTS, TX_NAME, FROM, TO, AMOUNT, NMIX, HEAD, CP) MAKE_TX_MIX_CP_FEE(VEC_EVENTS, TX_NAME, FROM, TO, AMOUNT, NMIX, HEAD, CP, CP == cryptonote::CP_XPB ? TESTS_DEFAULT_FEE : 0)
+#define MAKE_TX_MIX_CP(VEC_EVENTS, TX_NAME, FROM, TO, AMOUNT, NMIX, HEAD, CP) MAKE_TX_MIX_CP_FEE(VEC_EVENTS, TX_NAME, FROM, TO, AMOUNT, NMIX, HEAD, CP, CP == cryptonote::CP_XCN ? TESTS_DEFAULT_FEE : 0)
 
 #define MAKE_TX_MIX_C(VEC_EVENTS, TX_NAME, FROM, TO, AMOUNT, NMIX, HEAD, CURRENCY) MAKE_TX_MIX_CP(VEC_EVENTS, TX_NAME, FROM, TO, AMOUNT, NMIX, HEAD, cryptonote::coin_type(CURRENCY, cryptonote::NotContract, BACKED_BY_N_A))
 
-#define MAKE_TX_MIX(VEC_EVENTS, TX_NAME, FROM, TO, AMOUNT, NMIX, HEAD) MAKE_TX_MIX_C(VEC_EVENTS, TX_NAME, FROM, TO, AMOUNT, NMIX, HEAD, CURRENCY_XPB)
+#define MAKE_TX_MIX(VEC_EVENTS, TX_NAME, FROM, TO, AMOUNT, NMIX, HEAD) MAKE_TX_MIX_C(VEC_EVENTS, TX_NAME, FROM, TO, AMOUNT, NMIX, HEAD, CURRENCY_XCN)
 
 #define MAKE_TX_CP(VEC_EVENTS, TX_NAME, FROM, TO, AMOUNT, HEAD, CP) MAKE_TX_MIX_CP(VEC_EVENTS, TX_NAME, FROM, TO, AMOUNT, 0, HEAD, CP)
 
 #define MAKE_TX_C(VEC_EVENTS, TX_NAME, FROM, TO, AMOUNT, HEAD, CURRENCY) MAKE_TX_MIX_C(VEC_EVENTS, TX_NAME, FROM, TO, AMOUNT, 0, HEAD, CURRENCY)
 
-#define MAKE_TX(VEC_EVENTS, TX_NAME, FROM, TO, AMOUNT, HEAD) MAKE_TX_C(VEC_EVENTS, TX_NAME, FROM, TO, AMOUNT, HEAD, CURRENCY_XPB)
+#define MAKE_TX(VEC_EVENTS, TX_NAME, FROM, TO, AMOUNT, HEAD) MAKE_TX_C(VEC_EVENTS, TX_NAME, FROM, TO, AMOUNT, HEAD, CURRENCY_XCN)
 
 #define MAKE_TX_MIX_LIST(VEC_EVENTS, SET_NAME, FROM, TO, AMOUNT, NMIX, HEAD)             \
   {                                                                                      \
     cryptonote::transaction t;                                                             \
-    CHECK_AND_ASSERT_MES(construct_tx_to_key(VEC_EVENTS, t, HEAD, FROM, TO, AMOUNT, TESTS_DEFAULT_FEE, NMIX, cryptonote::CP_XPB), false, "failed to construct_tx_to_key in make_tx_mix_list"); \
+    CHECK_AND_ASSERT_MES(construct_tx_to_key(VEC_EVENTS, t, HEAD, FROM, TO, AMOUNT, TESTS_DEFAULT_FEE, NMIX, cryptonote::CP_XCN), false, "failed to construct_tx_to_key in make_tx_mix_list"); \
     SET_NAME.push_back(t);                                                               \
     VEC_EVENTS.push_back(t);                                                             \
   }
@@ -667,7 +667,7 @@ cryptonote::block rewind_blocks(test_generator& generator, std::vector<test_even
 cryptonote::transaction make_tx_send(std::vector<test_event_entry>& events,
                                      const cryptonote::account_base& from, const cryptonote::account_base& to,
                                      uint64_t amount, const cryptonote::block& head,
-                                     uint64_t fee=TESTS_DEFAULT_FEE, const cryptonote::coin_type& cp=cryptonote::CP_XPB,
+                                     uint64_t fee=TESTS_DEFAULT_FEE, const cryptonote::coin_type& cp=cryptonote::CP_XCN,
                                      uint64_t nmix=0);
 void set_dpos_switch_block(std::vector<test_event_entry>& events, uint64_t block);
 void set_dpos_registration_start_block(std::vector<test_event_entry>& events, uint64_t block);

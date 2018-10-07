@@ -780,7 +780,7 @@ bool fill_tx_sources_and_destinations(const std::vector<test_event_entry>& event
                                       std::vector<tx_destination_entry>& destinations, cryptonote::coin_type cp,
                                       bool ignore_unlock_times)
 {
-  if (cp != CP_XPB && fee > 0)
+  if (cp != CP_XCN && fee > 0)
   {
     LOG_ERROR("fill_tx_sources_and_destinations with sub-currency and fee not yet supported");
     return false;
@@ -860,7 +860,7 @@ bool construct_miner_tx_manually(size_t height, uint64_t already_generated_coins
 
   txin_gen in;
   in.height = height;
-  tx.add_in(in, CP_XPB);
+  tx.add_in(in, CP_XCN);
 
   // This will work, until size of constructed block is less then CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE
   uint64_t block_reward;
@@ -879,7 +879,7 @@ bool construct_miner_tx_manually(size_t height, uint64_t already_generated_coins
   tx_out out;
   out.amount = block_reward;
   out.target = txout_to_key(out_eph_public_key);
-  tx.add_out(out, CP_XPB);
+  tx.add_out(out, CP_XCN);
 
   tx.unlock_time = height + CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW;
 
@@ -890,7 +890,7 @@ transaction construct_tx_with_fee(std::vector<test_event_entry>& events, const b
                                   const account_base& acc_from, const account_base& acc_to, uint64_t amount, uint64_t fee)
 {
   transaction tx;
-  if (!construct_tx_to_key(events, tx, blk_head, acc_from, acc_to, amount, fee, 0, CP_XPB))
+  if (!construct_tx_to_key(events, tx, blk_head, acc_from, acc_to, amount, fee, 0, CP_XCN))
     throw std::runtime_error("Couldn't construct_tx_to_key");
   events.push_back(tx);
   return tx;
@@ -906,7 +906,7 @@ uint64_t get_balance(const cryptonote::account_base& addr, const std::vector<cry
   map_hash2tx_isregular_t confirmed_txs;
   get_confirmed_txs(blockchain, mtx, confirmed_txs);
 
-  if (!init_output_indices(false, outs, outs_mine, blockchain, confirmed_txs, addr, CP_XPB))
+  if (!init_output_indices(false, outs, outs_mine, blockchain, confirmed_txs, addr, CP_XCN))
     return false;
 
   if (!init_spent_output_indices(outs, outs_mine, blockchain, confirmed_txs, addr))

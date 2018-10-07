@@ -18,7 +18,7 @@
 #define POW_BLOCK_MAJOR_VERSION                         1
 #define POW_BLOCK_MINOR_VERSION                         0
 
-#define CURRENCY_XPB      77     // the currency for XPB
+#define CURRENCY_XCN      77     // the currency for XCN
 #define CURRENCY_INVALID  252    // an invalid/unsupplied currency
 #define BACKED_BY_INVALID 253    // an invalid/unsupplied backed by currency
 #define CURRENCY_N_A      254    // currency doesn't apply

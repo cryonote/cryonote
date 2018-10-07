@@ -64,12 +64,12 @@ WalletModel::~WalletModel()
 
 qint64 WalletModel::getBalance(const CCoinControl *coinControl) const
 {
-    return wallet->GetWallet2()->unlocked_balance()[cryptonote::CP_XPB];
+    return wallet->GetWallet2()->unlocked_balance()[cryptonote::CP_XCN];
 }
 
 qint64 WalletModel::getUnconfirmedBalance() const
 {
-    return wallet->GetWallet2()->balance()[cryptonote::CP_XPB] - wallet->GetWallet2()->unlocked_balance()[cryptonote::CP_XPB];
+    return wallet->GetWallet2()->balance()[cryptonote::CP_XCN] - wallet->GetWallet2()->unlocked_balance()[cryptonote::CP_XCN];
 }
 
 qint64 WalletModel::getImmatureBalance() const

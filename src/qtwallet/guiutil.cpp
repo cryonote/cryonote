@@ -134,7 +134,7 @@ bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out)
         {
             if(!i->second.isEmpty())
             {
-                if(!BitcoinUnits::parse(BitcoinUnits::XPB, i->second, &rv.amount))
+                if(!BitcoinUnits::parse(BitcoinUnits::XCN, i->second, &rv.amount))
                 {
                     return false;
                 }
@@ -173,7 +173,7 @@ QString formatBitcoinURI(const SendCoinsRecipient &info)
 
     if (info.amount)
     {
-        ret += QString("?amount=%1").arg(BitcoinUnits::format(BitcoinUnits::XPB, info.amount));
+        ret += QString("?amount=%1").arg(BitcoinUnits::format(BitcoinUnits::XCN, info.amount));
         paramCount++;
     }
 

@@ -35,7 +35,7 @@ namespace cryptonote
     {
       if (contract_type != NotContract || backed_by_currency != BACKED_BY_N_A)
         return CONTRACT_TRANSACTION_VERSION;
-      if (currency != CURRENCY_XPB)
+      if (currency != CURRENCY_XCN)
         return CURRENCY_TRANSACTION_VERSION;
       return VANILLA_TRANSACTION_VERSION;
     }
@@ -81,7 +81,7 @@ namespace cryptonote
   
   //---------------------------------------------------------------
   
-  const static coin_type CP_XPB = coin_type(CURRENCY_XPB, NotContract, BACKED_BY_N_A);
+  const static coin_type CP_XCN = coin_type(CURRENCY_XCN, NotContract, BACKED_BY_N_A);
   const static coin_type CP_N_A = coin_type(CURRENCY_N_A, ContractTypeNA, BACKED_BY_N_A);
 }
 

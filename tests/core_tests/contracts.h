@@ -237,7 +237,7 @@ bool make_grade_contract_tx(std::vector<test_event_entry>& events, transaction& 
     CHECK_AND_ASSERT_MES(make_grade_contract_tx(VEC_EVENTS, TX_NAME, CONTRACT, GRADE, GRADING_SECRET_KEY, FEES_DEST, FEES_AMT, FEES_CURRENCY, MOD), false, "Couldn't make_grade_contract_tx");
 
 #define GRADE_CONTRACT_TX(VEC_EVENTS, TX_NAME, CONTRACT, GRADE, GRADING_SECRET_KEY) \
-    GRADE_CONTRACT_TX_FULL(VEC_EVENTS, TX_NAME, CONTRACT, GRADE, GRADING_SECRET_KEY, g_junk_account, 0, CURRENCY_XPB, tools::identity())
+    GRADE_CONTRACT_TX_FULL(VEC_EVENTS, TX_NAME, CONTRACT, GRADE, GRADING_SECRET_KEY, g_junk_account, 0, CURRENCY_XCN, tools::identity())
 
 #define INIT_CONTRACT_TEST() \
   GENERATE_ACCOUNT(miner_account); \

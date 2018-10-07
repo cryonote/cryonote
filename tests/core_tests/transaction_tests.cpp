@@ -56,7 +56,7 @@ bool test_transaction_generation_and_ring_signature()
   sources.resize(sources.size()+1);
   tx_source_entry& src = sources.back();
   src.type = tx_source_entry::InToKey;
-  src.cp = CP_XPB;
+  src.cp = CP_XCN;
   src.amount_in = src.amount_out =70368744177663;
   {
     tx_output_entry oe;

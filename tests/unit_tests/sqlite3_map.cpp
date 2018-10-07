@@ -263,9 +263,9 @@ TEST(sqlite3, boost_serialization)
     tx.set_null();
     auto keypair = keypair::generate();
     tx.version = VANILLA_TRANSACTION_VERSION;
-    tx.add_out(tx_out(999, txout_to_key(keypair.pub)), CP_XPB);
-    tx.add_in(txin_gen(), CP_XPB);
-    tx.add_in(txin_to_key(), CP_XPB);
+    tx.add_out(tx_out(999, txout_to_key(keypair.pub)), CP_XCN);
+    tx.add_in(txin_gen(), CP_XCN);
+    tx.add_in(txin_to_key(), CP_XCN);
   }
   auto txhash = get_transaction_hash(tx);
   

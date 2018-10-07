@@ -67,14 +67,14 @@ bool make_register_delegate_tx_(std::vector<test_event_entry>& events, transacti
   txb.init();
 
   std::vector<tx_source_entry> sources;
-  CHECK_AND_ASSERT_MES(fill_tx_sources(sources, events, head, delegate_source, registration_fee, 0, CP_XPB),
+  CHECK_AND_ASSERT_MES(fill_tx_sources(sources, events, head, delegate_source, registration_fee, 0, CP_XCN),
                        false, "Couldn't fill sources");
 
   std::vector<tx_destination_entry> destinations;
-  uint64_t cash_back = get_inputs_amount(sources)[CP_XPB] - registration_fee;
+  uint64_t cash_back = get_inputs_amount(sources)[CP_XCN] - registration_fee;
   if (cash_back > 0)
   {
-    destinations.push_back(tx_destination_entry(CP_XPB, cash_back,
+    destinations.push_back(tx_destination_entry(CP_XCN, cash_back,
                                                 delegate_source.get_keys().m_account_address));
   }
 
@@ -104,7 +104,7 @@ bool make_vote_tx_(std::vector<test_event_entry>& events, transaction& tx,
   txb.init();
 
   std::vector<tx_source_entry> sources;
-  CHECK_AND_ASSERT_MES(fill_tx_sources(sources, events, head, vote_source, amount, nmix, CP_XPB),
+  CHECK_AND_ASSERT_MES(fill_tx_sources(sources, events, head, vote_source, amount, nmix, CP_XCN),
                        false, "Couldn't fill sources");
   CHECK_AND_ASSERT_MES(txb.add_vote(vote_source.get_keys(),
                                     sources,

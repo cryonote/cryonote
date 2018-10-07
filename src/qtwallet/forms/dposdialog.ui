@@ -192,7 +192,7 @@
              </font>
             </property>
             <property name="toolTip">
-             <string>The number of votes, in XPBs, that your wallet  has received.</string>
+             <string>The number of votes, in XCNs, that your wallet  has received.</string>
             </property>
             <property name="text">
              <string>N/A</string>
@@ -338,7 +338,7 @@
              <string>Amount in your wallet that is unvoted. Send coins to yourself to vote for your selected delegates. If votes are not going through try decreasing the mixin count.</string>
             </property>
             <property name="text">
-             <string>123.456 XPB</string>
+             <string>123.456 XCN</string>
             </property>
            </widget>
           </item>

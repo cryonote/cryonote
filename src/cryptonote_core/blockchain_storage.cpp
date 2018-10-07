@@ -1689,7 +1689,7 @@ bool blockchain_storage::get_random_outs_for_amounts(const COMMAND_RPC_GET_RANDO
                                                      COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS::response& res) const
 {
   srand(static_cast<unsigned int>(get_adjusted_time()));
-  coin_type typ = CP_XPB; //res.type = req.type;
+  coin_type typ = CP_XCN; //res.type = req.type;
 
   CRITICAL_REGION_LOCAL(m_blockchain_lock);
   BOOST_FOREACH(uint64_t amount, req.amounts)
@@ -2240,7 +2240,7 @@ bool blockchain_storage::check_tx_in_mint_contract(const transaction& tx, size_t
                        "Would overflow when keeping track of amounts minting contract " << inp.contract
                        << " backed by " << inp.backed_by_currency);
 
-  if (inp.backed_by_currency == CURRENCY_XPB)
+  if (inp.backed_by_currency == CURRENCY_XCN)
   {
     // ok
   }
@@ -2271,7 +2271,7 @@ bool blockchain_storage::check_tx_in_grade_contract(const transaction& tx, size_
 
   BOOST_FOREACH(const auto& item, inp.fee_amounts)
   {
-    if (item.first == CURRENCY_XPB) continue;
+    if (item.first == CURRENCY_XCN) continue;
     auto r2 = m_currencies.find(item.first);
     CHECK_AND_ASSERT_MES(r2 != m_currencies.end(), false, "grading contract with fee paid in non-existent subcurrency");
   }
@@ -2425,8 +2425,8 @@ bool blockchain_storage::check_tx_in_vote(const transaction& tx, size_t i, const
                        << get_current_blockchain_height() << ", must wait until height "
                        << cryptonote::config::dpos_registration_start_block);
 
-  // check voting with XPBs
-  CHECK_AND_ASSERT_MES(tx.in_cp(i) == CP_XPB, false, "check_tx_in_vote: voting with non-xpbs");
+  // check voting with XCNs
+  CHECK_AND_ASSERT_MES(tx.in_cp(i) == CP_XCN, false, "check_tx_in_vote: voting with non-xcns");
 
   // check voting for at most 'n' delegates
   CHECK_AND_ASSERT_MES(inp.votes.size() <= config::dpos_num_delegates, false,
@@ -3340,7 +3340,7 @@ uint64_t blockchain_storage::currency_decimals(coin_type type) const
 
   switch (type.contract_type) {
     case NotContract: {
-      if (type.currency == CURRENCY_XPB)
+      if (type.currency == CURRENCY_XCN)
         return CRYPTONOTE_DISPLAY_DECIMAL_POINT;
 
       const auto& r = m_currencies.find(type.currency);

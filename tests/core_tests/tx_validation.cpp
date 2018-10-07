@@ -18,7 +18,7 @@ namespace
                                           std::vector<tx_destination_entry>& destinations,
                                           bool ignore_unlock_times=false)
   {
-    if (!fill_tx_sources_and_destinations(events, blk_head, from, to, amount, fee, nmix, sources, destinations, CURRENCY_XPB, ignore_unlock_times))
+    if (!fill_tx_sources_and_destinations(events, blk_head, from, to, amount, fee, nmix, sources, destinations, CURRENCY_XCN, ignore_unlock_times))
     {
       throw std::runtime_error("Couldn't fill_tx_sources_and_destinations");
     }
@@ -243,7 +243,7 @@ bool gen_tx_input_is_not_txin_to_key::generate(std::vector<test_event_entry>& ev
 
     test_tx_builder builder;
     builder.step1_init();
-    builder.m_tx.add_in(tx_input, CP_XPB);
+    builder.m_tx.add_in(tx_input, CP_XCN);
     builder.step3_fill_outputs(destinations);
     return builder.m_tx;
   };
@@ -680,7 +680,7 @@ bool gen_tx_output_is_not_txout_to_key::generate(std::vector<test_event_entry>& 
   builder.step1_init();
   builder.step2_fill_inputs(miner_account.get_keys(), sources);
 
-  builder.m_tx.add_out(tx_out(), CP_XPB);
+  builder.m_tx.add_out(tx_out(), CP_XCN);
   tx_tester(builder.m_tx).vout.back().amount = 1;
   tx_tester(builder.m_tx).vout.back().target = txout_to_script();
 
@@ -693,7 +693,7 @@ bool gen_tx_output_is_not_txout_to_key::generate(std::vector<test_event_entry>& 
   builder.step1_init();
   builder.step2_fill_inputs(miner_account.get_keys(), sources);
 
-  builder.m_tx.add_out(tx_out(), CP_XPB);
+  builder.m_tx.add_out(tx_out(), CP_XCN);
   tx_tester(builder.m_tx).vout.back().amount = 1;
   tx_tester(builder.m_tx).vout.back().target = txout_to_scripthash();
 
@@ -785,14 +785,14 @@ bool gen_tx_low_fee_no_relay::generate(std::vector<test_event_entry>& events) co
   
   // tx not invalid, but it is not added, so block with it will be invalid
   DO_CALLBACK(events, "mark_tx_not_added");
-  MAKE_TX_MIX_CP_FEE(events, tx_0, miner_account, miner_account, 100, 0, blk_1r, cryptonote::CP_XPB,
+  MAKE_TX_MIX_CP_FEE(events, tx_0, miner_account, miner_account, 100, 0, blk_1r, cryptonote::CP_XCN,
                      0);
   DO_CALLBACK(events, "mark_invalid_block");
   MAKE_NEXT_BLOCK_TX1(events, blk_2_invalid, blk_1r, miner_account, tx_0);
   
   // same tx keeped by block is ok
   SET_EVENT_VISITOR_SETT(events, event_visitor_settings::set_txs_keeped_by_block, true);
-  MAKE_TX_MIX_CP_FEE(events, tx_1, miner_account, miner_account, 100, 0, blk_1r, cryptonote::CP_XPB,
+  MAKE_TX_MIX_CP_FEE(events, tx_1, miner_account, miner_account, 100, 0, blk_1r, cryptonote::CP_XCN,
                      0);
   MAKE_NEXT_BLOCK_TX1(events, blk_2, blk_1r, miner_account, tx_1);
   

@@ -150,8 +150,8 @@ bool CWalletTx::GetCreditDebit(uint64_t& nMined, uint64_t& nCredit, uint64_t& nD
       nDebit += dest.amount;
     }
     nDebit += kd.m_fee;
-    nDebit += kd.m_xpb_change;
-    nCredit += kd.m_xpb_change;
+    nDebit += kd.m_xcn_change;
+    nCredit += kd.m_xcn_change;
     
     return true;
   }

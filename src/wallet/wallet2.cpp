@@ -782,7 +782,7 @@ cryptonote::currency_map wallet2::balance() const
 
 
   BOOST_FOREACH(const auto& utx, m_unconfirmed_txs)
-    amounts[CP_XPB] += utx.second.m_change;
+    amounts[CP_XCN] += utx.second.m_change;
 
   return amounts;
 }
@@ -930,8 +930,8 @@ fake_outs_map wallet2::get_fake_outputs(const std::unordered_map<cryptonote::coi
 
   BOOST_FOREACH(const auto& item, amounts)
   {
-    THROW_WALLET_EXCEPTION_IF(item.first != cryptonote::CP_XPB, error::wallet_internal_error,
-                              "cannot handle fake outputs of non-xpb yet");
+    THROW_WALLET_EXCEPTION_IF(item.first != cryptonote::CP_XCN, error::wallet_internal_error,
+                              "cannot handle fake outputs of non-xcn yet");
 
     cryptonote::COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS::request req = AUTO_VAL_INIT(req);
     req.outs_count = fake_outputs_count + 1;// add one to make possible (if need) to skip real output key
@@ -1013,7 +1013,7 @@ void wallet2::transfer(const std::vector<cryptonote::tx_destination_entry>& dsts
   wallet_tx_builder wtxb(*this);
   wtxb.init_tx(unlock_time, extra);
   wtxb.add_send(dsts, fee, min_fake_outs, fake_outputs_count, destination_split_strategy, dust_policy);
-  // try voting up to 2000 xpb, 25 delegates per vote
+  // try voting up to 2000 xcn, 25 delegates per vote
   wtxb.add_votes(min_fake_outs, fake_outputs_count, dust_policy, COIN*2000, current_delegate_set(), 25);
   wtxb.finalize(tx);
 
@@ -1066,7 +1066,7 @@ void wallet2::mint_subcurrency(uint64_t currency, const std::string &description
                                        detail::digit_split_strategy(), tx_dust_policy(fee),
                                        selected_transfers, all_change);
 
-  LOG_PRINT_L0("Made tx with fee of " << print_money(fee) << ", change is " << print_money(all_change[cryptonote::CP_XPB]));
+  LOG_PRINT_L0("Made tx with fee of " << print_money(fee) << ", change is " << print_money(all_change[cryptonote::CP_XCN]));
 
   // Generate an anonymous remint keypair
   cryptonote::keypair tx_remint_keypair;
@@ -1080,9 +1080,9 @@ void wallet2::mint_subcurrency(uint64_t currency, const std::string &description
 
   // Split with digit split strategy
   std::vector<cryptonote::tx_destination_entry> split_dests;
-  uint64_t xpb_dust = 0;
-  detail::digit_split_strategy().split(unsplit_dests, tx_destination_entry(), 0, split_dests, xpb_dust);
-  THROW_WALLET_EXCEPTION_IF(xpb_dust != 0, error::wallet_internal_error, "Unexpected xpb dust should be 0");
+  uint64_t xcn_dust = 0;
+  detail::digit_split_strategy().split(unsplit_dests, tx_destination_entry(), 0, split_dests, xcn_dust);
+  THROW_WALLET_EXCEPTION_IF(xcn_dust != 0, error::wallet_internal_error, "Unexpected xcn dust should be 0");
 
   // Add the mint transaction
   bool success = txb.add_mint(currency, description, amount, decimals, tx_remint_keypair.pub, split_dests);
@@ -1106,7 +1106,7 @@ void wallet2::mint_subcurrency(uint64_t currency, const std::string &description
   kd.m_tx_hash = get_transaction_hash(tx);
   kd.m_dests = unsplit_dests;
   kd.m_fee = fee;
-  kd.m_xpb_change = all_change[cryptonote::CP_XPB];
+  kd.m_xcn_change = all_change[cryptonote::CP_XCN];
   kd.m_all_change = all_change;
   kd.m_currency_minted = currency;
   kd.m_amount_minted = amount;
@@ -1145,7 +1145,7 @@ void wallet2::remint_subcurrency(uint64_t currency, uint64_t amount, bool keep_r
                                        detail::digit_split_strategy(), tx_dust_policy(fee),
                                        selected_transfers, all_change);
 
-  LOG_PRINT_L0("Made tx with fee of " << print_money(fee) << ", change is " << print_money(all_change[cryptonote::CP_XPB]));
+  LOG_PRINT_L0("Made tx with fee of " << print_money(fee) << ", change is " << print_money(all_change[cryptonote::CP_XCN]));
 
   // Generate an anonymous new remint keypair
   cryptonote::keypair tx_new_remint_keypair;
@@ -1159,9 +1159,9 @@ void wallet2::remint_subcurrency(uint64_t currency, uint64_t amount, bool keep_r
 
   // Split with digit split strategy
   std::vector<cryptonote::tx_destination_entry> split_dests;
-  uint64_t xpb_dust = 0;
-  detail::digit_split_strategy().split(unsplit_dests, tx_destination_entry(), 0, split_dests, xpb_dust);
-  THROW_WALLET_EXCEPTION_IF(xpb_dust != 0, error::wallet_internal_error, "Unexpected xpb dust should be 0");
+  uint64_t xcn_dust = 0;
+  detail::digit_split_strategy().split(unsplit_dests, tx_destination_entry(), 0, split_dests, xcn_dust);
+  THROW_WALLET_EXCEPTION_IF(xcn_dust != 0, error::wallet_internal_error, "Unexpected xcn dust should be 0");
 
   // Add the remint transaction
   bool success = txb.add_remint(currency, amount,
@@ -1187,7 +1187,7 @@ void wallet2::remint_subcurrency(uint64_t currency, uint64_t amount, bool keep_r
   kd.m_tx_hash = get_transaction_hash(tx);
   kd.m_dests = unsplit_dests;
   kd.m_fee = fee;
-  kd.m_xpb_change = all_change[cryptonote::CP_XPB];
+  kd.m_xcn_change = all_change[cryptonote::CP_XCN];
   kd.m_all_change = all_change;
   kd.m_currency_minted = currency;
   kd.m_amount_minted = amount;
@@ -1268,7 +1268,7 @@ std::string wallet2::debug_batches() const
     {
       const auto& td = m_transfers[td_i];
       ss << "  " << (td.m_spent ? "*" : "") << "Transfer #" << td_i << ": "
-         << std::setw(13) << print_money(td.amount()) << " XPB, "
+         << std::setw(13) << print_money(td.amount()) << " XCN, "
          << "Block " << td.m_block_height
          << ", tx " << boost::lexical_cast<std::string>(get_transaction_hash(td.m_tx)).substr(0, 10) << "...>"
          << "[" << td.m_internal_output_index << "]"
@@ -1277,7 +1277,7 @@ std::string wallet2::debug_batches() const
          << ENDL;
       i++;
     }
-    ss << "  Total unspent in batch: " << print_money(batch.amount(*this)) << " XPB" << ENDL;
+    ss << "  Total unspent in batch: " << print_money(batch.amount(*this)) << " XCN" << ENDL;
     ss << "  Vote history: " << ENDL;
     BOOST_FOREACH(const auto& votes, batch.m_vote_history)
     {
@@ -1286,7 +1286,7 @@ std::string wallet2::debug_batches() const
     ss << "-------------------------------" << ENDL;
   }
 
-  ss << print_money(get_amount_unvoted()) << " XPB unbatched/unvoted" << ENDL;
+  ss << print_money(get_amount_unvoted()) << " XCN unbatched/unvoted" << ENDL;
   return ss.str();
 }
 //----------------------------------------------------------------------------------------------------

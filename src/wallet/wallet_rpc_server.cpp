@@ -66,8 +66,8 @@ namespace tools
   {
     try
     {
-      res.balance = m_wallet.balance()[cryptonote::CP_XPB];
-      res.unlocked_balance = m_wallet.unlocked_balance()[cryptonote::CP_XPB];
+      res.balance = m_wallet.balance()[cryptonote::CP_XCN];
+      res.unlocked_balance = m_wallet.unlocked_balance()[cryptonote::CP_XCN];
     }
     catch (std::exception& e)
     {

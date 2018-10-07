@@ -39,7 +39,7 @@ namespace boost
         if (typename Archive::is_saving()) {
           throw std::runtime_error("Invalid cp for old archive");
         }
-        x.cp = cryptonote::CP_XPB;
+        x.cp = cryptonote::CP_XCN;
       }
       a & x.amount;
       a & x.addr;
