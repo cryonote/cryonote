@@ -28,7 +28,9 @@ namespace crypto
   static bool set_hash_signing_key(boost::program_options::variables_map& vm)
   {
     if (!command_line::has_arg(vm, arg_hash_signing_priv_key))
+    {
       return true;
+    }
 
     secret_key prvk;
     if (!epee::string_tools::hex_to_pod(command_line::get_arg(vm, arg_hash_signing_priv_key), prvk))

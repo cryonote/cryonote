@@ -17,13 +17,15 @@
 
 #include "packing.h"
 
-
-namespace crypto {
-  extern "C" {
+namespace crypto
+{
+  extern "C"
+  {
 #include "crypto_core/chacha8.h"
   }
 
-  PACK(struct chacha8_key {
+  PACK(struct chacha8_key
+  {
     uint8_t data[CHACHA8_KEY_SIZE];
 
     ~chacha8_key()
@@ -33,7 +35,8 @@ namespace crypto {
   })
 
   // MS VC 2012 doesn't interpret `class chacha8_iv` as POD in spite of [9.0.10], so it is a struct
-  PACK(struct chacha8_iv {
+  PACK(struct chacha8_iv
+  {
     uint8_t data[CHACHA8_IV_SIZE];
   })
 

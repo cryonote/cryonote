@@ -12,7 +12,8 @@ namespace hashing_opt
   extern const command_line::arg_descriptor<std::string> arg_hash_signing_priv_key;
 }
 
-namespace crypto {
+namespace crypto
+{
   void init_options(boost::program_options::options_description& desc);
   bool process_options(boost::program_options::variables_map& vm, bool is_mining);
 }

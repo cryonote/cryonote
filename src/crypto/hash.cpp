@@ -21,23 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <stddef.h>
-#include <stdint.h>
-#include <string.h>
+#include "hash.h"
 
-#include "crypto_core/hash-ops.h"
-#include "crypto_core/keccak.h"
+namespace crypto
+{
+  void cn_fast_hash(const void *data, std::size_t length, hash &hash)
+  {
+    cn_fast_hash(data, length, reinterpret_cast<char *>(&hash));
+  }
 
-void hash_permutation(union hash_state *state) {
-  keccakf((uint64_t*)state, 24);
-}
+  hash cn_fast_hash(const void *data, std::size_t length)
+  {
+    hash h;
+    cn_fast_hash(data, length, reinterpret_cast<char *>(&h));
+    return h;
+  }
 
-void hash_process(union hash_state *state, const uint8_t *buf, size_t count) {
-  keccak1600(buf, count, (uint8_t*)state);
-}
+  void cn_slow_hash(const void *data, std::size_t length, hash &hash)
+  {
+    cn_slow_hash(data, length, reinterpret_cast<char *>(&hash));
+  }
 
-void cn_fast_hash(const void *data, size_t length, char *hash) {
-  union hash_state state;
-  hash_process(&state, data, length);
-  memcpy(hash, &state, HASH_SIZE);
+  void tree_hash(const hash *hashes, std::size_t count, hash &root_hash)
+  {
+    tree_hash(reinterpret_cast<const char (*)[HASH_SIZE]>(hashes), count, reinterpret_cast<char *>(&root_hash));
+  }
 }
