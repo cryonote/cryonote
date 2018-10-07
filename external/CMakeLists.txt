@@ -1,4 +1,6 @@
-find_package(Miniupnpc REQUIRED)
+set(UPNPC_BUILD_STATIC ON CACHE BOOL "Build static library")
+set(UPNPC_BUILD_SHARED OFF CACHE BOOL "Build shared library")
+set(UPNPC_BUILD_TESTS OFF CACHE BOOL "Build test executables")
 
 add_subdirectory(miniupnp/miniupnpc)
 set_property(TARGET libminiupnpc-static PROPERTY FOLDER "external")
@@ -7,7 +9,6 @@ if(MSVC)
 else()
   set_property(TARGET libminiupnpc-static APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-unused-result -Wno-unused-value")
 endif()
-set(UPNP_LIBRARIES "libminiupnpc-static" PARENT_SCOPE)
 
 add_subdirectory(sqlite3)
 if (MSVC)
