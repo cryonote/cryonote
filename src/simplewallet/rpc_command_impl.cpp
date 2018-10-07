@@ -5,6 +5,9 @@
 
 #include <vector>
 #include <thread>
+#include <unordered_map>
+#include <unordered_set>
+
 #include "include_base_utils.h"
 #include "net/http_client.h"
 #include "storages/http_abstract_invoke.h"

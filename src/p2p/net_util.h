@@ -6,6 +6,8 @@
 #pragma once
 
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 
 #include "p2p/p2p_protocol_defs.h"
 #include "crypto/crypto.h"

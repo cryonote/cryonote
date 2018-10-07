@@ -4,6 +4,8 @@
 
 #include <mutex>
 #include <thread>
+#include <unordered_map>
+#include <unordered_set>
 
 #include "include_base_utils.h"
 #include "misc_log_ex.h"

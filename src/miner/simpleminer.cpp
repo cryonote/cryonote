@@ -2,6 +2,9 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <unordered_map>
+#include <unordered_set>
+
 #include "common/command_line.h"
 #include "misc_log_ex.h"
 #include "simpleminer.h"

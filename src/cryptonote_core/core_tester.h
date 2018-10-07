@@ -9,15 +9,15 @@
 namespace cryptonote
 {
   struct bs_delegate_info;
-  
+
   class core_tester
   {
   public:
     core_tester(core_t& core_in);
-    
+
     bool pop_block_from_blockchain();
     bool get_delegate_info(delegate_id_t d_id, bs_delegate_info& inf);
-    
+
   private:
     core_t& m_core;
   };

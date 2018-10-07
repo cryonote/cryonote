@@ -7,6 +7,8 @@
 #include <stdint.h>
 #include <vector>
 #include <iostream>
+#include <unordered_map>
+#include <unordered_set>
 
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>

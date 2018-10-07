@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <numeric>
 #include <sstream>
+#include <unordered_map>
+#include <unordered_set>
 
 #include <boost/utility/value_init.hpp>
 #include <boost/lexical_cast.hpp>

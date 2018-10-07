@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <unordered_map>
+#include <unordered_set>
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/random_generator.hpp>
@@ -276,4 +277,3 @@ bool transactions_flow_test(std::string& working_folder,
 
   return true;
 }
-

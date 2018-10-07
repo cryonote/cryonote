@@ -8,6 +8,8 @@
 #include <numeric>
 #include <thread>
 #include <vector>
+#include <unordered_map>
+#include <unordered_set>
 
 #include "gtest/gtest.h"
 

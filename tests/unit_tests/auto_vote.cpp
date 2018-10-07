@@ -2,6 +2,9 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <unordered_map>
+#include <unordered_set>
+
 #include "gtest/gtest.h"
 
 #include "cryptonote_core/delegate_auto_vote.h"
@@ -16,10 +19,10 @@ using namespace cryptonote;
 TEST(auto_vote, ci_checks)
 {
   ASSERT_TRUE(ci_lower_bound(0, 0) == 0);
-  
+
   // % matters more than absolute # of votes
   ASSERT_TRUE(ci_lower_bound(600, 1000) > ci_lower_bound(5500, 10000));
-  
+
   // more ratings matter more
   ASSERT_TRUE(ci_lower_bound(1, 1) < ci_lower_bound(580, 600));
   ASSERT_TRUE(ci_lower_bound(10, 20) < ci_lower_bound(20, 40));

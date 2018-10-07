@@ -87,7 +87,7 @@ if(QT4_FOUND)
   set(CMAKE_FIND_LIBRARY_SUFFIXES ${OLD_SUFFIXES})
   file(GLOB_RECURSE QTWALLET qtwallet/*)
   list(APPEND QTWALLET daemon/daemon_options.cpp)
-  
+
   # This ensure that AUTOMOC doesn't run on generated files.
   cmake_policy(SET CMP0071 OLD)
 

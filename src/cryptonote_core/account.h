@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include <unordered_map>
+#include <unordered_set>
+
 #include "serialization/keyvalue_serialization.h"
 
 #include "crypto/crypto.h"
@@ -16,12 +19,12 @@ namespace cryptonote
   {
     crypto::public_key m_spend_public_key;
     crypto::public_key m_view_public_key;
-    
+
     BEGIN_SERIALIZE_OBJECT()
       FIELD(m_spend_public_key)
       FIELD(m_view_public_key)
     END_SERIALIZE()
-    
+
     BEGIN_KV_SERIALIZE_MAP()
       KV_SERIALIZE_VAL_POD_AS_BLOB_FORCE(m_spend_public_key)
       KV_SERIALIZE_VAL_POD_AS_BLOB_FORCE(m_view_public_key)
@@ -75,14 +78,14 @@ namespace cryptonote
     account_keys m_keys;
     uint64_t m_creation_timestamp;
   };
-  
+
   PACK(struct public_address_outer_blob
   {
     uint8_t m_ver;
     account_public_address m_address;
     uint8_t check_sum;
   })
-  
+
   bool operator ==(const cryptonote::account_public_address& a, const cryptonote::account_public_address& b);
   bool operator !=(const cryptonote::account_public_address& a, const cryptonote::account_public_address& b);
   bool operator <(const cryptonote::account_public_address& a, const cryptonote::account_public_address& b);

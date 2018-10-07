@@ -5,6 +5,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <unordered_set>
 
 #include <boost/program_options/variables_map.hpp>
 
@@ -14,34 +15,33 @@
 #include "cryptonote_core/nulls.h"
 #include "cryptonote_core/verification_context.h"
 
-
 namespace tests
 {
-  struct block_index {
-      size_t height;
-      crypto::hash id;
-      crypto::hash longhash;
-      cryptonote::block blk;
-      cryptonote::blobdata blob;
-      std::list<cryptonote::transaction> txes;
+  struct block_index
+  {
+    size_t height;
+    crypto::hash id;
+    crypto::hash longhash;
+    cryptonote::block blk;
+    cryptonote::blobdata blob;
+    std::list<cryptonote::transaction> txes;
 
-      block_index() : height(0), id(cryptonote::null_hash), longhash(cryptonote::null_hash) { }
-      block_index(size_t _height, const crypto::hash &_id, const crypto::hash &_longhash, const cryptonote::block &_blk, const cryptonote::blobdata &_blob, const std::list<cryptonote::transaction> &_txes)
-          : height(_height), id(_id), longhash(_longhash), blk(_blk), blob(_blob), txes(_txes) { }
+    block_index() : height(0), id(cryptonote::null_hash), longhash(cryptonote::null_hash) { }
+    block_index(size_t _height, const crypto::hash &_id, const crypto::hash &_longhash, const cryptonote::block &_blk, const cryptonote::blobdata &_blob, const std::list<cryptonote::transaction> &_txes)
+        : height(_height), id(_id), longhash(_longhash), blk(_blk), blob(_blob), txes(_txes) { }
   };
 
   class proxy_core
   {
-      cryptonote::block m_genesis;
-      std::list<crypto::hash> m_known_block_list;
-      std::unordered_map<crypto::hash, block_index> m_hash2blkidx;
+    cryptonote::block m_genesis;
+    std::list<crypto::hash> m_known_block_list;
+    std::unordered_map<crypto::hash, block_index> m_hash2blkidx;
 
-      crypto::hash m_lastblk;
-      std::list<cryptonote::transaction> txes;
+    crypto::hash m_lastblk;
+    std::list<cryptonote::transaction> txes;
 
-      bool add_block(const crypto::hash &_id, const crypto::hash &_longhash, const cryptonote::block &_blk, const cryptonote::blobdata &_blob);
-      void build_short_history(std::list<crypto::hash> &m_history, const crypto::hash &m_start);
-      
+    bool add_block(const crypto::hash &_id, const crypto::hash &_longhash, const cryptonote::block &_blk, const cryptonote::blobdata &_blob);
+    void build_short_history(std::list<crypto::hash> &m_history, const crypto::hash &m_start);
 
   public:
     void on_synchronized(){}

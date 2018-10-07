@@ -6,6 +6,8 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map>
+#include <unordered_set>
 
 #include <boost/variant.hpp>
 
@@ -33,11 +35,11 @@
 namespace cryptonote
 {
   typedef std::vector<crypto::signature> ring_signature;
-  
+
   //---------------------------------------------------------------
 
   const static delegate_votes DPOS_NO_VOTES = delegate_votes();
-  
+
   //---------------------------------------------------------------
   /* outputs */
 
@@ -63,7 +65,7 @@ namespace cryptonote
     txout_to_key(const crypto::public_key &_key) : key(_key) { }
     crypto::public_key key;
   };
-  
+
   //---------------------------------------------------------------
   /* inputs */
 
@@ -75,7 +77,7 @@ namespace cryptonote
       VARINT_FIELD(height)
     END_SERIALIZE()
   };
-  
+
   struct txin_to_script
   {
     crypto::hash prev;
@@ -116,7 +118,7 @@ namespace cryptonote
       FIELD(k_image)
     END_SERIALIZE()
   };
-  
+
   struct txin_mint
   {
     uint64_t currency;             // unique currency id - non-zero, unique with contract id as well
@@ -124,7 +126,7 @@ namespace cryptonote
     uint64_t decimals;             // divisible by 10^decimals
     uint64_t amount;               // number of atomic units to mint
     crypto::public_key remint_key; // key which can remint; null for no remint
-    
+
     BEGIN_SERIALIZE_OBJECT()
       VARINT_FIELD(currency)
       FIELD(description)
@@ -133,14 +135,14 @@ namespace cryptonote
       FIELD(remint_key)
     END_SERIALIZE()
   };
-  
+
   struct txin_remint
   {
     uint64_t currency;                 // currency being reminted
     uint64_t amount;                   // number of atomic units to mint
     crypto::public_key new_remint_key; // new key which can remint; null for no more remint
     crypto::signature sig;             // sig of hash of above with old remint_key
-    
+
     crypto::hash get_prefix_hash() const
     {
       std::string s;
@@ -150,7 +152,7 @@ namespace cryptonote
       s.append(reinterpret_cast<const char*>(&new_remint_key), sizeof(new_remint_key));
       return crypto::cn_fast_hash(s.data(), s.size());
     }
-    
+
     BEGIN_SERIALIZE_OBJECT()
       VARINT_FIELD(currency)
       VARINT_FIELD(amount)
@@ -158,7 +160,7 @@ namespace cryptonote
       FIELD(sig)
     END_SERIALIZE()
   };
-  
+
   struct txin_create_contract
   {
     uint64_t contract;               // unique contract id - non-zero, unique with currency id as well
@@ -175,7 +177,7 @@ namespace cryptonote
     uint32_t fee_scale;
     uint64_t expiry_block;           // block the contract expires at if not graded by then
     uint32_t default_grade;          // the grade if the contract expires without being graded - no fees in this case
-    
+
     BEGIN_SERIALIZE_OBJECT()
       VARINT_FIELD(contract)
       FIELD(description)
@@ -185,20 +187,20 @@ namespace cryptonote
       VARINT_FIELD(default_grade)
     END_SERIALIZE()
   };
-  
+
   struct txin_mint_contract
   {
     uint64_t contract;           // contract currency id
     uint64_t backed_by_currency; // backed_by currency
     uint64_t amount;             // amount of backing + contract coins to create
-    
+
     BEGIN_SERIALIZE_OBJECT()
       VARINT_FIELD(contract)
       VARINT_FIELD(backed_by_currency)
       VARINT_FIELD(amount)
     END_SERIALIZE()
   };
-  
+
   struct txin_grade_contract
   {
     uint64_t contract;     // contract being graded
@@ -206,7 +208,7 @@ namespace cryptonote
     std::map<uint64_t, uint64_t> fee_amounts; // map of currency to the fees in that currency the grader can take
                                               // unclaimed fees are destroyed
     crypto::signature sig; // sig of above signed with secret grading_key
-    
+
     crypto::hash get_prefix_hash() const
     {
       std::string s;
@@ -219,7 +221,7 @@ namespace cryptonote
       }
       return crypto::cn_fast_hash(s.data(), s.size());
     }
-    
+
     BEGIN_SERIALIZE_OBJECT()
       VARINT_FIELD(contract)
       VARINT_FIELD(grade)
@@ -227,7 +229,7 @@ namespace cryptonote
       FIELD(sig)
     END_SERIALIZE()
   };
-  
+
   struct txin_resolve_bc_coins
   {
     uint64_t contract;         // contract being resolved
@@ -236,7 +238,7 @@ namespace cryptonote
     uint64_t source_amount;    // amount of Backing/Contract coins used as the source for this input
     uint64_t graded_amount;    // amount of coins of the backing currency spendable from this input
                                // must be exactly (grade_contract_amount/grade_backing_amount)(source_amount, fee_scale, grade)
-    
+
     BEGIN_SERIALIZE_OBJECT()
       VARINT_FIELD(contract)
       VARINT_FIELD(is_backing_coins)
@@ -245,7 +247,7 @@ namespace cryptonote
       VARINT_FIELD(graded_amount)
     END_SERIALIZE()
   };
-  
+
   struct txin_fuse_bc_coins
   {
     uint64_t contract;
@@ -258,33 +260,33 @@ namespace cryptonote
       VARINT_FIELD(amount)
     END_SERIALIZE()
   };
-  
+
   struct txin_register_delegate
   {
     delegate_id_t delegate_id;
     uint64_t registration_fee;
     account_public_address delegate_address;
-    
+
     BEGIN_SERIALIZE_OBJECT()
       VARINT_FIELD(delegate_id);
       VARINT_FIELD(registration_fee);
       FIELD(delegate_address);
     END_SERIALIZE()
   };
-  
+
   struct txin_vote
   {
     txin_to_key ink; // including double-voting protectin
     uint16_t seq;     // 0 for first vote, 1 for 1st change vote, 2 for 2nd change vote, ...
     delegate_votes votes;
-    
+
     BEGIN_SERIALIZE_OBJECT()
       FIELD(ink)
       VARINT_FIELD(seq)
       FIELD(votes)
     END_SERIALIZE()
   };
-  
+
   typedef boost::variant<txin_gen, txin_to_script, txin_to_scripthash, txin_to_key, txin_mint, txin_remint,
                          txin_create_contract, txin_mint_contract, txin_grade_contract,
                          txin_resolve_bc_coins, txin_fuse_bc_coins,
@@ -296,7 +298,7 @@ namespace cryptonote
   {
     uint64_t amount;
     txout_target_v target;
-    
+
     tx_out() { }
     tx_out(uint64_t _amount, const txout_target_v& _target) : amount(_amount), target(_target) { }
 
@@ -308,12 +310,12 @@ namespace cryptonote
 
   size_t inp_minimum_tx_version(const txin_v& inp);
   size_t outp_minimum_tx_version(const tx_out& outp);
-  
+
   class tx_tester;
   class transaction_prefix
   {
     friend class tx_tester;
-    
+
   public:
     // tx information
     size_t   version;
@@ -336,7 +338,7 @@ namespace cryptonote
     {
       vin.push_back(inp);
       vin_coin_types.push_back(ct);
-      
+
       if (!has_valid_coin_types()) {
         throw std::runtime_error("Added invalid input for tx version");
       }
@@ -345,16 +347,16 @@ namespace cryptonote
     {
       vout.push_back(outp);
       vout_coin_types.push_back(ct);
-      
+
       if (!has_valid_coin_types()) {
         throw std::runtime_error("Added invalid output for tx version");
       }
     }
-    
+
     void clear_ins();
     void clear_outs();
-    
-    bool has_valid_coin_types() const;    
+
+    bool has_valid_coin_types() const;
     bool has_valid_in_out_types() const;
 
     const coin_type& in_cp(size_t vin_index) const
@@ -363,7 +365,7 @@ namespace cryptonote
       {
         throw std::runtime_error("Invalid vin_index >= vin_coin_types.size()");
       }
-      
+
       return vin_coin_types[vin_index];
     }
 
@@ -373,29 +375,29 @@ namespace cryptonote
       {
         throw std::runtime_error("Invalid vout_index >= vout_coin_types()");
       }
-      
+
       return vout_coin_types[vout_index];
     }
-    
+
     void replace_vote_seqs(const std::map<crypto::key_image, uint64_t>& key_image_seqs);
-    
+
   public:
     BEGIN_SERIALIZE()
       // NOTE: serialization code must be updated both here and in boost_serialize() below
       // -- vanilla --
       VARINT_FIELD(version)
-    
+
       if(version > CURRENT_TRANSACTION_VERSION)
       {
         LOG_ERROR("Can't serialize tx with version " << version << " > CURRENT_TRANSACTION_VERSION " << CURRENT_TRANSACTION_VERSION);
         return false;
       }
-    
+
       VARINT_FIELD(unlock_time)
       FIELD(vin)
       FIELD(vout)
       FIELD(extra)
-    
+
       // -- coin type fields --
       switch (version) {
         case 0:
@@ -419,7 +421,7 @@ namespace cryptonote
             }
           }
         } break;
-          
+
         case CURRENCY_TRANSACTION_VERSION: {
           // only the currency vectors
           std::vector<uint64_t> in_currencies, out_currencies;
@@ -450,12 +452,12 @@ namespace cryptonote
           FIELD(vin_coin_types);
           FIELD(vout_coin_types);
         } break;
-          
+
         default:
           LOG_ERROR("Error non-boost serializing tx, unknown version: " << version);
           return false;
       }
-    
+
       // -- sanity checks --
       if (!has_valid_coin_types())
       {
@@ -467,7 +469,7 @@ namespace cryptonote
         LOG_ERROR("Error non-boost serializing tx, saving=" << (typename Archive<W>::is_saving()) << ", invalid in/out types");
         return false;
       }
-    
+
     END_SERIALIZE()
 
   protected:
@@ -477,7 +479,7 @@ namespace cryptonote
   class transaction: public transaction_prefix
   {
     friend class tx_tester;
-    
+
   public:
     std::vector<std::vector<crypto::signature> > signatures; //count signatures  always the same as inputs count
 
@@ -538,7 +540,7 @@ namespace cryptonote
       a & vout;
       a & extra;
       a & signatures;
-      
+
       // -- coin type fields --
       switch (version) {
         case 0:
@@ -561,7 +563,7 @@ namespace cryptonote
             }
           }
         } break;
-          
+
         case CURRENCY_TRANSACTION_VERSION: {
           // only the currency vectors
           std::vector<uint64_t> in_currencies, out_currencies;
@@ -584,19 +586,19 @@ namespace cryptonote
               vout_coin_types.push_back(coin_type(currency, NotContract, BACKED_BY_N_A));
           }
         } break;
-          
+
         case CONTRACT_TRANSACTION_VERSION: {
           // save/load as coin type vector itself
           a & vin_coin_types;
           a & vout_coin_types;
         } break;
-          
+
         default:
           LOG_ERROR("Error boost serializing tx, saving=" << (typename Archive::is_saving())
                     << ", unknown version: " << version);
           return false;
       }
-      
+
       // -- sanity checks --
       if (!has_valid_coin_types())
       {
@@ -615,7 +617,7 @@ namespace cryptonote
   private:
     static size_t get_signature_size(const txin_v& tx_in);
   };
-  
+
   /************************************************************************/
   /*                                                                      */
   /************************************************************************/
@@ -664,7 +666,7 @@ namespace cryptonote
         FIELD(dpos_sig);
       }
     END_SERIALIZE()
-    
+
     template <class Archive>
     bool boost_serialize(Archive& a)
     {
@@ -690,11 +692,11 @@ namespace cryptonote
         a & signing_delegate_id;
         a & dpos_sig;
       }
-      
+
       return true;
     }
   };
-  
+
   // for functional.h
   struct out_getter {
     const txout_target_v& operator()(const tx_out& the_out) {
