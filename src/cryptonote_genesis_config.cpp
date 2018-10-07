@@ -14,8 +14,10 @@ const char *GENESIS_BLOCK_ID_HEX = NULL;
 const char *GENESIS_WORK_HASH_HEX = NULL;
 const char *GENESIS_HASH_SIGNATURE_HEX = NULL;
 
-namespace cryptonote {
-  namespace config {
+namespace cryptonote
+{
+  namespace config
+  {
     extern bool testnet;
   }
 }
@@ -135,7 +137,7 @@ namespace cryptonote_opt
     GENESIS_BLOCK_ID_HEX = str_block_id_hex.c_str();
 
     cryptonote::block bl;
-    if (!generate_genesis_block(bl))
+    if (!cryptonote::generate_genesis_block(bl))
     {
       return false;
     }
