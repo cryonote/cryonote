@@ -72,7 +72,7 @@ void print_source_entry(const cryptonote::tx_source_entry& src)
 }
 
 namespace tools {
-  
+
 class wallet_tx_builder::impl
 {
 private:
@@ -83,7 +83,7 @@ private:
     ProcessedSent,
     Broken
   };
-  
+
 public:
   impl(wallet2& wallet)
       : m_wallet(wallet)
@@ -92,11 +92,18 @@ public:
       , m_scanty_outs_amount(0)
   {
   }
-  
+
   void init_tx(uint64_t unlock_time, const std::vector<uint8_t>& extra);
   void add_send(const std::vector<cryptonote::tx_destination_entry>& dsts, uint64_t fee,
                 size_t min_fake_outs, size_t fake_outputs_count, const detail::split_strategy& destination_split_strategy,
                 const tx_dust_policy& dust_policy);
+  void add_mint(uint64_t currency, const std::string& description, uint64_t amount, uint64_t decimals,
+                const crypto::public_key& remint_key,
+                const std::vector<cryptonote::tx_destination_entry>& destinations);
+  void add_remint(uint64_t currency, uint64_t amount,
+                  const crypto::secret_key& remint_skey,
+                  const crypto::public_key& new_remint_key,
+                  const std::vector<cryptonote::tx_destination_entry>& destinations);
   void add_register_delegate(cryptonote::delegate_id_t delegate_id,
                              const cryptonote::account_public_address& address,
                              uint64_t registration_fee);
@@ -106,11 +113,11 @@ public:
   void replace_seqs(cryptonote::transaction& tx);
   void finalize(cryptonote::transaction& tx);
   void process_transaction_sent();
-  
+
 private:
   bool transfer_being_spent(size_t i) const;
   bool batch_being_spent(size_t i) const;
-  
+
   // for voting
   size_t pop_random_weighted_transfer(std::vector<size_t>& indices);
   uint64_t select_batches_for_votes(uint64_t num_votes, uint64_t dust, const cryptonote::delegate_votes& voting_set,
@@ -122,7 +129,7 @@ private:
   cryptonote::currency_map select_transfers_for_spend(cryptonote::currency_map needed_money, uint64_t max_dusts,
                                                       uint64_t dust, std::list<size_t>& transfer_is, size_t min_fake_outs);
   uint64_t select_batches_for_spend(uint64_t needed_money, std::list<size_t>& batch_is);
-  
+
   cryptonote::tx_destination_entry process_change_dests(cryptonote::currency_map& found_money,
                                                         cryptonote::currency_map& needed_money,
                                                         std::vector<cryptonote::tx_destination_entry>& all_dests);
@@ -134,10 +141,10 @@ private:
 
 private:
   cryptonote::tx_builder m_txb;
-  
+
   wallet2& m_wallet;
   state m_state;
-  
+
   // state variables
   struct new_batch_vote_info
   {
@@ -145,22 +152,22 @@ private:
     fake_outs_container m_fake_outs;
     cryptonote::delegate_votes m_votes;
   };
-  
+
   struct change_batch_vote_info
   {
     size_t m_batch_i;
     cryptonote::delegate_votes m_votes;
   };
-  
+
   cryptonote::currency_map m_change;
   std::list<size_t> m_spend_transfer_is;
   std::list<size_t> m_spend_batch_is;
   std::list<new_batch_vote_info> m_new_batch_votes;
   std::list<change_batch_vote_info> m_change_batch_votes;
   wallet2_known_transfer_details m_kd;
-  
+
   cryptonote::transaction m_finalized_tx;
-  
+
   uint64_t m_scanty_outs_amount;
 };
 
@@ -179,15 +186,15 @@ size_t wallet_tx_builder::impl::filter_scanty_outs(std::vector<size_t>& transfer
 {
   if (min_fake_outs == 0)
     return 0;
-  
+
   std::list<size_t> for_fakes;
   for_fakes.insert(for_fakes.end(), transfer_indices.begin(), transfer_indices.end());
   auto fake_outs = get_fake_outputs(for_fakes, 0, min_fake_outs)[cryptonote::CP_XCN];
-  
+
   std::vector<size_t> new_indices;
-  
+
   size_t num_filtered = 0;
-  
+
   for (size_t ii = 0; ii < transfer_indices.size(); ii++)
   {
     if (fake_outs[ii].size() >= min_fake_outs)
@@ -200,9 +207,9 @@ size_t wallet_tx_builder::impl::filter_scanty_outs(std::vector<size_t>& transfer
       m_scanty_outs_amount += m_wallet.m_transfers[transfer_indices[ii]].amount();
     }
   }
-  
+
   transfer_indices = new_indices;
-  
+
   return num_filtered;
 }
 //----------------------------------------------------------------------------------------------------
@@ -210,9 +217,9 @@ size_t wallet_tx_builder::impl::pop_random_weighted_transfer(std::vector<size_t>
 {
   if (indices.empty())
     throw std::runtime_error("Can't get random from empty list");
-  
+
   uint64_t sum = tools::sum(indices, [this](size_t i) { return this->m_wallet.m_transfers[i].amount(); });
-  
+
   auto choice = crypto::rand<uint64_t>() % sum;
   for (size_t vec_i = 0; vec_i < indices.size(); ++vec_i)
   {
@@ -236,7 +243,7 @@ uint64_t wallet_tx_builder::impl::select_transfers_for_votes(uint64_t num_votes,
   for (size_t i = 0; i < m_wallet.m_transfers.size(); ++i)
   {
     const auto& td = m_wallet.m_transfers[i];
-    
+
     if (td.cp() != cryptonote::CP_XCN)
       continue;
     if (td.m_spent)
@@ -247,28 +254,28 @@ uint64_t wallet_tx_builder::impl::select_transfers_for_votes(uint64_t num_votes,
       continue;
     if (td.amount() <= dust) // don't vote with dusts
       continue;
-    
+
     size_t voting_batch_index = m_wallet.m_votes_info.m_transfer_batch_map[i];
-    
+
     if (voting_batch_index != 0) // don't use if in a voting batch
       continue;
-    
+
     unused_transfers_indices.push_back(i);
   }
-  
+
   filter_scanty_outs(unused_transfers_indices, min_fake_outs);
-  
+
   uint64_t found_votes = 0;
   while (found_votes < num_votes && !unused_transfers_indices.empty())
   {
     size_t idx = pop_random_weighted_transfer(unused_transfers_indices);
-    
+
     transfer_is.push_back(idx);
     found_votes += m_wallet.m_transfers[idx].amount();
     if (transfer_is.size() >= MAX_VOTE_INPUTS_PER_TX)
       break;
   }
-  
+
   return found_votes;
 }
 //----------------------------------------------------------------------------------------------------
@@ -278,33 +285,33 @@ uint64_t wallet_tx_builder::impl::select_batches_for_votes(uint64_t num_votes, u
 {
   // pick out those unspent batches that need changes and sort by amount*num_changes_needed
   std::vector<std::pair<uint64_t, size_t> > batch_infos; // (sort_key, index)
-  
+
   for (size_t i = 1; i < m_wallet.m_votes_info.m_batches.size(); i++)
   {
     const auto& batch = m_wallet.m_votes_info.m_batches[i];
-    
+
     THROW_WALLET_EXCEPTION_IF(batch.m_vote_history.empty(),
                               error::wallet_internal_error, "voting batch with no vote history");
-    
+
     if (batch.spent(m_wallet))
       continue;
     if (batch_being_spent(i))
       continue;
-    
+
     // only use if there's something to update
     size_t num_unwanted = set_sub(batch.m_vote_history.back(), voting_set).size();
-    
+
     if (num_unwanted == 0)
     {
       // nothing to update, don't use
       continue;
     }
-    
+
     batch_infos.push_back(std::make_pair(batch.amount(m_wallet) * num_unwanted, i));
   }
-  
+
   std::sort(batch_infos.rbegin(), batch_infos.rend()); // reversed sort
-  
+
   // use up to all usable batches - any anonimity regarding them has already been resolved
   uint64_t found_votes = 0;
   BOOST_FOREACH(const auto& inf, batch_infos)
@@ -315,7 +322,7 @@ uint64_t wallet_tx_builder::impl::select_batches_for_votes(uint64_t num_votes, u
     if (found_votes >= num_votes)
       break;
   }
-  
+
   return found_votes;
 }
 //----------------------------------------------------------------------------------------------------
@@ -324,7 +331,7 @@ uint64_t wallet_tx_builder::impl::select_transfers_for_spend(const cryptonote::c
                                                              size_t min_fake_outs)
 {
   THROW_WALLET_EXCEPTION_IF(cp != cryptonote::CP_XCN, error::wallet_internal_error, "non-XCN send not implemented");
-  
+
   std::vector<size_t> unused_transfers_indices;
   std::vector<size_t> unused_dust_indices;
   for (size_t i = 0; i < m_wallet.m_transfers.size(); ++i)
@@ -338,20 +345,20 @@ uint64_t wallet_tx_builder::impl::select_transfers_for_spend(const cryptonote::c
       continue;
     if (transfer_being_spent(i))
       continue;
-    
+
     size_t voting_batch_index = m_wallet.m_votes_info.m_transfer_batch_map[i];
     if (voting_batch_index != 0) // don't use if in a batch
       continue;
-    
+
     if (dust < td.amount())
       unused_transfers_indices.push_back(i);
     else
       unused_dust_indices.push_back(i);
   }
-  
+
   filter_scanty_outs(unused_transfers_indices, min_fake_outs);
   filter_scanty_outs(unused_dust_indices, min_fake_outs);
-  
+
   uint64_t num_dusts = 0;
   uint64_t found_money = 0;
   while (found_money < needed_money)
@@ -370,7 +377,7 @@ uint64_t wallet_tx_builder::impl::select_transfers_for_spend(const cryptonote::c
     {
       break; // not enough money
     }
-    
+
     transfer_is.push_back(idx);
     found_money += m_wallet.m_transfers[idx].amount();
   }
@@ -383,13 +390,13 @@ cryptonote::currency_map wallet_tx_builder::impl::select_transfers_for_spend(
     std::list<size_t>& transfer_is, size_t min_fake_outs)
 {
   cryptonote::currency_map found_money;
-  
+
   BOOST_FOREACH(const auto& item, needed_money)
   {
     found_money[item.first] = select_transfers_for_spend(item.first, item.second, max_dusts, dust, transfer_is,
                                                          min_fake_outs);
   }
-  
+
   return found_money;
 }
 //----------------------------------------------------------------------------------------------------
@@ -397,24 +404,24 @@ uint64_t wallet_tx_builder::impl::select_batches_for_spend(uint64_t needed_money
 {
   // spend the batches with the smallest amounts
   std::vector<std::pair<uint64_t, size_t> > batch_infos; // (sort_key, index)
-  
+
   for (size_t i = 1; i < m_wallet.m_votes_info.m_batches.size(); i++)
   {
     const auto& batch = m_wallet.m_votes_info.m_batches[i];
-    
+
     THROW_WALLET_EXCEPTION_IF(batch.m_vote_history.empty(),
                               error::wallet_internal_error, "voting batch with no vote history");
-    
+
     if (batch.spent(m_wallet))
       continue;
     if (batch_being_spent(i))
       continue;
-    
+
     batch_infos.push_back(std::make_pair(batch.amount(m_wallet), i));
   }
-  
+
   std::sort(batch_infos.begin(), batch_infos.end()); // regular sort
-  
+
   uint64_t found_money = 0;
   BOOST_FOREACH(const auto& inf, batch_infos)
   {
@@ -424,7 +431,7 @@ uint64_t wallet_tx_builder::impl::select_batches_for_spend(uint64_t needed_money
     if (found_money >= needed_money)
       break;
   }
-  
+
   return found_money;
 }
 //----------------------------------------------------------------------------------------------------
@@ -447,7 +454,7 @@ cryptonote::tx_destination_entry wallet_tx_builder::impl::process_change_dests(
         all_dests.push_back(change_dest);
     }
   }
-  
+
   return xcn_change_dest;
 }
 //----------------------------------------------------------------------------------------------------
@@ -455,7 +462,7 @@ std::vector<cryptonote::tx_source_entry> wallet_tx_builder::impl::prepare_inputs
     const std::list<size_t>& transfer_is, fake_outs_map& fake_outputs, uint64_t fake_outputs_count)
 {
   typedef cryptonote::tx_source_entry::output_entry tx_output_entry;
-  
+
   size_t i = 0;
   std::vector<cryptonote::tx_source_entry> sources;
   BOOST_FOREACH(size_t idx, transfer_is)
@@ -500,7 +507,7 @@ std::vector<cryptonote::tx_source_entry> wallet_tx_builder::impl::prepare_inputs
     print_source_entry(src);
     ++i;
   }
-  
+
   return sources;
 }
 //----------------------------------------------------------------------------------------------------
@@ -508,12 +515,12 @@ std::vector<cryptonote::tx_source_entry> wallet_tx_builder::impl::prepare_batch(
 {
   THROW_WALLET_EXCEPTION_IF(batch_idx >= m_wallet.m_votes_info.m_batches.size(), error::wallet_internal_error,
                             "invalid batch index");
-  
+
   std::list<size_t> selected_transfers;
   fake_outs_map fake_outputs;
-  
+
   const auto& batch = m_wallet.m_votes_info.m_batches[batch_idx];
-  
+
   size_t i = 0; // index into m_fake_outs
   BOOST_FOREACH(size_t transfer_ix, batch.m_transfer_indices) {
     THROW_WALLET_EXCEPTION_IF(transfer_ix >= m_wallet.m_transfers.size(), error::wallet_internal_error,
@@ -524,16 +531,16 @@ std::vector<cryptonote::tx_source_entry> wallet_tx_builder::impl::prepare_batch(
       i++;
       continue;
     }
-    
+
     selected_transfers.push_back(transfer_ix);
-    
+
     THROW_WALLET_EXCEPTION_IF(i >= batch.m_fake_outs.size(), error::wallet_internal_error,
                               "batch has not enough fake outs");
     fake_outputs[cryptonote::CP_XCN].push_back(batch.m_fake_outs[i]);
-    
+
     i++;
   }
-  
+
   return prepare_inputs(selected_transfers, fake_outputs, 999999); // use as many fake outs as the batch has
 }
 //----------------------------------------------------------------------------------------------------
@@ -550,7 +557,7 @@ fake_outs_map wallet_tx_builder::impl::get_fake_outputs(const std::list<size_t>&
     THROW_WALLET_EXCEPTION_IF(td.cp() != cryptonote::CP_XCN, error::wallet_internal_error, "got transfer which wasn't xcn");
     amounts[cryptonote::CP_XCN].push_back(td.amount());
   }
-    
+
   return m_wallet.get_fake_outputs(amounts, min_fake_outs, fake_outs_count);
 }
 //----------------------------------------------------------------------------------------------------
@@ -558,12 +565,12 @@ void wallet_tx_builder::impl::init_tx(uint64_t unlock_time, const std::vector<ui
 {
   THROW_WALLET_EXCEPTION_IF(m_state != Uninitialized, error::wallet_internal_error,
                             "wallet tx already is not uninitialized");
-  
+
   m_state = Broken;
-  
+
   THROW_WALLET_EXCEPTION_IF(!m_txb.init(unlock_time, extra, false), error::wallet_internal_error,
                             "could not init tx builder");
-  
+
   m_state = InProgress;
 }
 //----------------------------------------------------------------------------------------------------
@@ -573,12 +580,12 @@ void wallet_tx_builder::impl::add_send(const std::vector<cryptonote::tx_destinat
                                        const tx_dust_policy& dust_policy)
 {
   THROW_WALLET_EXCEPTION_IF(m_state != InProgress, error::wallet_internal_error, "wallet tx is not in progress");
-  
+
   m_state = Broken;
-  
+
   // get needed money
   auto needed_money = calculate_needed_money(dsts, fee);
-  
+
   // pick transfers/batches
   std::list<size_t> transfer_is;
   std::list<size_t> batch_is;
@@ -589,7 +596,7 @@ void wallet_tx_builder::impl::add_send(const std::vector<cryptonote::tx_destinat
   BOOST_FOREACH(const auto& item, needed_money)
   {
     uint64_t this_fee = item.first == cryptonote::CP_XCN ? fee : 0;
-    
+
     if (found_money[item.first] < item.second)
     {
       // if not xcns, there's no chance
@@ -597,7 +604,7 @@ void wallet_tx_builder::impl::add_send(const std::vector<cryptonote::tx_destinat
                                 error::not_enough_money, item.first, found_money[item.first],
                                 needed_money[item.first] - this_fee, this_fee,
                                 m_scanty_outs_amount);
-      
+
       // if yes xcns, try spending a batch
       uint64_t amount_missing = needed_money[item.first] - found_money[item.first];
       uint64_t batch_found = select_batches_for_spend(amount_missing, batch_is);
@@ -611,25 +618,25 @@ void wallet_tx_builder::impl::add_send(const std::vector<cryptonote::tx_destinat
 
   // get fake outs for transfers
   auto fake_outputs = get_fake_outputs(transfer_is, min_fake_outs, fake_outputs_count);
-  
+
   // prepare transfer inputs
   auto sources = prepare_inputs(transfer_is, fake_outputs, fake_outputs_count);
-  
+
   // prepare the batches for spending
   BOOST_FOREACH(size_t idx, batch_is)
   {
     auto batch_sources = prepare_batch(idx); // uses batch's previous fake outs
     sources.insert(sources.end(), batch_sources.begin(), batch_sources.end());
   }
-  
+
   // split destinations
   auto all_dests = dsts;
   auto xcn_change_dest = process_change_dests(found_money, needed_money, all_dests);
-  
+
   uint64_t xcn_dust = 0;
   std::vector<cryptonote::tx_destination_entry> split_dests;
   destination_split_strategy.split(all_dests, xcn_change_dest, dust_policy.dust_threshold, split_dests, xcn_dust);
-  
+
   THROW_WALLET_EXCEPTION_IF(xcn_dust > dust_policy.dust_threshold, error::wallet_internal_error,
                             "invalid dust value: dust = " + std::to_string(xcn_dust)
                             + ", dust_threshold = " + std::to_string(dust_policy.dust_threshold));
@@ -637,7 +644,7 @@ void wallet_tx_builder::impl::add_send(const std::vector<cryptonote::tx_destinat
   {
     split_dests.push_back(cryptonote::tx_destination_entry(cryptonote::CP_XCN, xcn_dust, dust_policy.addr_for_dust));
   }
-  
+
   // add to tx
   bool r = m_txb.add_send(m_wallet.m_account.get_keys(), sources, split_dests);
   {
@@ -654,14 +661,47 @@ void wallet_tx_builder::impl::add_send(const std::vector<cryptonote::tx_destinat
     m_kd.m_all_change[item.first] += found_money[item.first] - needed_money[item.first];
   }
   m_kd.m_xcn_change += m_kd.m_all_change[cryptonote::CP_XCN];
-  
+
   // update transfers & batches being spent here
   m_spend_transfer_is.splice(m_spend_transfer_is.end(), transfer_is);
   m_spend_batch_is.splice(m_spend_batch_is.end(), batch_is);
-  
+
   m_state = InProgress;
-  
+
   return;
+}
+//----------------------------------------------------------------------------------------------------
+void wallet_tx_builder::impl::add_mint(uint64_t currency, const std::string& description, uint64_t amount, uint64_t decimals,
+                          const crypto::public_key& remint_key,
+                          const std::vector<cryptonote::tx_destination_entry>& destinations)
+{
+  THROW_WALLET_EXCEPTION_IF(m_state != InProgress, error::wallet_internal_error, "wallet tx is not in progress");
+
+  m_state = Broken;
+
+  bool success = m_txb.add_mint(currency, description, amount,
+                                decimals, remint_key, destinations);
+
+  THROW_WALLET_EXCEPTION_IF(!success, error::tx_not_constructed, std::vector<cryptonote::tx_source_entry>(), destinations, 0);
+
+  m_state = InProgress;
+}
+//----------------------------------------------------------------------------------------------------
+void wallet_tx_builder::impl::add_remint(uint64_t currency, uint64_t amount,
+                                          const crypto::secret_key& remint_skey,
+                                          const crypto::public_key& new_remint_key,
+                                          const std::vector<cryptonote::tx_destination_entry>& destinations)
+{
+  THROW_WALLET_EXCEPTION_IF(m_state != InProgress, error::wallet_internal_error, "wallet tx is not in progress");
+
+  m_state = Broken;
+
+  bool success = m_txb.add_remint(currency, amount, remint_skey,
+                                  new_remint_key, destinations);
+
+  THROW_WALLET_EXCEPTION_IF(!success, error::tx_not_constructed, std::vector<cryptonote::tx_source_entry>(), destinations, 0);
+
+  m_state = InProgress;
 }
 //----------------------------------------------------------------------------------------------------
 void wallet_tx_builder::impl::add_register_delegate(cryptonote::delegate_id_t delegate_id,
@@ -669,12 +709,12 @@ void wallet_tx_builder::impl::add_register_delegate(cryptonote::delegate_id_t de
                                                     uint64_t registration_fee)
 {
   THROW_WALLET_EXCEPTION_IF(m_state != InProgress, error::wallet_internal_error, "wallet tx is not in progress");
-  
+
   m_state = Broken;
-  
+
   THROW_WALLET_EXCEPTION_IF(m_kd.m_delegate_id_registered, error::wallet_internal_error,
                             "wallet tx can only register one delegate id per tx");
-  
+
   bool success = m_txb.add_register_delegate(delegate_id, address, registration_fee);
   {
     uint64_t unlock_time;
@@ -683,11 +723,11 @@ void wallet_tx_builder::impl::add_register_delegate(cryptonote::delegate_id_t de
                               std::vector<cryptonote::tx_source_entry>(),
                               std::vector<cryptonote::tx_destination_entry>(), unlock_time);
   }
-  
+
   m_kd.m_delegate_id_registered = delegate_id;
   m_kd.m_delegate_address_registered = address;
   m_kd.m_registration_fee_paid = registration_fee;
-  
+
   m_state = InProgress;
 }
 //----------------------------------------------------------------------------------------------------
@@ -696,20 +736,20 @@ uint64_t wallet_tx_builder::impl::add_votes(size_t min_fake_outs, size_t fake_ou
                                             uint64_t delegates_per_vote)
 {
   THROW_WALLET_EXCEPTION_IF(m_state != InProgress, error::wallet_internal_error, "wallet tx is not in progress");
-  
+
   m_state = Broken;
-  
+
   if (!desired_votes.empty())
   {
     // try with unbatched, unspent transfers first
     std::list<size_t> transfer_is;
     uint64_t result = select_transfers_for_votes(num_votes, dust_policy.dust_threshold, transfer_is,
                                                  min_fake_outs);
-  
+
     if (result)
     {
       LOG_PRINT_L0("Making new vote batch of " << cryptonote::print_money(result) << " votes from unspent, unbatched, unvoted transfers");
-      
+
       // pick votes
       auto new_votes = random_subset(desired_votes, delegates_per_vote);
       // get fake outs
@@ -722,8 +762,8 @@ uint64_t wallet_tx_builder::impl::add_votes(size_t min_fake_outs, size_t fake_ou
       // add to tx
       bool r = m_txb.add_vote(m_wallet.m_account.get_keys(), sources, seq, new_votes);
       THROW_WALLET_EXCEPTION_IF(!r, error::wallet_internal_error, "Could not add batch vote to tx builder");
-      
-      
+
+
       // update known details
       BOOST_FOREACH(const auto& d_id, new_votes)
       {
@@ -735,28 +775,28 @@ uint64_t wallet_tx_builder::impl::add_votes(size_t min_fake_outs, size_t fake_ou
       nbvi.m_fake_outs = fake_outputs[cryptonote::CP_XCN];
       nbvi.m_votes = new_votes;
       m_new_batch_votes.push_back(nbvi);
-      
+
       m_state = InProgress;
-      
+
       return result;
     }
   }
-  
+
   // try with batches
   std::list<size_t> batch_is;
   uint64_t result = select_batches_for_votes(num_votes, dust_policy.dust_threshold, desired_votes, batch_is);
-  
+
   if (!result)
   {
     LOG_PRINT_L0("Found no unused transfers or batches to vote with");
     m_state = InProgress;
     return 0;
   }
-  
+
   BOOST_FOREACH(size_t idx, batch_is)
   {
     const auto& batch = m_wallet.m_votes_info.m_batches[idx];
-    
+
     // pick votes
     const auto& old_votes = batch.m_vote_history.back();
     // take what's still common to the batch and to the desired votes
@@ -767,11 +807,11 @@ uint64_t wallet_tx_builder::impl::add_votes(size_t min_fake_outs, size_t fake_ou
     // prepare batch (uses previous fake outs)
     auto sources = prepare_batch(idx);
     size_t seq = batch.m_vote_history.size();
-    
+
     // add to tx
     bool r = m_txb.add_vote(m_wallet.m_account.get_keys(), sources, seq, new_votes);
     THROW_WALLET_EXCEPTION_IF(!r, error::wallet_internal_error, "Could not add batch vote to tx builder");
-    
+
     // update known details
     uint64_t amount_voted = batch.amount(m_wallet);
     BOOST_FOREACH(const auto& d_id, new_votes)
@@ -783,14 +823,14 @@ uint64_t wallet_tx_builder::impl::add_votes(size_t min_fake_outs, size_t fake_ou
     cbvi.m_batch_i = idx;
     cbvi.m_votes = new_votes;
     m_change_batch_votes.push_back(cbvi);
-    
+
     LOG_PRINT_L0("Added batch voting for " << new_votes.size() << " delegates "
                  << "(changing " << (set_or(old_votes, new_votes).size() - set_and(old_votes, new_votes).size()) << " votes) "
                  << "for "  << cryptonote::print_money(amount_voted) << " XCNs");
   }
-  
+
   m_state = InProgress;
-  
+
   return result;
 }
 //----------------------------------------------------------------------------------------------------
@@ -802,7 +842,7 @@ void wallet_tx_builder::impl::replace_seqs(cryptonote::transaction& tx)
   auto k_imgs = map_filter([](const txin_v& inp) -> crypto::key_image { return boost::get<txin_vote>(inp).ink.k_image; },
 	                       tx.ins(),
                            [](const txin_v& inp) { return inp.type() == typeid(txin_vote); });
-  
+
   auto im_seqs = m_wallet.get_key_image_seqs(k_imgs);
   tx.replace_vote_seqs(im_seqs);
 }
@@ -811,22 +851,22 @@ void wallet_tx_builder::impl::replace_seqs(cryptonote::transaction& tx)
 void wallet_tx_builder::impl::finalize(cryptonote::transaction& tx)
 {
   THROW_WALLET_EXCEPTION_IF(m_state != InProgress, error::wallet_internal_error, "wallet tx is not in progress");
-  
+
   m_state = Broken;
-  
+
   // sanity checks
   BOOST_FOREACH(size_t transfer_i, m_spend_transfer_is)
   {
     THROW_WALLET_EXCEPTION_IF(m_wallet.m_transfers.size() <= transfer_i, error::wallet_internal_error,
                               "picked transfer spend that doesn't exist");
   }
-  
+
   BOOST_FOREACH(size_t batch_i, m_spend_batch_is)
   {
     THROW_WALLET_EXCEPTION_IF(m_wallet.m_votes_info.m_batches.size() <= batch_i, error::wallet_internal_error,
                               "picked batch spend that doesn't exist");
   }
-  
+
   BOOST_FOREACH(const auto& cbvi, m_change_batch_votes)
   {
     THROW_WALLET_EXCEPTION_IF(m_wallet.m_votes_info.m_batches.size() <= cbvi.m_batch_i, error::wallet_internal_error,
@@ -835,7 +875,7 @@ void wallet_tx_builder::impl::finalize(cryptonote::transaction& tx)
                               error::wallet_internal_error,
                               "changing batch vote but votes aren't actually different");
   }
-  
+
   BOOST_FOREACH(const auto& nbvi, m_new_batch_votes)
   {
     BOOST_FOREACH(size_t transfer_i, nbvi.m_transfer_is)
@@ -846,20 +886,20 @@ void wallet_tx_builder::impl::finalize(cryptonote::transaction& tx)
                                 "placing transfer in new batch that was already in batch");
     }
   }
-  
+
   // replace the seqs with what they should be from the daemon
-  
+
   bool r = true;
   r = r && m_txb.finalize([this](cryptonote::transaction& tx) { return this->replace_seqs(tx); });
   r = r && m_txb.get_finalized_tx(m_finalized_tx);
   THROW_WALLET_EXCEPTION_IF(!r, error::wallet_internal_error, "Could not finalize tx");
-  
+
   m_kd.m_tx_hash = cryptonote::get_transaction_hash(m_finalized_tx);
-  
+
   tx = m_finalized_tx;
-  
+
   m_state = Finalized;
-  
+
   return;
 }
 
@@ -867,7 +907,7 @@ void wallet_tx_builder::impl::finalize(cryptonote::transaction& tx)
 void wallet_tx_builder::impl::process_transaction_sent()
 {
   THROW_WALLET_EXCEPTION_IF(m_state != Finalized, error::wallet_internal_error, "wallet tx is not finalized");
-  
+
   m_state = Broken;
 
   // update everything being spent + voted
@@ -876,7 +916,7 @@ void wallet_tx_builder::impl::process_transaction_sent()
     m_wallet.m_transfers[transfer_i].m_spent = true;
     LOG_PRINT_L0("Transfer " << transfer_i << " spent");
   }
-  
+
   BOOST_FOREACH(size_t batch_i, m_spend_batch_is)
   {
     const auto& batch = m_wallet.m_votes_info.m_batches[batch_i];
@@ -887,11 +927,11 @@ void wallet_tx_builder::impl::process_transaction_sent()
     }
     LOG_PRINT_L0("Batch " << batch_i << " spent");
   }
-  
+
   BOOST_FOREACH(const auto& cbvi, m_change_batch_votes)
   {
     auto& batch = m_wallet.m_votes_info.m_batches[cbvi.m_batch_i];
-    
+
     batch.m_vote_history.push_back(cbvi.m_votes);
     LOG_PRINT_L0("Batch " << cbvi.m_batch_i << " changed votes");
   }
@@ -907,25 +947,25 @@ void wallet_tx_builder::impl::process_transaction_sent()
       new_batch_index = w_batches.size() - 1;
     }
     auto& new_batch = w_batches.back();
-    
+
     new_batch.m_transfer_indices = nbvi.m_transfer_is;
     new_batch.m_fake_outs = nbvi.m_fake_outs;
     new_batch.m_vote_history.push_back(nbvi.m_votes);
-    
+
     BOOST_FOREACH(size_t transfer_i, new_batch.m_transfer_indices)
     {
       m_wallet.m_votes_info.m_transfer_batch_map[transfer_i] = new_batch_index;
       LOG_PRINT_L0("Transfer " << transfer_i << " now in new batch " << new_batch_index);
     }
   }
-  
+
   m_wallet.add_unconfirmed_tx(m_finalized_tx, m_kd.m_xcn_change);
-  
+
   m_wallet.m_known_transfers[m_kd.m_tx_hash] = m_kd;
-  
+
   if (m_wallet.m_callback != NULL)
     m_wallet.m_callback->on_new_transfer(m_finalized_tx, m_kd);
-  
+
   // bring debug info
   std::string key_images;
   std::all_of(m_finalized_tx.ins().begin(), m_finalized_tx.ins().end(), [&](const cryptonote::txin_v& s_e) {
@@ -943,16 +983,16 @@ void wallet_tx_builder::impl::process_transaction_sent()
   });
   LOG_PRINT_L2("transaction " << m_kd.m_tx_hash << " generated ok and sent to daemon, "
                << "key_images: [" << key_images << "]");
-  
+
   LOG_PRINT_L0("Transaction successfully sent. <" << m_kd.m_tx_hash << ">" << ENDL
                << "Commission: " << cryptonote::print_money(m_kd.m_fee)
                << " + maybe dust" << ENDL
                << "Balance: " << cryptonote::print_moneys(m_wallet.balance()) << ENDL
                << "Unlocked: " << cryptonote::print_moneys(m_wallet.unlocked_balance()) << ENDL
                << "Please, wait for confirmation for your balance to be unlocked.");
-  
+
   LOG_PRINT_L0("Transaction was: " << ENDL << obj_to_json_str(m_finalized_tx));
-  
+
   if (m_kd.m_delegate_id_registered != 0)
   {
     LOG_PRINT_L0("Transaction registered delegate " << m_kd.m_delegate_id_registered
@@ -960,7 +1000,7 @@ void wallet_tx_builder::impl::process_transaction_sent()
   }
 
   m_state = ProcessedSent;
-  
+
   return;
 }
 //----------------------------------------------------------------------------------------------------
@@ -989,17 +1029,33 @@ void wallet_tx_builder::add_send(const std::vector<cryptonote::tx_destination_en
   return m_pimpl->add_send(dsts, fee, min_fake_outs, fake_outputs_count, destination_split_strategy, dust_policy);
 }
 //----------------------------------------------------------------------------------------------------
-uint64_t wallet_tx_builder::add_votes(size_t min_fake_outs, size_t fake_outputs_count, const tx_dust_policy& dust_policy,
-                                      uint64_t num_votes, const cryptonote::delegate_votes& desired_votes,
-                                      uint64_t delegates_per_vote)
+void wallet_tx_builder::add_mint(uint64_t currency, const std::string& description, uint64_t amount, uint64_t decimals,
+                                  const crypto::public_key& remint_key,
+                                  const std::vector<cryptonote::tx_destination_entry>& destinations)
 {
-  return m_pimpl->add_votes(min_fake_outs, fake_outputs_count, dust_policy, num_votes, desired_votes, delegates_per_vote);
+  return m_pimpl->add_mint(currency, description, amount, decimals, remint_key, destinations);
 }
+//----------------------------------------------------------------------------------------------------
+void wallet_tx_builder::add_remint(uint64_t currency, uint64_t amount,
+                                    const crypto::secret_key& remint_skey,
+                                    const crypto::public_key& new_remint_key,
+                                    const std::vector<cryptonote::tx_destination_entry>& destinations)
+{
+  return m_pimpl->add_remint(currency, amount, remint_skey, new_remint_key, destinations);
+}
+//----------------------------------------------------------------------------------------------------
 void wallet_tx_builder::add_register_delegate(cryptonote::delegate_id_t delegate_id,
                                               const cryptonote::account_public_address& address,
                                               uint64_t registration_fee)
 {
   return m_pimpl->add_register_delegate(delegate_id, address, registration_fee);
+}
+//----------------------------------------------------------------------------------------------------
+uint64_t wallet_tx_builder::add_votes(size_t min_fake_outs, size_t fake_outputs_count, const tx_dust_policy& dust_policy,
+                                      uint64_t num_votes, const cryptonote::delegate_votes& desired_votes,
+                                      uint64_t delegates_per_vote)
+{
+  return m_pimpl->add_votes(min_fake_outs, fake_outputs_count, dust_policy, num_votes, desired_votes, delegates_per_vote);
 }
 //----------------------------------------------------------------------------------------------------
 void wallet_tx_builder::finalize(cryptonote::transaction& tx)
@@ -1012,5 +1068,5 @@ void wallet_tx_builder::process_transaction_sent()
   return m_pimpl->process_transaction_sent();
 }
 //----------------------------------------------------------------------------------------------------
-  
+
 }

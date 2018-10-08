@@ -172,10 +172,11 @@ namespace tools
     void transfer(const std::vector<cryptonote::tx_destination_entry>& dsts, size_t min_fake_outs, size_t fake_outputs_count, uint64_t unlock_time, uint64_t fee, const std::vector<uint8_t>& extra, cryptonote::transaction& tx);
 
     void mint_subcurrency(uint64_t currency, const std::string &description, uint64_t amount, uint64_t decimals,
-                          bool remintable, uint64_t fee, size_t fee_fake_outs_count);
+                          bool remintable, uint64_t fee, size_t fee_fake_outs_count,
+                          cryptonote::transaction& result);
     void remint_subcurrency(uint64_t currency, uint64_t amount,
-                            bool keep_remintable, uint64_t fee, size_t fee_fake_outs_count);
-
+                            bool keep_remintable, uint64_t fee, size_t fee_fake_outs_count,
+                            cryptonote::transaction& result);
     void register_delegate(const cryptonote::delegate_id_t& delegate_id,
                            uint64_t registration_fee, size_t min_fake_outs, size_t fake_outputs_count,
                            const cryptonote::account_public_address& address,

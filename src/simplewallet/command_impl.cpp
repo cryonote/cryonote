@@ -215,7 +215,7 @@ bool simple_wallet::transfer(const std::vector<std::string> &args_, uint64_t cur
   {
     throw std::runtime_error("Sending non-xcn currencies not yet implemented");
   }
-  
+
   if (!try_connect_to_daemon())
     return true;
 
@@ -279,7 +279,7 @@ bool simple_wallet::transfer(const std::vector<std::string> &args_, uint64_t cur
     bool ok;
     ok = cryptonote::parse_amount(de.amount, local_args[i + 1]);
     // when non-xcn, account for different decimal point
-    
+
     if(!ok || 0 == de.amount)
     {
       fail_msg_writer() << "amount is wrong: " << local_args[i] << ' ' << local_args[i + 1] <<
@@ -307,23 +307,24 @@ bool simple_wallet::transfer_currency(const std::vector<std::string> &args_)
     fail_msg_writer() << "wrong number of arguments, expected at least 4, got " << local_args.size();
     return true;
   }
-  
+
   uint64_t currency_id;
-  
   if (!epee::string_tools::get_xnum_from_hex_string(local_args[0], currency_id))
   {
     fail_msg_writer() << "currency_id should be hex of a 64-bit integer, got " << local_args[0];
     return true;
   }
+
   local_args.erase(local_args.begin());
-  
   return transfer(local_args, currency_id);
 }
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::mint(const std::vector<std::string> &args_)
 {
   if (!try_connect_to_daemon())
+  {
     return true;
+  }
 
   std::vector<std::string> local_args = args_;
   if(local_args.size() < 3)
@@ -331,13 +332,13 @@ bool simple_wallet::mint(const std::vector<std::string> &args_)
     fail_msg_writer() << "wrong number of arguments, expected at least 3, got " << local_args.size();
     return true;
   }
-  
+
   uint64_t currency_id, amount;
   size_t fake_outs_count;
   uint64_t decimals = 2;
   std::string description = "";
   bool remintable = true;
-  
+
   if (!epee::string_tools::get_xnum_from_hex_string(local_args[0], currency_id))
   {
     fail_msg_writer() << "currency_id should be hex of a 64-bit integer, got " << local_args[0];
@@ -351,14 +352,14 @@ bool simple_wallet::mint(const std::vector<std::string> &args_)
     return true;
   }
   local_args.erase(local_args.begin());
-  
+
   if(!epee::string_tools::get_xtype_from_string(fake_outs_count, local_args[0]))
   {
     fail_msg_writer() << "mixin_count should be non-negative integer, got " << local_args[0];
     return true;
   }
   local_args.erase(local_args.begin());
-  
+
   if (!local_args.empty())
   {
     if (!epee::string_tools::get_xtype_from_string(decimals, local_args[0]))
@@ -368,13 +369,13 @@ bool simple_wallet::mint(const std::vector<std::string> &args_)
     }
     local_args.erase(local_args.begin());
   }
-  
+
   if (!local_args.empty())
   {
     description = local_args[0];
     local_args.erase(local_args.begin());
   }
-  
+
   if (!local_args.empty())
   {
     if (!epee::string_tools::get_xtype_from_string(remintable, local_args[0]))
@@ -384,20 +385,22 @@ bool simple_wallet::mint(const std::vector<std::string> &args_)
     }
     local_args.erase(local_args.begin());
   }
-  
+
   capturing_exceptions([&]() {
     cryptonote::transaction tx;
-    m_wallet->mint_subcurrency(currency_id, description, amount, decimals, remintable, DEFAULT_FEE, fake_outs_count);
+    m_wallet->mint_subcurrency(currency_id, description, amount, decimals, remintable, DEFAULT_FEE, fake_outs_count, tx);
     success_msg_writer(true) << "Currency successfully minted, transaction " << get_transaction_hash(tx);
   });
-  
+
   return true;
 }
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::remint(const std::vector<std::string> &args_)
 {
   if (!try_connect_to_daemon())
+  {
     return true;
+  }
 
   std::vector<std::string> local_args = args_;
   if(local_args.size() < 3)
@@ -405,11 +408,11 @@ bool simple_wallet::remint(const std::vector<std::string> &args_)
     fail_msg_writer() << "wrong number of arguments, expected at least 3, got " << local_args.size();
     return true;
   }
-  
+
   uint64_t currency_id, amount;
   size_t fake_outs_count;
   bool keep_remintable = true;
-  
+
   if (!epee::string_tools::get_xnum_from_hex_string(local_args[0], currency_id))
   {
     fail_msg_writer() << "currency_id should be hex of a 64-bit integer, got " << local_args[0];
@@ -423,14 +426,14 @@ bool simple_wallet::remint(const std::vector<std::string> &args_)
     return true;
   }
   local_args.erase(local_args.begin());
-  
+
   if(!epee::string_tools::get_xtype_from_string(fake_outs_count, local_args[0]))
   {
     fail_msg_writer() << "mixin_count should be non-negative integer, got " << local_args[0];
     return true;
   }
   local_args.erase(local_args.begin());
-  
+
   if (!local_args.empty())
   {
     if (!epee::string_tools::get_xtype_from_string(keep_remintable, local_args[0]))
@@ -440,10 +443,10 @@ bool simple_wallet::remint(const std::vector<std::string> &args_)
     }
     local_args.erase(local_args.begin());
   }
-  
+
   capturing_exceptions([&]() {
     cryptonote::transaction tx;
-    m_wallet->remint_subcurrency(currency_id, amount, keep_remintable, DEFAULT_FEE, fake_outs_count);
+    m_wallet->remint_subcurrency(currency_id, amount, keep_remintable, DEFAULT_FEE, fake_outs_count, tx);
     success_msg_writer(true) << "Currency successfully reminted, transaction " << get_transaction_hash(tx);
   });
 
@@ -453,35 +456,37 @@ bool simple_wallet::remint(const std::vector<std::string> &args_)
 bool simple_wallet::register_delegate(const std::vector<std::string> &args_)
 {
   if (!try_connect_to_daemon())
+  {
     return true;
-  
+  }
+
   std::vector<std::string> local_args = args_;
   if(local_args.size() < 2)
   {
     fail_msg_writer() << "wrong number of arguments, expected at least 3, got " << local_args.size();
     return true;
   }
-  
+
   cryptonote::delegate_id_t delegate_id = 0;
   uint64_t registration_fee = 0;
   size_t min_fake_outs = 5;
   size_t fake_outs = 5;
   cryptonote::account_public_address addr = m_wallet->get_account().get_keys().m_account_address;
-  
+
   if (!epee::string_tools::get_xtype_from_string(delegate_id, local_args[0]) || delegate_id == 0)
   {
     fail_msg_writer() << "delegate_id should be number 1-65535, got " << local_args[0];
     return true;
   }
   local_args.erase(local_args.begin());
-  
+
   if (!cryptonote::parse_amount(registration_fee, local_args[0]))
   {
     fail_msg_writer() << "fee should be an amount, got " << local_args[0] << " (parsed into " << registration_fee << ")";
     return true;
   }
   local_args.erase(local_args.begin());
-  
+
   if (!local_args.empty())
   {
     if(!epee::string_tools::get_xtype_from_string(min_fake_outs, local_args[0]))
@@ -491,7 +496,7 @@ bool simple_wallet::register_delegate(const std::vector<std::string> &args_)
     }
     local_args.erase(local_args.begin());
   }
-  
+
   if (!local_args.empty())
   {
     if(!epee::string_tools::get_xtype_from_string(fake_outs, local_args[0]))
@@ -501,7 +506,7 @@ bool simple_wallet::register_delegate(const std::vector<std::string> &args_)
     }
     local_args.erase(local_args.begin());
   }
-  
+
   if (!local_args.empty())
   {
     if(!get_account_address_from_str(addr, local_args[0]))
@@ -511,13 +516,13 @@ bool simple_wallet::register_delegate(const std::vector<std::string> &args_)
     }
     local_args.erase(local_args.begin());
   }
-  
+
   capturing_exceptions([&]() {
     cryptonote::transaction tx;
     m_wallet->register_delegate(delegate_id, registration_fee, min_fake_outs, fake_outs, addr, tx);
     success_msg_writer(true) << "Successfully registered delegate, transaction " << get_transaction_hash(tx);
   });
-  
+
   return true;
 }
 //----------------------------------------------------------------------------------------------------
@@ -560,7 +565,7 @@ bool simple_wallet::add_delegates(const std::vector<std::string> &_args)
     fail_msg_writer() << "Must disable_autovote to select your own delegates";
     return true;
   }
-  
+
   auto args = _args;
   delegate_votes to_add;
   while (!args.empty())
@@ -574,10 +579,10 @@ bool simple_wallet::add_delegates(const std::vector<std::string> &_args)
     to_add.insert(add_d);
     args.erase(args.begin());
   }
-  
+
   delegate_votes new_set = tools::set_or(m_wallet->user_delegates(), to_add);
   m_wallet->set_user_delegates(new_set);
-  
+
   list_delegates(args);
   return true;
 }
@@ -589,7 +594,7 @@ bool simple_wallet::remove_delegates(const std::vector<std::string> &_args)
     fail_msg_writer() << "Must disable_autovote to select your own delegates";
     return true;
   }
-  
+
   auto args = _args;
   delegate_votes to_remove;
   while (!args.empty())
@@ -603,10 +608,10 @@ bool simple_wallet::remove_delegates(const std::vector<std::string> &_args)
     to_remove.insert(remove_d);
     args.erase(args.begin());
   }
-  
+
   delegate_votes new_set = tools::set_sub(m_wallet->user_delegates(), to_remove);
   m_wallet->set_user_delegates(new_set);
-  
+
   list_delegates(args);
   return true;
 }
@@ -618,7 +623,7 @@ bool simple_wallet::set_delegates(const std::vector<std::string> &_args)
     fail_msg_writer() << "Must disable_autovote to select your own delegates";
     return true;
   }
-  
+
   auto args = _args;
   delegate_votes to_set;
   while (!args.empty())
@@ -632,9 +637,9 @@ bool simple_wallet::set_delegates(const std::vector<std::string> &_args)
     to_set.insert(set_d);
     args.erase(args.begin());
   }
-  
+
   m_wallet->set_user_delegates(to_set);
-  
+
   list_delegates(args);
   return true;
 }

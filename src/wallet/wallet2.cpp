@@ -1013,6 +1013,7 @@ void wallet2::transfer(const std::vector<cryptonote::tx_destination_entry>& dsts
   wallet_tx_builder wtxb(*this);
   wtxb.init_tx(unlock_time, extra);
   wtxb.add_send(dsts, fee, min_fake_outs, fake_outputs_count, destination_split_strategy, dust_policy);
+
   // try voting up to 2000 xcn, 25 delegates per vote
   wtxb.add_votes(min_fake_outs, fake_outputs_count, dust_policy, COIN*2000, current_delegate_set(), 25);
   wtxb.finalize(tx);
@@ -1051,22 +1052,20 @@ void wallet2::transfer(const std::vector<cryptonote::tx_destination_entry>& dsts
 }
 //----------------------------------------------------------------------------------------------------
 void wallet2::mint_subcurrency(uint64_t currency, const std::string &description, uint64_t amount, uint64_t decimals,
-                               bool remintable, uint64_t fee, size_t fee_fake_outs_count)
+                               bool remintable, uint64_t fee, size_t fee_fake_outs_count,
+                               cryptonote::transaction& result)
 {
-  throw std::runtime_error("Not implemented yet");
-  /*THROW_WALLET_EXCEPTION_IF(m_read_only, error::invalid_read_only_operation, "mint");
+  THROW_WALLET_EXCEPTION_IF(m_read_only, error::invalid_read_only_operation, "mint");
   THROW_WALLET_EXCEPTION_IF(m_currency_keys.find(currency) != m_currency_keys.end(), error::mint_currency_exists, currency);
 
   // construct tx paying the fee, 0 unlock time
-  cryptonote::currency_map all_change;
-  transfer_selection selection;
-  auto txb = partially_construct_tx_to(std::vector<cryptonote::tx_destination_entry>(),
-                                       fee_fake_outs_count, 0, fee,
-                                       std::vector<uint8_t>(),
-                                       detail::digit_split_strategy(), tx_dust_policy(fee),
-                                       selected_transfers, all_change);
+  wallet_tx_builder wtxb(*this);
+  wtxb.init_tx();
+  wtxb.add_send(std::vector<cryptonote::tx_destination_entry>(), fee,
+                0, fee_fake_outs_count, detail::digit_split_strategy(),
+                tx_dust_policy(fee));
 
-  LOG_PRINT_L0("Made tx with fee of " << print_money(fee) << ", change is " << print_money(all_change[cryptonote::CP_XCN]));
+  LOG_PRINT_L0("Made tx with fee of " << print_money(fee));
 
   // Generate an anonymous remint keypair
   cryptonote::keypair tx_remint_keypair;
@@ -1085,29 +1084,23 @@ void wallet2::mint_subcurrency(uint64_t currency, const std::string &description
   THROW_WALLET_EXCEPTION_IF(xcn_dust != 0, error::wallet_internal_error, "Unexpected xcn dust should be 0");
 
   // Add the mint transaction
-  bool success = txb.add_mint(currency, description, amount, decimals, tx_remint_keypair.pub, split_dests);
-  THROW_WALLET_EXCEPTION_IF(!success, error::tx_not_constructed, std::vector<cryptonote::tx_source_entry>(), split_dests, 0);
+  wtxb.add_mint(currency, description, amount, decimals, tx_remint_keypair.pub, split_dests);
 
-  txb.finalize();
-
-  cryptonote::transaction tx;
-  THROW_WALLET_EXCEPTION_IF(!txb.get_finalized_tx(tx), error::wallet_internal_error, "Could not finalize mint tx");
+  // Finalize into a transaction
+  wtxb.finalize(result);
 
   // Send it
-  send_raw_tx_to_daemon(tx);
+  send_raw_tx_to_daemon(result);
 
   // Record success
-  LOG_PRINT_L2("transaction " << get_transaction_hash(tx) << " generated ok and sent to daemon");
-
-  BOOST_FOREACH(auto it, selected_transfers)
-    it->m_spent = true;
+  LOG_PRINT_L2("transaction " << get_transaction_hash(result) << " generated ok and sent to daemon");
 
   known_transfer_details kd;
-  kd.m_tx_hash = get_transaction_hash(tx);
+  kd.m_tx_hash = get_transaction_hash(result);
   kd.m_dests = unsplit_dests;
   kd.m_fee = fee;
-  kd.m_xcn_change = all_change[cryptonote::CP_XCN];
-  kd.m_all_change = all_change;
+  //kd.m_xcn_change = all_change[cryptonote::CP_XCN];
+  //kd.m_all_change = all_change;
   kd.m_currency_minted = currency;
   kd.m_amount_minted = amount;
   kd.m_delegate_id_registered = 0;
@@ -1117,35 +1110,35 @@ void wallet2::mint_subcurrency(uint64_t currency, const std::string &description
   m_currency_keys[currency].push_back(tx_remint_keypair);
 
   if (0 != m_callback)
-    m_callback->on_new_transfer(tx, kd);
+  {
+    m_callback->on_new_transfer(result, kd);
+  }
 
   LOG_PRINT_L0("Mint transaction successfully sent. <" << kd.m_tx_hash << ">" << ENDL
                 << "Minted " << print_money(amount, decimals) << " of " << currency << "(\"" << description << "\")" << ENDL
                 << "Please, wait for confirmation for your balance to be unlocked.");
 
-  store();*/
+  store();
 }
 //----------------------------------------------------------------------------------------------------
 void wallet2::remint_subcurrency(uint64_t currency, uint64_t amount, bool keep_remintable,
-                                 uint64_t fee, size_t fee_fake_outs_count)
+                                 uint64_t fee, size_t fee_fake_outs_count,
+                                 cryptonote::transaction& result)
 {
-  throw std::runtime_error("Not implemented yet");
-  /*THROW_WALLET_EXCEPTION_IF(m_read_only, error::invalid_read_only_operation, "remint");
+  THROW_WALLET_EXCEPTION_IF(m_read_only, error::invalid_read_only_operation, "remint");
   THROW_WALLET_EXCEPTION_IF(m_currency_keys.find(currency) == m_currency_keys.end(),
                             error::remint_currency_does_not_exist, currency);
 
   THROW_WALLET_EXCEPTION_IF(m_currency_keys[currency].back() == null_keypair, error::remint_currency_not_remintable, currency);
 
   // construct tx paying the fee, 0 unlock time
-  cryptonote::currency_map all_change;
-  std::list<transfer_container::iterator> selected_transfers;
-  auto txb = partially_construct_tx_to(std::vector<cryptonote::tx_destination_entry>(),
-                                       fee_fake_outs_count, 0, fee,
-                                       std::vector<uint8_t>(),
-                                       detail::digit_split_strategy(), tx_dust_policy(fee),
-                                       selected_transfers, all_change);
+  wallet_tx_builder wtxb(*this);
+  wtxb.init_tx();
+  wtxb.add_send(std::vector<cryptonote::tx_destination_entry>(), fee,
+                0, fee_fake_outs_count, detail::digit_split_strategy(),
+                tx_dust_policy(fee));
 
-  LOG_PRINT_L0("Made tx with fee of " << print_money(fee) << ", change is " << print_money(all_change[cryptonote::CP_XCN]));
+  LOG_PRINT_L0("Made tx with fee of " << print_money(fee));
 
   // Generate an anonymous new remint keypair
   cryptonote::keypair tx_new_remint_keypair;
@@ -1164,31 +1157,25 @@ void wallet2::remint_subcurrency(uint64_t currency, uint64_t amount, bool keep_r
   THROW_WALLET_EXCEPTION_IF(xcn_dust != 0, error::wallet_internal_error, "Unexpected xcn dust should be 0");
 
   // Add the remint transaction
-  bool success = txb.add_remint(currency, amount,
-                                m_currency_keys[currency].back().sec, tx_new_remint_keypair.pub,
-                                split_dests);
-  THROW_WALLET_EXCEPTION_IF(!success, error::tx_not_constructed, std::vector<cryptonote::tx_source_entry>(), split_dests, 0);
+  wtxb.add_remint(currency, amount,
+                  m_currency_keys[currency].back().sec, tx_new_remint_keypair.pub,
+                  split_dests);
 
-  txb.finalize();
-
-  cryptonote::transaction tx;
-  THROW_WALLET_EXCEPTION_IF(!txb.get_finalized_tx(tx), error::wallet_internal_error, "Could not finalize remint tx");
+  // Finalize into a transaction
+  wtxb.finalize(result);
 
   // Send it
-  send_raw_tx_to_daemon(tx);
+  send_raw_tx_to_daemon(result);
 
   // Record success
-  LOG_PRINT_L2("transaction " << get_transaction_hash(tx) << " generated ok and sent to daemon");
-
-  BOOST_FOREACH(auto it, selected_transfers)
-    it->m_spent = true;
+  LOG_PRINT_L2("transaction " << get_transaction_hash(result) << " generated ok and sent to daemon");
 
   known_transfer_details kd;
-  kd.m_tx_hash = get_transaction_hash(tx);
+  kd.m_tx_hash = get_transaction_hash(result);
   kd.m_dests = unsplit_dests;
   kd.m_fee = fee;
-  kd.m_xcn_change = all_change[cryptonote::CP_XCN];
-  kd.m_all_change = all_change;
+  //kd.m_xcn_change = all_change[cryptonote::CP_XCN];
+  //kd.m_all_change = all_change;
   kd.m_currency_minted = currency;
   kd.m_amount_minted = amount;
   kd.m_delegate_id_registered = 0;
@@ -1198,13 +1185,15 @@ void wallet2::remint_subcurrency(uint64_t currency, uint64_t amount, bool keep_r
   m_currency_keys[currency].push_back(tx_new_remint_keypair);
 
   if (0 != m_callback)
-    m_callback->on_new_transfer(tx, kd);
+  {
+    m_callback->on_new_transfer(result, kd);
+  }
 
   LOG_PRINT_L0("Remint transaction successfully sent. <" << kd.m_tx_hash << ">" << ENDL
                 << "Minted " << print_money(amount, 0) << " of " << currency << ENDL
                 << "Please, wait for confirmation for your balance to be unlocked.");
 
-  store();*/
+  store();
 }
 //----------------------------------------------------------------------------------------------------
 void wallet2::register_delegate(const cryptonote::delegate_id_t& delegate_id,
@@ -1217,12 +1206,14 @@ void wallet2::register_delegate(const cryptonote::delegate_id_t& delegate_id,
 
   wallet_tx_builder wtxb(*this);
   wtxb.init_tx();
+
   // add the tx + registration fee
   wtxb.add_send(std::vector<cryptonote::tx_destination_entry>(), registration_fee + DEFAULT_FEE,
                 min_fake_outs, fake_outputs_count, detail::digit_split_strategy(),
                 tx_dust_policy(DEFAULT_FEE));
   // add the delegate
   wtxb.add_register_delegate(delegate_id, address, registration_fee);
+
   // try adding votes
   wtxb.add_votes(min_fake_outs, fake_outputs_count, tx_dust_policy(DEFAULT_FEE), COIN*2000, current_delegate_set(), 25);
   wtxb.finalize(result);

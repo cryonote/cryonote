@@ -24,7 +24,7 @@ namespace tools
   {
     struct split_strategy;
   }
-  
+
   class wallet_tx_builder : private boost::noncopyable
   {
   public:
@@ -35,6 +35,13 @@ namespace tools
     void add_send(const std::vector<cryptonote::tx_destination_entry>& dsts, uint64_t fee,
                   size_t min_fake_outs, size_t fake_outputs_count, const detail::split_strategy& destination_split_strategy,
                   const tx_dust_policy& dust_policy);
+    void add_mint(uint64_t currency, const std::string& description, uint64_t amount, uint64_t decimals,
+                  const crypto::public_key& remint_key,
+                  const std::vector<cryptonote::tx_destination_entry>& destinations);
+    void add_remint(uint64_t currency, uint64_t amount,
+                    const crypto::secret_key& remint_skey,
+                    const crypto::public_key& new_remint_key,
+                    const std::vector<cryptonote::tx_destination_entry>& destinations);
     void add_register_delegate(cryptonote::delegate_id_t delegate_id,
                                const cryptonote::account_public_address& address,
                                uint64_t registration_fee);
@@ -43,7 +50,7 @@ namespace tools
                        uint64_t delegates_per_vote);
     void finalize(cryptonote::transaction& tx);
     void process_transaction_sent();
-    
+
   private:
     class impl;
     impl *m_pimpl;

@@ -75,9 +75,9 @@ simple_wallet::simple_wallet()
   m_cmd_binder.set_handler("payments", boost::bind(&simple_wallet::show_payments, this, _1), "payments <payment_id_1> [<payment_id_2> ... <payment_id_N>] - Show payments <payment_id_1>, ... <payment_id_N>");
   m_cmd_binder.set_handler("bc_height", boost::bind(&simple_wallet::show_blockchain_height, this, _1), "Show blockchain height");
   m_cmd_binder.set_handler("transfer", boost::bind(&simple_wallet::transfer, this, _1, CURRENCY_XCN), "transfer <min_mixin_count> <mixin_count> <addr_1> <amount_1> [<addr_2> <amount_2> ... <addr_N> <amount_N>] [payment_id] - Transfer <amount_1>,... <amount_N> to <address_1>,... <address_N>, respectively. <mixin_count> is the number of transactions yours is indistinguishable from (from 0 to maximum available), <min_mixin_count> is the minimum acceptable mixin count.");
-  //m_cmd_binder.set_handler("transfer_currency", boost::bind(&simple_wallet::transfer_currency, this, _1), "transfer <currency_id_hex> <mixin_count> <addr_1> <amount_1> [<addr_2> <amount_2> ... <addr_N> <amount_N>] [payment_id] - Transfer <amount_1>,... <amount_N> to <address_1>,... <address_N>, respectively. <currency_id_hex> is the hex of the currency id to transfer. <mixin_count> is the number of transactions yours is indistinguishable from (from 0 to maximum available)");
-  //m_cmd_binder.set_handler("mint", boost::bind(&simple_wallet::mint, this, _1), "mint <currency_id_hex> <amount> <fee mixin_count> [<decimals=2> <description=""> <remintable=true>]");
-  //m_cmd_binder.set_handler("remint", boost::bind(&simple_wallet::remint, this, _1), "remint <currency_id_hex> <amount> <fee mixin_count> [<keep_remintable=true>]");
+  m_cmd_binder.set_handler("transfer_currency", boost::bind(&simple_wallet::transfer_currency, this, _1), "transfer <currency_id_hex> <mixin_count> <addr_1> <amount_1> [<addr_2> <amount_2> ... <addr_N> <amount_N>] [payment_id] - Transfer <amount_1>,... <amount_N> to <address_1>,... <address_N>, respectively. <currency_id_hex> is the hex of the currency id to transfer. <mixin_count> is the number of transactions yours is indistinguishable from (from 0 to maximum available)");
+  m_cmd_binder.set_handler("mint", boost::bind(&simple_wallet::mint, this, _1), "mint <currency_id_hex> <amount> <fee mixin_count> [<decimals=2> <description=""> <remintable=true>]");
+  m_cmd_binder.set_handler("remint", boost::bind(&simple_wallet::remint, this, _1), "remint <currency_id_hex> <amount> <fee mixin_count> [<keep_remintable=true>]");
   m_cmd_binder.set_handler("register_delegate", boost::bind(&simple_wallet::register_delegate, this, _1), "register_delegate <delegate_id> <registration_fee> [<min_fake_outs=5> <fake_outs=5> [<address>]] - Register address (default wallet address) as a delegate. <delegate_id> is a number 1-65535. Fee is minimum 5 XCN. ");
   m_cmd_binder.set_handler("set_log", boost::bind(&simple_wallet::set_log, this, _1), "set_log <level> - Change current log detalization level, <level> is a number 0-4");
   m_cmd_binder.set_handler("address", boost::bind(&simple_wallet::print_address, this, _1), "Show current wallet public address");
@@ -98,8 +98,8 @@ simple_wallet::simple_wallet()
                            "remove_delegates [<delegate_id> [<delegate_id> [...] ]] - Remove delegates from the user voting set");
   m_cmd_binder.set_handler("set_delegates", boost::bind(&simple_wallet::set_delegates, this, _1),
                            "set_delegates [<delegate_id> [<delegate_id> [...] ]] - Set the user voting set to the given delegates");
-  
-  
+
+
 }
 //----------------------------------------------------------------------------------------------------
 simple_wallet::~simple_wallet()
@@ -369,7 +369,7 @@ bool simple_wallet::parse_command_line(int argc, char* argv[], po::variables_map
 
   po::options_description desc_all;
   desc_all.add(desc_general).add(desc_params);
-  
+
   return command_line::handle_error_helper(desc_all, [&]()
   {
     po::store(command_line::parse_command_line(argc, argv, desc_all, true), vm);
@@ -378,7 +378,7 @@ bool simple_wallet::parse_command_line(int argc, char* argv[], po::variables_map
     {
       cryptonote::config::enable_testnet();
     }
-    
+
     if (command_line::get_arg(vm, command_line::arg_help))
     {
       cryptonote::simple_wallet w;
@@ -418,10 +418,10 @@ void simple_wallet::setup_logging(po::variables_map& vm)
   log_space::log_singletone::add_logger(LOGGER_FILE,
     log_space::log_singletone::get_default_log_file().c_str(),
     log_space::log_singletone::get_default_log_folder().c_str(), LOG_LEVEL_4);
-  
+
   message_writer(log_space::console_color_white, true) << tools::get_project_description("wallet");
   message_writer(log_space::console_color_white, true) << "Logging to file " << log_space::log_singletone::get_default_log_file() << " in folder " << log_space::log_singletone::get_default_log_folder();
-  
+
   if(command_line::has_arg(vm, arg_log_level))
   {
     LOG_PRINT_L0("Setting log level = " << command_line::get_arg(vm, arg_log_level));
@@ -455,13 +455,13 @@ int main(int argc, char* argv[])
 #endif
 
   //TRY_ENTRY();
-  
+
   po::variables_map vm;
   if (!simple_wallet::parse_command_line(argc, argv, vm))
     return 1;
-  
+
   simple_wallet::setup_logging(vm);
-  
+
   if (!cryptonote_opt::handle_command_line(vm))
   {
     return 1;
