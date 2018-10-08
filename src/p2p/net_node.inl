@@ -314,8 +314,9 @@ namespace nodetool
   template<class t_payload_net_handler>
   bool node_server<t_payload_net_handler>::run()
   {
-    // here you can set worker threads count
-    int thread_count = 10;
+    // here you can set worker threads count, by default just get the
+    // maximum number of concurrent threads based on the user's hardware...
+    int thread_count = std::thread::hardware_concurrency();
 
     m_net_server.add_idle_handler(boost::bind(&node_server<t_payload_net_handler>::idle_worker, this), 1000);
     m_net_server.add_idle_handler(boost::bind(&t_payload_net_handler::on_idle, &m_payload_handler), 1000);
