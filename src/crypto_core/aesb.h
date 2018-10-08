@@ -18,6 +18,8 @@ and fitness for purpose.
 Issue Date: 20/12/2007
 */
 
+#pragma once
+
 #include <stdint.h>
 
 #if defined(__cplusplus)
