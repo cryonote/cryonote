@@ -3,4 +3,4 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "crypto_core/hash-ops.c"
-#include "crypto_core/keccak.c"
+#include "crypto_core/keccak/keccak.c"
