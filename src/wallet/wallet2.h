@@ -173,14 +173,14 @@ namespace tools
 
     void mint_subcurrency(uint64_t currency, const std::string &description, uint64_t amount, uint64_t decimals,
                           bool remintable, uint64_t fee, size_t fee_fake_outs_count,
-                          cryptonote::transaction& result);
+                          cryptonote::transaction& tx);
     void remint_subcurrency(uint64_t currency, uint64_t amount,
                             bool keep_remintable, uint64_t fee, size_t fee_fake_outs_count,
-                            cryptonote::transaction& result);
+                            cryptonote::transaction& tx);
     void register_delegate(const cryptonote::delegate_id_t& delegate_id,
                            uint64_t registration_fee, size_t min_fake_outs, size_t fake_outputs_count,
                            const cryptonote::account_public_address& address,
-                           cryptonote::transaction& result);
+                           cryptonote::transaction& tx);
 
     bool check_connection();
     void get_transfers(wallet2::transfer_container& incoming_transfers) const;

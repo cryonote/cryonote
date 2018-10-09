@@ -1053,7 +1053,7 @@ void wallet2::transfer(const std::vector<cryptonote::tx_destination_entry>& dsts
 //----------------------------------------------------------------------------------------------------
 void wallet2::mint_subcurrency(uint64_t currency, const std::string &description, uint64_t amount, uint64_t decimals,
                                bool remintable, uint64_t fee, size_t fee_fake_outs_count,
-                               cryptonote::transaction& result)
+                               cryptonote::transaction& tx)
 {
   THROW_WALLET_EXCEPTION_IF(m_read_only, error::invalid_read_only_operation, "mint");
   THROW_WALLET_EXCEPTION_IF(m_currency_keys.find(currency) != m_currency_keys.end(), error::mint_currency_exists, currency);
@@ -1087,16 +1087,16 @@ void wallet2::mint_subcurrency(uint64_t currency, const std::string &description
   wtxb.add_mint(currency, description, amount, decimals, tx_remint_keypair.pub, split_dests);
 
   // Finalize into a transaction
-  wtxb.finalize(result);
+  wtxb.finalize(tx);
 
   // Send it
-  send_raw_tx_to_daemon(result);
+  send_raw_tx_to_daemon(tx);
 
   // Record success
-  LOG_PRINT_L2("transaction " << get_transaction_hash(result) << " generated ok and sent to daemon");
+  LOG_PRINT_L2("transaction " << get_transaction_hash(tx) << " generated ok and sent to daemon");
 
   known_transfer_details kd;
-  kd.m_tx_hash = get_transaction_hash(result);
+  kd.m_tx_hash = get_transaction_hash(tx);
   kd.m_dests = unsplit_dests;
   kd.m_fee = fee;
   //kd.m_xcn_change = all_change[cryptonote::CP_XCN];
@@ -1111,7 +1111,7 @@ void wallet2::mint_subcurrency(uint64_t currency, const std::string &description
 
   if (0 != m_callback)
   {
-    m_callback->on_new_transfer(result, kd);
+    m_callback->on_new_transfer(tx, kd);
   }
 
   LOG_PRINT_L0("Mint transaction successfully sent. <" << kd.m_tx_hash << ">" << ENDL
@@ -1123,7 +1123,7 @@ void wallet2::mint_subcurrency(uint64_t currency, const std::string &description
 //----------------------------------------------------------------------------------------------------
 void wallet2::remint_subcurrency(uint64_t currency, uint64_t amount, bool keep_remintable,
                                  uint64_t fee, size_t fee_fake_outs_count,
-                                 cryptonote::transaction& result)
+                                 cryptonote::transaction& tx)
 {
   THROW_WALLET_EXCEPTION_IF(m_read_only, error::invalid_read_only_operation, "remint");
   THROW_WALLET_EXCEPTION_IF(m_currency_keys.find(currency) == m_currency_keys.end(),
@@ -1162,16 +1162,16 @@ void wallet2::remint_subcurrency(uint64_t currency, uint64_t amount, bool keep_r
                   split_dests);
 
   // Finalize into a transaction
-  wtxb.finalize(result);
+  wtxb.finalize(tx);
 
   // Send it
-  send_raw_tx_to_daemon(result);
+  send_raw_tx_to_daemon(tx);
 
   // Record success
-  LOG_PRINT_L2("transaction " << get_transaction_hash(result) << " generated ok and sent to daemon");
+  LOG_PRINT_L2("transaction " << get_transaction_hash(tx) << " generated ok and sent to daemon");
 
   known_transfer_details kd;
-  kd.m_tx_hash = get_transaction_hash(result);
+  kd.m_tx_hash = get_transaction_hash(tx);
   kd.m_dests = unsplit_dests;
   kd.m_fee = fee;
   //kd.m_xcn_change = all_change[cryptonote::CP_XCN];
@@ -1186,7 +1186,7 @@ void wallet2::remint_subcurrency(uint64_t currency, uint64_t amount, bool keep_r
 
   if (0 != m_callback)
   {
-    m_callback->on_new_transfer(result, kd);
+    m_callback->on_new_transfer(tx, kd);
   }
 
   LOG_PRINT_L0("Remint transaction successfully sent. <" << kd.m_tx_hash << ">" << ENDL
@@ -1199,7 +1199,7 @@ void wallet2::remint_subcurrency(uint64_t currency, uint64_t amount, bool keep_r
 void wallet2::register_delegate(const cryptonote::delegate_id_t& delegate_id,
                                 uint64_t registration_fee, size_t min_fake_outs, size_t fake_outputs_count,
                                 const cryptonote::account_public_address& address,
-                                cryptonote::transaction& result)
+                                cryptonote::transaction& tx)
 {
   THROW_WALLET_EXCEPTION_IF(m_read_only, error::invalid_read_only_operation, "register_delegate");
   THROW_WALLET_EXCEPTION_IF(delegate_id == 0, error::zero_delegate_id);
@@ -1216,9 +1216,9 @@ void wallet2::register_delegate(const cryptonote::delegate_id_t& delegate_id,
 
   // try adding votes
   wtxb.add_votes(min_fake_outs, fake_outputs_count, tx_dust_policy(DEFAULT_FEE), COIN*2000, current_delegate_set(), 25);
-  wtxb.finalize(result);
+  wtxb.finalize(tx);
 
-  send_raw_tx_to_daemon(result);
+  send_raw_tx_to_daemon(tx);
 
   wtxb.process_transaction_sent();
 
