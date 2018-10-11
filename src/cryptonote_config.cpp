@@ -27,8 +27,10 @@ const char *CRYPTONOTE_BLOCKCHAINDB_TXS_FILENAME = "blockchaindb_txs.bin";
 
 uint64_t DEFAULT_FEE = UINT64_C(10000000); // 0.10 XCN
 
-namespace cryptonote {
-  namespace config {
+namespace cryptonote
+{
+  namespace config
+  {
     bool testnet = false;
     bool test_serialize_unserialize_block = false;
     bool no_reward_ramp = false;
