@@ -684,6 +684,9 @@ void wallet_tx_builder::impl::add_mint(uint64_t currency, const std::string& des
 
   THROW_WALLET_EXCEPTION_IF(!success, error::tx_not_constructed, std::vector<cryptonote::tx_source_entry>(), destinations, 0);
 
+  m_kd.m_currency_minted = currency;
+  m_kd.m_amount_minted = amount;
+
   m_state = InProgress;
 }
 //----------------------------------------------------------------------------------------------------
@@ -700,6 +703,9 @@ void wallet_tx_builder::impl::add_remint(uint64_t currency, uint64_t amount,
                                   new_remint_key, destinations);
 
   THROW_WALLET_EXCEPTION_IF(!success, error::tx_not_constructed, std::vector<cryptonote::tx_source_entry>(), destinations, 0);
+
+  m_kd.m_currency_minted = currency;
+  m_kd.m_amount_minted = amount;
 
   m_state = InProgress;
 }
@@ -888,7 +894,6 @@ void wallet_tx_builder::impl::finalize(cryptonote::transaction& tx)
   }
 
   // replace the seqs with what they should be from the daemon
-
   bool r = true;
   r = r && m_txb.finalize([this](cryptonote::transaction& tx) { return this->replace_seqs(tx); });
   r = r && m_txb.get_finalized_tx(m_finalized_tx);
@@ -964,7 +969,9 @@ void wallet_tx_builder::impl::process_transaction_sent()
   m_wallet.m_known_transfers[m_kd.m_tx_hash] = m_kd;
 
   if (m_wallet.m_callback != NULL)
+  {
     m_wallet.m_callback->on_new_transfer(m_finalized_tx, m_kd);
+  }
 
   // bring debug info
   std::string key_images;

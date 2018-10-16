@@ -1092,6 +1092,7 @@ void wallet2::mint_subcurrency(uint64_t currency, const std::string &description
   // Send it
   send_raw_tx_to_daemon(tx);
   wtxb.process_transaction_sent();
+  m_currency_keys[currency].push_back(tx_remint_keypair);
 
   // log success
   crypto::hash tx_hash;
@@ -1150,6 +1151,7 @@ void wallet2::remint_subcurrency(uint64_t currency, uint64_t amount, bool keep_r
   // Send it
   send_raw_tx_to_daemon(tx);
   wtxb.process_transaction_sent();
+  m_currency_keys[currency].push_back(tx_new_remint_keypair);
 
   // log success
   crypto::hash tx_hash;
