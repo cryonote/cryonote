@@ -36,7 +36,7 @@ using namespace epee; // needed for epee util imports to work
 
 #include "common/ui_interface.h"
 #include "common/command_line.h"
-#include "common/util.h" // Pebblecoin utils
+#include "common/util.h" // CryoNote utils
 #include "daemon/daemon_options.h"
 #include "p2p/net_node.h"
 #include "crypto/hash_options.h"
@@ -426,7 +426,7 @@ void BitcoinApplication::initializeResult(int retval, QString error)
     } else {
         if (!error.isEmpty())
         {
-            QMessageBox::critical(0, tr("Pebblecoin"), error);
+            QMessageBox::critical(0, tr("CryoNote"), error);
         }
         quit(); // Exit main loop
     }
@@ -506,7 +506,7 @@ int main(int argc, char *argv[])
     if (!ParseParameters(argc, argv, desc_options))
     {
         // Failed to parse parameters
-        QMessageBox::critical(0, QObject::tr("Pebblecoin"),
+        QMessageBox::critical(0, QObject::tr("CryoNote"),
                               QObject::tr("Error: Failed to parse command-line parameters."));
         return 1;
     }
@@ -566,17 +566,17 @@ int main(int argc, char *argv[])
     // User language is set up: pick a data directory
     Intro::pickDataDirectory();
 
-    /// 6. Determine availability of data directory and parse pebblecoin.conf
+    /// 6. Determine availability of data directory and parse cryonote.conf
     /// - Do not call GetDataDir(true) before this step finishes
     if (!boost::filesystem::is_directory(GetDataDir(false)))
     {
-        QMessageBox::critical(0, QObject::tr("Pebblecoin"),
+        QMessageBox::critical(0, QObject::tr("CryoNote"),
                               QObject::tr("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(GetDataDir(false).string())));
         return 1;
     }
 
     if (!ReadConfigFile(desc_options)) {
-        QMessageBox::critical(0, QObject::tr("Pebblecoin"),
+        QMessageBox::critical(0, QObject::tr("CryoNote"),
                               QObject::tr("Error: Cannot parse configuration file. Only use key=value syntax."));
         return 1;
     }
@@ -592,7 +592,7 @@ int main(int argc, char *argv[])
 
     if (!cryptonote_opt::handle_command_line(vmapArgs))
     {
-        QMessageBox::critical(0, QObject::tr("Pebblecoin"),
+        QMessageBox::critical(0, QObject::tr("CryoNote"),
                               QObject::tr("Error: Must provide the correct genesis block hashes. Copy the config file from the BTCTalk thread and put it in %1 . Make sure the hashes are the same.").arg(QString::fromStdString(GetConfigFile().string())));
         return 1;
     }
@@ -612,7 +612,7 @@ int main(int argc, char *argv[])
         }
         catch (const std::exception& e)
         {
-            QMessageBox::critical(0, QObject::tr("Pebblecoin"),
+            QMessageBox::critical(0, QObject::tr("CryoNote"),
                                   QObject::tr("Error: Could not generate wallet file:\n%1.").arg(e.what()));
             return 1;
         }
@@ -622,7 +622,7 @@ int main(int argc, char *argv[])
     }
     else if (!keys_file_exists && wallet_file_exists)
     {
-        QMessageBox::critical(0, QObject::tr("Pebblecoin"),
+        QMessageBox::critical(0, QObject::tr("CryoNote"),
                               QObject::tr("Error: Found wallet file but not keys file."));
         return 1;
     }
@@ -638,7 +638,7 @@ int main(int argc, char *argv[])
         }
         catch (const std::exception &e)
         {
-            QMessageBox::critical(0, QObject::tr("Pebblecoin"),
+            QMessageBox::critical(0, QObject::tr("CryoNote"),
                                   QObject::tr("Error: Failed to load wallet file: %1").arg(e.what()));
             return 1;
         }
@@ -654,7 +654,7 @@ int main(int argc, char *argv[])
 
     if (!crypto::process_options(vmapArgs, HasArg(miner_opt::arg_start_mining)))
     {
-        QMessageBox::critical(0, QObject::tr("Pebblecoin"),
+        QMessageBox::critical(0, QObject::tr("CryoNote"),
                               QObject::tr("Error: Invalid hash-related options (see debug messages)."));
         return 1;
     }
@@ -670,7 +670,7 @@ int main(int argc, char *argv[])
 
      // Check for -testnet or -regtest parameter (Params() calls are only valid after this clause)
      if (!SelectParamsFromCommandLine()) {
-     QMessageBox::critical(0, QObject::tr("Pebblecoin"), QObject::tr("Error: Invalid combination of -regtest and -testnet."));
+     QMessageBox::critical(0, QObject::tr("CryoNote"), QObject::tr("Error: Invalid combination of -regtest and -testnet."));
      return 1;
      }*/
 
@@ -702,7 +702,7 @@ int main(int argc, char *argv[])
         app.createWindow(cryptonote::config::testnet);
         app.requestInitialize();
 #if defined(Q_OS_WIN) && QT_VERSION >= 0x050000
-        WinShutdownMonitor::registerShutdownBlockReason(QObject::tr("Pebblecoin Qt didn't yet exit safely..."), (HWND)app.getMainWinId());
+        WinShutdownMonitor::registerShutdownBlockReason(QObject::tr("CryoNote Qt didn't yet exit safely..."), (HWND)app.getMainWinId());
 #endif
         app.exec();
         app.requestShutdown();

@@ -80,7 +80,7 @@ void setupAddressWidget(QValidatedLineEdit *widget, QWidget *parent)
 
     widget->setFont(bitcoinAddressFont());
 #if QT_VERSION >= 0x040700
-    widget->setPlaceholderText(QObject::tr("Enter a Pebblecoin address (e.g. %1)").arg("PByFbvL39oABX2rcRksDgUMxhsKaGS4rSh3psPzgPMuFHyUyzmFtaAMhBfCS4gJwSHMAKhfgXDxAc98HJipde7kd8dvvVb6pvh"));
+    widget->setPlaceholderText(QObject::tr("Enter a CryoNote address (e.g. %1)").arg("PByFbvL39oABX2rcRksDgUMxhsKaGS4rSh3psPzgPMuFHyUyzmFtaAMhBfCS4gJwSHMAKhfgXDxAc98HJipde7kd8dvvVb6pvh"));
 #endif
     widget->setValidator(new BitcoinAddressEntryValidator(parent));
     widget->setCheckValidator(new BitcoinAddressCheckValidator(parent));
@@ -501,12 +501,12 @@ TableViewLastColumnResizingFixer::TableViewLastColumnResizingFixer(QTableView* t
 #ifdef WIN32
 boost::filesystem::path static StartupShortcutPath()
 {
-    return boost::filesystem::path(tools::get_special_folder_path(CSIDL_STARTUP, false)) / "Pebblecoin.lnk";
+    return boost::filesystem::path(tools::get_special_folder_path(CSIDL_STARTUP, false)) / "CryoNote.lnk";
 }
 
 bool GetStartOnSystemStartup()
 {
-    // check for Pebblecoin
+    // check for CryoNote
     return boost::filesystem::exists(StartupShortcutPath());
 }
 
@@ -624,7 +624,7 @@ bool SetStartOnSystemStartup(bool fAutoStart)
         // Write a bitcoin.desktop file to the autostart directory:
         optionFile << "[Desktop Entry]\n";
         optionFile << "Type=Application\n";
-        optionFile << "Name=Pebblecoin\n";
+        optionFile << "Name=CryoNote\n";
         optionFile << "Exec=" << pszExePath << " -min\n";
         optionFile << "Terminal=false\n";
         optionFile << "Hidden=false\n";

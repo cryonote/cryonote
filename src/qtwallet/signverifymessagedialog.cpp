@@ -26,7 +26,7 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(QWidget *parent) :
 
 #if QT_VERSION >= 0x040700
     ui->signatureOut_SM->setPlaceholderText(tr("Click \"Sign Message\" to generate signature"));
-    ui->addressIn_VM->setPlaceholderText(tr("Enter a Pebblecoin address (e.g. %1)").arg("PByFbvL39oABX2rcRksDgUMxhsKaGS4rSh3psPzgPMuFHyUyzmFtaAMhBfCS4gJwSHMAKhfgXDxAc98HJipde7kd8dvvVb6pvh"));
+    ui->addressIn_VM->setPlaceholderText(tr("Enter a CryoNote address (e.g. %1)").arg("PByFbvL39oABX2rcRksDgUMxhsKaGS4rSh3psPzgPMuFHyUyzmFtaAMhBfCS4gJwSHMAKhfgXDxAc98HJipde7kd8dvvVb6pvh"));
 #endif
 
     GUIUtil::setupAddressWidget(ui->addressIn_SM, this);

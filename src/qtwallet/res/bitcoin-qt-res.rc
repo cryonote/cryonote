@@ -1,5 +1,5 @@
-IDI_ICON1 ICON DISCARDABLE "icons/pebblecoin.ico"
-IDI_ICON2 ICON DISCARDABLE "icons/pebblecoin_testnet.ico"
+IDI_ICON1 ICON DISCARDABLE "icons/cryonote.ico"
+IDI_ICON2 ICON DISCARDABLE "icons/cryonote_testnet.ico"
 
 #include <windows.h>             // needed for VERSIONINFO
 #include "version.h"             // holds the needed client version information
@@ -8,7 +8,7 @@ IDI_ICON2 ICON DISCARDABLE "icons/pebblecoin_testnet.ico"
 #define VER_PRODUCTVERSION_STR BC_STRINGIZE(PROJECT_VERSION_MAJOR) "." BC_STRINGIZE(PROJECT_VERSION_MINOR) "." BC_STRINGIZE(PROJECT_VERSION_REVISION) "." BC_STRINGIZE(PROJECT_VERSION_BUILD)
 #define VER_FILEVERSION        VER_PRODUCTVERSION
 #define VER_FILEVERSION_STR    VER_PRODUCTVERSION_STR
-#define COPYRIGHT_STR          "2014-" BC_STRINGIZE(COPYRIGHT_YEAR) " The Pebblecoin developers"
+#define COPYRIGHT_STR          "2014-" BC_STRINGIZE(COPYRIGHT_YEAR) " The CryoNote developers"
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION     VER_FILEVERSION
@@ -20,14 +20,14 @@ BEGIN
     BEGIN
         BLOCK "040904E4" // U.S. English - multilingual (hex)
         BEGIN
-            VALUE "CompanyName",        "Pebblecoin"
-            VALUE "FileDescription",    "Pebblecoin Qt (OSS GUI client for Pebblecoin)"
+            VALUE "CompanyName",        "CryoNote"
+            VALUE "FileDescription",    "CryoNote Qt (OSS GUI client for CryoNote)"
             VALUE "FileVersion",        VER_FILEVERSION_STR
-            VALUE "InternalName",       "pebblecoin-qt"
+            VALUE "InternalName",       "cryonote-qt"
             VALUE "LegalCopyright",     COPYRIGHT_STR
             VALUE "LegalTrademarks1",   "Distributed under the MIT/X11 software license, see the accompanying file COPYING or http://www.opensource.org/licenses/mit-license.php."
-            VALUE "OriginalFilename",   "pebblecoin-qt.exe"
-            VALUE "ProductName",        "Pebblecoin Core"
+            VALUE "OriginalFilename",   "cryonote-qt.exe"
+            VALUE "ProductName",        "CryoNote Core"
             VALUE "ProductVersion",     VER_PRODUCTVERSION_STR
         END
     END

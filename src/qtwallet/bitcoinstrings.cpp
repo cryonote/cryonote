@@ -20,7 +20,7 @@ QT_TRANSLATE_NOOP("bitcoin-core", ""
 "If the file does not exist, create it with owner-readable-only file "
 "permissions.\n"
 "It is also recommended to set alertnotify so you are notified of problems;\n"
-"for example: alertnotify=echo %%s | mail -s \"Pebblecoin Alert\" admin@foo.com\n"),
+"for example: alertnotify=echo %%s | mail -s \"CryoNote Alert\" admin@foo.com\n"),
 QT_TRANSLATE_NOOP("bitcoin-core", ""
 "Acceptable ciphers (default: TLSv1.2+HIGH:TLSv1+HIGH:!SSLv2:!aNULL:!eNULL:!"
 "3DES:@STRENGTH)"),
@@ -33,7 +33,7 @@ QT_TRANSLATE_NOOP("bitcoin-core", ""
 "Bind to given address and always listen on it. Use [host]:port notation for "
 "IPv6"),
 QT_TRANSLATE_NOOP("bitcoin-core", ""
-"Cannot obtain a lock on data directory %s. Pebblecoin Qt is probably already "
+"Cannot obtain a lock on data directory %s. CryoNote Qt is probably already "
 "running."),
 QT_TRANSLATE_NOOP("bitcoin-core", ""
 "Continuously rate-limit free transactions to <n>*1000 bytes per minute "
@@ -93,7 +93,7 @@ QT_TRANSLATE_NOOP("bitcoin-core", ""
 "This is a pre-release test build - use at your own risk - do not use for "
 "mining or merchant applications"),
 QT_TRANSLATE_NOOP("bitcoin-core", ""
-"Unable to bind to %s on this computer. Pebblecoin Qt is probably already "
+"Unable to bind to %s on this computer. CryoNote Qt is probably already "
 "running."),
 QT_TRANSLATE_NOOP("bitcoin-core", ""
 "Use separate SOCKS5 proxy to reach peers via Tor hidden services (default: -"
@@ -103,7 +103,7 @@ QT_TRANSLATE_NOOP("bitcoin-core", ""
 "pay if you send a transaction."),
 QT_TRANSLATE_NOOP("bitcoin-core", ""
 "Warning: Please check that your computer's date and time are correct! If "
-"your clock is wrong Pebblecoin will not work properly."),
+"your clock is wrong CryoNote will not work properly."),
 QT_TRANSLATE_NOOP("bitcoin-core", ""
 "Warning: The network does not appear to fully agree! Some miners appear to "
 "be experiencing issues."),
@@ -131,8 +131,8 @@ QT_TRANSLATE_NOOP("bitcoin-core", "Add a node to connect to and attempt to keep 
 QT_TRANSLATE_NOOP("bitcoin-core", "Allow DNS lookups for -addnode, -seednode and -connect"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Allow JSON-RPC connections from specified IP address"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Attempt to recover private keys from a corrupt wallet.dat"),
-QT_TRANSLATE_NOOP("bitcoin-core", "Pebblecoin Qt Daemon"),
-QT_TRANSLATE_NOOP("bitcoin-core", "Pebblecoin Qt RPC client version"),
+QT_TRANSLATE_NOOP("bitcoin-core", "CryoNote Qt Daemon"),
+QT_TRANSLATE_NOOP("bitcoin-core", "CryoNote Qt RPC client version"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Block creation options:"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Cannot downgrade wallet"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Cannot resolve -bind address: '%s'"),
@@ -156,7 +156,7 @@ QT_TRANSLATE_NOOP("bitcoin-core", "Error initializing wallet database environmen
 QT_TRANSLATE_NOOP("bitcoin-core", "Error loading block database"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Error loading wallet.dat"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Error loading wallet.dat: Wallet corrupted"),
-QT_TRANSLATE_NOOP("bitcoin-core", "Error loading wallet.dat: Wallet requires newer version of Pebblecoin"),
+QT_TRANSLATE_NOOP("bitcoin-core", "Error loading wallet.dat: Wallet requires newer version of CryoNote"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Error opening block database"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Error"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Error: Disk space is low!"),
@@ -211,7 +211,7 @@ QT_TRANSLATE_NOOP("bitcoin-core", "Password for JSON-RPC connections"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Prepend debug output with timestamp (default: 1)"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Print block on startup, if found in block index"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Print block tree on startup (default: 0)"),
-QT_TRANSLATE_NOOP("bitcoin-core", "RPC SSL options: (see the Pebblecoin Wiki for SSL setup instructions)"),
+QT_TRANSLATE_NOOP("bitcoin-core", "RPC SSL options: (see the CryoNote Wiki for SSL setup instructions)"),
 QT_TRANSLATE_NOOP("bitcoin-core", "RPC client options:"),
 QT_TRANSLATE_NOOP("bitcoin-core", "RPC server options:"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Randomly drop 1 of every <n> network messages"),
@@ -221,9 +221,9 @@ QT_TRANSLATE_NOOP("bitcoin-core", "Rescan the block chain for missing wallet tra
 QT_TRANSLATE_NOOP("bitcoin-core", "Rescanning..."),
 QT_TRANSLATE_NOOP("bitcoin-core", "Run a thread to flush wallet periodically (default: 1)"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Run in the background as a daemon and accept commands"),
-QT_TRANSLATE_NOOP("bitcoin-core", "SSL options: (see the Pebblecoin Wiki for SSL setup instructions)"),
+QT_TRANSLATE_NOOP("bitcoin-core", "SSL options: (see the CryoNote Wiki for SSL setup instructions)"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Select SOCKS version for -proxy (4 or 5, default: 5)"),
-QT_TRANSLATE_NOOP("bitcoin-core", "Send command to Pebblecoin Qt"),
+QT_TRANSLATE_NOOP("bitcoin-core", "Send command to CryoNote Qt"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Send commands to node running on <ip> (default: 127.0.0.1)"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Send trace/debug info to console instead of debug.log file"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Server certificate file (default: server.cert)"),
@@ -238,14 +238,14 @@ QT_TRANSLATE_NOOP("bitcoin-core", "Show all debugging options (usage: --help -he
 QT_TRANSLATE_NOOP("bitcoin-core", "Show benchmark information (default: 0)"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Shrink debug.log file on client startup (default: 1 when no -debug)"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Signing transaction failed"),
-QT_TRANSLATE_NOOP("bitcoin-core", "Specify configuration file (default: pebblecoin.conf)"),
+QT_TRANSLATE_NOOP("bitcoin-core", "Specify configuration file (default: cryonote.conf)"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Specify connection timeout in milliseconds (default: 5000)"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Specify data directory"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Specify pid file (default: bitcoind.pid)"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Specify wallet file (within data directory)"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Specify your own public address"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Spend unconfirmed change when sending transactions (default: 1)"),
-QT_TRANSLATE_NOOP("bitcoin-core", "Start Pebblecoin Daemon"),
+QT_TRANSLATE_NOOP("bitcoin-core", "Start CryoNote Daemon"),
 QT_TRANSLATE_NOOP("bitcoin-core", "System error: "),
 QT_TRANSLATE_NOOP("bitcoin-core", "This help message"),
 QT_TRANSLATE_NOOP("bitcoin-core", "This is intended for regression testing tools and app development."),
@@ -269,7 +269,7 @@ QT_TRANSLATE_NOOP("bitcoin-core", "Verifying blocks..."),
 QT_TRANSLATE_NOOP("bitcoin-core", "Verifying wallet..."),
 QT_TRANSLATE_NOOP("bitcoin-core", "Wait for RPC server to start"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Wallet %s resides outside data directory %s"),
-QT_TRANSLATE_NOOP("bitcoin-core", "Wallet needed to be rewritten: restart Pebblecoin to complete"),
+QT_TRANSLATE_NOOP("bitcoin-core", "Wallet needed to be rewritten: restart CryoNote to complete"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Wallet options:"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Warning"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Warning: Deprecated argument -debugnet ignored, use -debug=net"),

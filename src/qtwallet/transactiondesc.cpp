@@ -67,7 +67,7 @@ QString TransactionDesc::toHTML(CWallet *wallet, CWalletTx &wtx, int vout, int u
     }
     else
     {
-        strHTML += "<b>" + tr("Source") + ":</b> " + tr("Anonymous Pebblecoin Address") + "<br>";
+        strHTML += "<b>" + tr("Source") + ":</b> " + tr("Anonymous CryoNote Address") + "<br>";
     }
 
     //

@@ -27,7 +27,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->setupUi(this);
 
     // Set current copyright year
-    ui->copyrightLabel->setText(tr("Copyright &copy; %1-%2 %3").arg(2013).arg(COPYRIGHT_YEAR).arg(tr("The Pebblecoin developers")) + "<br>" +
+    ui->copyrightLabel->setText(tr("Copyright &copy; %1-%2 %3").arg(2013).arg(COPYRIGHT_YEAR).arg(tr("The CryoNote developers")) + "<br>" +
                                 tr("Copyright &copy; %1-%2 %3").arg(2012).arg(COPYRIGHT_YEAR).arg(tr("The Cryptonote developers")) + "<br>" +
                                 tr("Copyright &copy; %1-%2 %3").arg(2009).arg(COPYRIGHT_YEAR).arg(tr("The Bitcoin Core developers")));
 }
@@ -120,7 +120,7 @@ void ShutdownWindow::showShutdownWindow(BitcoinGUI *window)
     QWidget *shutdownWindow = new QWidget();
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(new QLabel(
-        tr("Pebblecoin Qt is shutting down...") + "<br /><br />" +
+        tr("CryoNote Qt is shutting down...") + "<br /><br />" +
         tr("Do not shut down the computer until this window disappears.")));
     shutdownWindow->setLayout(layout);
 

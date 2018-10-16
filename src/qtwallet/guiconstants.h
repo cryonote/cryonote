@@ -41,9 +41,9 @@ static const int MAX_PAYMENT_REQUEST_SIZE = 50000; // bytes
 /* Number of frames in spinner animation */
 #define SPINNER_FRAMES 35
 
-#define QAPP_ORG_NAME "Pebblecoin"
-#define QAPP_ORG_DOMAIN "pebblecoin.com"
-#define QAPP_APP_NAME_DEFAULT "Pebblecoin-Qt"
-#define QAPP_APP_NAME_TESTNET "Pebblecoin-Qt-testnet"
+#define QAPP_ORG_NAME "CryoNote"
+#define QAPP_ORG_DOMAIN "cryonote.cash"
+#define QAPP_APP_NAME_DEFAULT "CryoNote-Qt"
+#define QAPP_APP_NAME_TESTNET "CryoNote-Qt-testnet"
 
 #endif // GUICONSTANTS_H

@@ -175,7 +175,7 @@ void Intro::pickDataDirectory()
         /* If current default data directory does not exist, let the user choose one */
         Intro intro;
         intro.setDataDirectory(dataDir);
-        intro.setWindowIcon(QIcon(":icons/pebblecoin"));
+        intro.setWindowIcon(QIcon(":icons/cryonote"));
 
         while(true)
         {
@@ -189,7 +189,7 @@ void Intro::pickDataDirectory()
                 TryCreateDirectory(GUIUtil::qstringToBoostPath(dataDir));
                 break;
             } catch(fs::filesystem_error &e) {
-                QMessageBox::critical(0, tr("Pebblecoin"),
+                QMessageBox::critical(0, tr("CryoNote"),
                     tr("Error: Specified data directory \"%1\" can not be created.").arg(dataDir));
                 /* fall through, back to choosing screen */
             }
@@ -198,7 +198,7 @@ void Intro::pickDataDirectory()
         settings.setValue("strDataDir", dataDir);
     }
     /* Only override -datadir if different from the default, to make it possible to
-     * override -datadir in the pebblecoin.conf file in the default data directory
+     * override -datadir in the cryonote.conf file in the default data directory
      * (to be consistent with bitcoind behavior)
      */
     if(dataDir != getDefaultDataDirectory())
