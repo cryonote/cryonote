@@ -61,7 +61,7 @@ WalletView::WalletView(QWidget *parent, WalletModel *walletModelArg):
         defaultNick = QString::fromStdString(walletModel->getPublicAddress().substr(0, 10));
     }
   
-    supportPage = new cv::gui::Client(tr("Pebblecoin Support"), QString::fromStdString(GetIrcConfigFile().string()), defaultNick);
+    supportPage = new cv::gui::Client(tr("CryoNote Support"), QString::fromStdString(GetIrcConfigFile().string()), defaultNick);
 
     receiveCoinsPage = new ReceiveCoinsDialog();
     sendCoinsPage = new SendCoinsDialog();

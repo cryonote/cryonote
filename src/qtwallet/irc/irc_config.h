@@ -3,6 +3,6 @@
 
 #define IRC_SERVER_HOST        "irc.freenode.net"
 #define IRC_SERVER_PORT        "6667"
-#define IRC_SERVER_CHANNEL     "pebblecoin"
+#define IRC_SERVER_CHANNEL     "cryonote"
 
 #endif

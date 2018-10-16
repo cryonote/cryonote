@@ -90,7 +90,7 @@ QValidator::State BitcoinAddressCheckValidator::validate(QString &input, int &po
 {
     Q_UNUSED(pos);
 
-    // Validate the passed Pebblecoin address
+    // Validate the passed CryoNote address
     cryptonote::account_public_address addr;
     if (cryptonote::get_account_address_from_str(addr, input.toStdString()))
         return QValidator::Acceptable;
