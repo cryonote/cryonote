@@ -1091,32 +1091,13 @@ void wallet2::mint_subcurrency(uint64_t currency, const std::string &description
 
   // Send it
   send_raw_tx_to_daemon(tx);
-
   wtxb.process_transaction_sent();
 
-  // Record success
-  LOG_PRINT_L2("transaction " << get_transaction_hash(tx) << " generated ok and sent to daemon");
+  // log success
+  crypto::hash tx_hash;
+  get_transaction_hash(tx, tx_hash);
 
-  known_transfer_details kd;
-  kd.m_tx_hash = get_transaction_hash(tx);
-  kd.m_dests = unsplit_dests;
-  kd.m_fee = fee;
-  //kd.m_xcn_change = all_change[cryptonote::CP_XCN];
-  //kd.m_all_change = all_change;
-  kd.m_currency_minted = currency;
-  kd.m_amount_minted = amount;
-  kd.m_delegate_id_registered = 0;
-  kd.m_registration_fee_paid = 0;
-  m_known_transfers[kd.m_tx_hash] = kd;
-
-  m_currency_keys[currency].push_back(tx_remint_keypair);
-
-  if (0 != m_callback)
-  {
-    m_callback->on_new_transfer(tx, kd);
-  }
-
-  LOG_PRINT_L0("Mint transaction successfully sent. <" << kd.m_tx_hash << ">" << ENDL
+  LOG_PRINT_L0("Mint transaction successfully sent. <" << tx_hash << ">" << ENDL
                 << "Minted " << print_money(amount, decimals) << " of " << currency << "(\"" << description << "\")" << ENDL
                 << "Please, wait for confirmation for your balance to be unlocked.");
 
@@ -1168,32 +1149,13 @@ void wallet2::remint_subcurrency(uint64_t currency, uint64_t amount, bool keep_r
 
   // Send it
   send_raw_tx_to_daemon(tx);
-
   wtxb.process_transaction_sent();
 
-  // Record success
-  LOG_PRINT_L2("transaction " << get_transaction_hash(tx) << " generated ok and sent to daemon");
+  // log success
+  crypto::hash tx_hash;
+  get_transaction_hash(tx, tx_hash);
 
-  known_transfer_details kd;
-  kd.m_tx_hash = get_transaction_hash(tx);
-  kd.m_dests = unsplit_dests;
-  kd.m_fee = fee;
-  //kd.m_xcn_change = all_change[cryptonote::CP_XCN];
-  //kd.m_all_change = all_change;
-  kd.m_currency_minted = currency;
-  kd.m_amount_minted = amount;
-  kd.m_delegate_id_registered = 0;
-  kd.m_registration_fee_paid = 0;
-  m_known_transfers[kd.m_tx_hash] = kd;
-
-  m_currency_keys[currency].push_back(tx_new_remint_keypair);
-
-  if (0 != m_callback)
-  {
-    m_callback->on_new_transfer(tx, kd);
-  }
-
-  LOG_PRINT_L0("Remint transaction successfully sent. <" << kd.m_tx_hash << ">" << ENDL
+  LOG_PRINT_L0("Remint transaction successfully sent. <" << tx_hash << ">" << ENDL
                 << "Minted " << print_money(amount, 0) << " of " << currency << ENDL
                 << "Please, wait for confirmation for your balance to be unlocked.");
 
