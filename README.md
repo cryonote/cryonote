@@ -1,3 +1,5 @@
+<img src="https://cryonote.cash/img/cryonote_logo.png" align="right" width="200">
+
 # CryoNote
 
 Copyright (c) 2018, The CryoNote Developers.   
