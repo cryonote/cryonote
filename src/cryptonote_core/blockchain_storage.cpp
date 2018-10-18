@@ -70,8 +70,8 @@ void blockchain_storage::print_sizes() const
                "m_currencies: " << m_currencies.size() << ENDL <<
                "m_contracts: " << m_contracts.size() << ENDL <<
                "m_used_currency_descriptions: " << m_used_currency_descriptions.size() << ENDL <<
-               "m_delegates:" << m_delegates.size() << ENDL <<
-               "m_vote_histories:" << m_vote_histories.size() << ENDL);
+               "m_delegates: " << m_delegates.size() << ENDL <<
+               "m_vote_histories: " << m_vote_histories.size() << ENDL);
 }
 //------------------------------------------------------------------
 //------------------------------------------------------------------
