@@ -13,7 +13,7 @@ Static Qt:
 - sudo make install , or add bin/ folder to PATH
 
 Set up build environment:
-- go to the pebblecoin root directory
+- go to the cryonote root directory
 - mkdir -p build/linux
 - cd build/linux
 - cmake -D STATIC=1 -D CMAKE_BUILD_TYPE=Release -G Ninja -Wno-dev ../..
