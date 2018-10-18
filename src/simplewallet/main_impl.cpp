@@ -70,7 +70,7 @@ simple_wallet::simple_wallet()
   m_cmd_binder.set_handler("start_mining", boost::bind(&simple_wallet::start_mining, this, _1), "start_mining [<number_of_threads>] - Start mining in daemon");
   m_cmd_binder.set_handler("stop_mining", boost::bind(&simple_wallet::stop_mining, this, _1), "Stop mining in daemon");
   m_cmd_binder.set_handler("viewkey", boost::bind(&simple_wallet::show_viewkey, this, _1), "Show current wallet view key");
-  m_cmd_binder.set_handler("spendkey", boost::bind(&simple_wallet::show_spendkey, this, _1), "show current wallet spend key");
+  m_cmd_binder.set_handler("spendkey", boost::bind(&simple_wallet::show_spendkey, this, _1), "Show current wallet spend key");
   m_cmd_binder.set_handler("refresh", boost::bind(&simple_wallet::refresh, this, _1), "Resynchronize transactions and balance");
   m_cmd_binder.set_handler("balance", boost::bind(&simple_wallet::show_balance, this, _1), "Show current wallet balance");
   m_cmd_binder.set_handler("incoming_transfers", boost::bind(&simple_wallet::show_incoming_transfers, this, _1), "incoming_transfers [available|unavailable] - Show incoming transfers - all of them or filter them by availability");
