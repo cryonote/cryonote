@@ -37,8 +37,8 @@ namespace cryptonote
     bool use_signed_hashes = true;
     const bool testnet_only = false;
 
-    uint64_t dpos_registration_start_block = 80000;
-    uint64_t dpos_switch_block = 100000;
+    uint64_t dpos_registration_start_block = 60000;
+    uint64_t dpos_switch_block = 80000;
     uint64_t dpos_num_delegates = 100;
 
     void enable_testnet()
