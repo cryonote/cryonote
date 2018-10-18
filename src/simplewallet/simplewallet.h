@@ -42,7 +42,7 @@ namespace cryptonote
 
     simple_wallet();
     ~simple_wallet();
-    
+
     bool init(const boost::program_options::variables_map& vm);
     bool deinit();
     bool run();
@@ -51,7 +51,7 @@ namespace cryptonote
     //wallet *create_wallet();
     bool process_command(const std::vector<std::string> &args);
     std::string get_commands_str();
-    
+
     static void init_options(boost::program_options::options_description& desc_params);
     static bool parse_command_line(int argc, char* argv[], boost::program_options::variables_map& vm);
     static void setup_logging(boost::program_options::variables_map& vm);
@@ -59,7 +59,7 @@ namespace cryptonote
   private:
     void init_http_client();
     void destroy_http_client();
-    
+
     void handle_command_line(const boost::program_options::variables_map& vm);
 
     bool run_console_handler();
@@ -72,6 +72,8 @@ namespace cryptonote
     bool start_mining(const std::vector<std::string> &args);
     bool stop_mining(const std::vector<std::string> &args);
     bool refresh(const std::vector<std::string> &args);
+    bool show_viewkey(const std::vector<std::string>& args);
+    bool show_spendkey(const std::vector<std::string>& args);
     bool show_balance(const std::vector<std::string> &args = std::vector<std::string>());
     bool show_incoming_transfers(const std::vector<std::string> &args);
     bool show_payments(const std::vector<std::string> &args);
@@ -91,11 +93,11 @@ namespace cryptonote
     bool add_delegates(const std::vector<std::string> &args);
     bool remove_delegates(const std::vector<std::string> &args);
     bool set_delegates(const std::vector<std::string> &args);
-    
+
     uint64_t get_daemon_blockchain_height(std::string& err);
     bool try_connect_to_daemon();
     bool ask_wallet_create_if_needed();
-    
+
     //----------------- i_wallet2_callback ---------------------
     virtual void on_new_block_processed(uint64_t height, const cryptonote::block& block);
     virtual void on_money_received(uint64_t height, const tools::wallet2_transfer_details& td);
@@ -110,7 +112,7 @@ namespace cryptonote
     public:
       refresh_progress_reporter_t(cryptonote::simple_wallet& simple_wallet);
       ~refresh_progress_reporter_t();
-      
+
       void update(uint64_t height, bool force = false);
 
     private:

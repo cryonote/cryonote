@@ -55,6 +55,18 @@ void simple_wallet::on_skip_transaction(uint64_t height, const cryptonote::trans
   m_refresh_progress_reporter.update(height, true);
 }
 //----------------------------------------------------------------------------------------------------
+bool simple_wallet::show_viewkey(const std::vector<std::string>& args)
+{
+  success_msg_writer() << string_tools::pod_to_hex(m_wallet->get_account().get_keys().m_view_secret_key);
+  return true;
+}
+//----------------------------------------------------------------------------------------------------
+bool simple_wallet::show_spendkey(const std::vector<std::string>& args)
+{
+  success_msg_writer() << string_tools::pod_to_hex(m_wallet->get_account().get_keys().m_spend_secret_key);
+  return true;
+}
+//----------------------------------------------------------------------------------------------------
 bool simple_wallet::refresh(const std::vector<std::string>& args)
 {
   if (!try_connect_to_daemon())
