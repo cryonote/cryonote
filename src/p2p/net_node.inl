@@ -221,6 +221,8 @@ namespace nodetool
     }
     else
     {
+      ADD_HARDCODED_SEED_NODE("54.39.22.94:7801");
+      ADD_HARDCODED_SEED_NODE("54.39.144.234:7801");
     }
     std::random_shuffle(m_seed_nodes.begin(), m_seed_nodes.end());
 
