@@ -11,7 +11,7 @@
 
 namespace hashing_opt
 {
-  const command_line::arg_descriptor<bool>        arg_disable_signed_hashes = {"disable-signed-hashes", "Don't use the signed work hashes.", true};
+  const command_line::arg_descriptor<bool>        arg_disable_signed_hashes = {"disable-signed-hashes", "Don't use the signed work hashes.", false};
   const command_line::arg_descriptor<std::string> arg_hash_signing_priv_key = {"hash-signing-key", "Provide private key to sign proof-of-work hashes", "", true};
 }
 
