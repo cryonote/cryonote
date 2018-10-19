@@ -73,8 +73,12 @@ namespace cryptonote
     keypair txkey = keypair::generate();
     add_tx_pub_key_to_extra(tx, txkey.pub);
     if(!extra_nonce.empty())
+    {
       if(!add_extra_nonce_to_tx_extra(tx.extra, extra_nonce))
+      {
         return false;
+      }
+    }
 
     txin_gen in;
     in.height = height;
@@ -84,6 +88,12 @@ namespace cryptonote
     {
       LOG_PRINT_L0("Block is too big");
       return false;
+    }
+
+    // distribute the genesis reward to the miner
+    if (height == 1 && CRYPTONOTE_GENESIS_REWARD != 0)
+    {
+      block_reward = CRYPTONOTE_GENESIS_REWARD;
     }
 #if defined(DEBUG_CREATE_BLOCK_TEMPLATE)
     LOG_PRINT_L1("Creating block template: reward " << block_reward <<

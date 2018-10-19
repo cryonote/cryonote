@@ -1139,6 +1139,11 @@ bool blockchain_storage::validate_miner_transaction(const block& b, size_t cumul
     LOG_PRINT_L0("block size " << cumulative_block_size << " is bigger than allowed for this blockchain");
     return false;
   }
+  // allow tx containing genesis reward
+  if (get_block_height(b) <= 1 && CRYPTONOTE_GENESIS_REWARD != 0)
+  {
+    return true;
+  }
   if(base_reward + fee < money_in_use)
   {
     LOG_ERROR("coinbase transaction spend too much money (" << print_money(money_in_use) << "). Block reward is " << print_money(base_reward + fee) << "(" << print_money(base_reward) << "+" << print_money(fee) << ")");

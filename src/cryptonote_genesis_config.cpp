@@ -67,12 +67,12 @@ namespace cryptonote_opt
   };
 
   genesis_info mainnet_info = {
-    "",
-    UINT64_C(0),
-    "",
-    "",
-    "",
-    "",
+    "The Times 18/Oct/2018 Trade war risks millions of jobs",
+    UINT64_C(1539899692),
+    "011e01ff00002101da20bc83273c5ec157cb0b5cf55ba229b9dcdcc60d29bd3ee160cc6fb0b283e2",
+    "0a8f7c2478395494d475636761d0b8e276d1d5f4d7b98717f7fee728b9afd966",
+    "b02ef300654aa4459a0959abe2c5a2e23cae521604d397b29b2af27bcb798ea2",
+    "7434a8575b3c7cd32e6c649ee7933c9b5ee34782cd96c48af325a2b5deb6190e0413da112f1ca93bfecbc9b9022b676d97c9068c50e11e76a0271f36f7fe4c06",
   };
 
   genesis_info testnet_info = {

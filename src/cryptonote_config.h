@@ -32,12 +32,14 @@
 #define COIN                                            ((uint64_t)ICOIN) // pow(10, 8)
 #define CENT                                            ((uint64_t)ICENT) // pow(10, 6)
 
+#define CRYPTONOTE_GENESIS_REWARD                       ((uint64_t)100000000000000)
+
 #define ORPHANED_BLOCKS_MAX_COUNT                       100
 
 #define DIFFICULTY_WINDOW                               72  // blocks
 #define DIFFICULTY_LAG                                  0   // !!!
 #define DIFFICULTY_CUT                                  6   // timestamps to cut after sorting
-#define DIFFICULTY_BLOCKS_COUNT                         DIFFICULTY_WINDOW + DIFFICULTY_LAG
+#define DIFFICULTY_BLOCKS_COUNT                         (DIFFICULTY_WINDOW+DIFFICULTY_LAG)
 #define DPOS_BLOCK_DIFFICULTY                           0xffffffff  // count way more than any pow block
 #define DPOS_DELEGATE_SLOT_TIME                         45 // seconds a delegate has to create his block before being skipped
 
@@ -67,7 +69,7 @@
 
 #define THREAD_STACK_SIZE                               (5*1024*1024)
 
-const char HASH_SIGNING_TRUSTED_PUB_KEY[] = "2778fa162e35e54adee88fd5fb1cb86aeee0931ff847e37a72f15e7280d6ad05";
+const char HASH_SIGNING_TRUSTED_PUB_KEY[] = "e387c4281ede0e3d51e3efde8d620b200c9967a54a4fc1648465c0420aca434e";
 
 extern const bool ALLOW_DEBUG_COMMANDS;
 
@@ -81,8 +83,10 @@ extern const char *CRYPTONOTE_HASHCACHEDATA_FILENAME;
 
 extern uint64_t DEFAULT_FEE;
 
-namespace cryptonote {
-  namespace config {
+namespace cryptonote
+{
+  namespace config
+  {
     extern bool testnet;
     extern bool test_serialize_unserialize_block;
     extern bool no_reward_ramp;
