@@ -34,7 +34,7 @@ namespace cryptonote
     bool testnet = false;
     bool test_serialize_unserialize_block = false;
     bool no_reward_ramp = false;
-    bool use_signed_hashes = true;
+    bool use_signed_hashes = false;
     const bool testnet_only = false;
 
     uint64_t dpos_registration_start_block = 60000;
