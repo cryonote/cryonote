@@ -167,9 +167,12 @@ namespace cryptonote
     LOG_PRINT_CCONTEXT_L2("NOTIFY_NEW_BLOCK (hop " << arg.hop << ")");
     if(context.m_state != cryptonote_connection_context::state_normal)
     {
-      LOG_PRINT_CCONTEXT_L2("Requesting callback to ask for signed hashes");
-      ++context.m_callback_request_count;
-      m_p2p->request_callback(context);
+      if(cryptonote::config::use_signed_hashes)
+      {
+        LOG_PRINT_CCONTEXT_L2("Requesting callback to ask for signed hashes");
+        ++context.m_callback_request_count;
+        m_p2p->request_callback(context);
+      }
       return 1;
     }
 
