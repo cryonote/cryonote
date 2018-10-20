@@ -459,7 +459,7 @@ namespace cryptonote
     if(!m_core.check_incoming_block_size(blockblob))
     {
       error_resp.code = CORE_RPC_ERROR_CODE_WRONG_BLOCKBLOB_SIZE;
-      error_resp.message = "Block bloc size is too big, rejecting block";
+      error_resp.message = "Block block size is too big, rejecting block";
       return false;
     }
     if(!m_core.handle_block_found(b))
