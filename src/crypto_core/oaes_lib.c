@@ -31,7 +31,12 @@
 #include <stddef.h>
 #include <time.h>
 #include <sys/timeb.h>
-#include <malloc.h>
+#include <stdlib.h>
+
+#if !defined(__APPLE__)
+	#include <malloc.h>
+#endif
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
