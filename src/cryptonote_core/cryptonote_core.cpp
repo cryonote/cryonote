@@ -512,7 +512,6 @@ namespace cryptonote
       return false;
     }
 
-
     block b = AUTO_VAL_INIT(b);
     if(!parse_and_validate_block_from_blob(block_blob, b))
     {
@@ -528,6 +527,18 @@ namespace cryptonote
       update_miner_block_template();
     }
 
+    return true;
+  }
+  //-----------------------------------------------------------------------------------------------
+  // Used by the RPC server to check the size of an incoming
+  // block_blob
+  bool core::check_incoming_block_size(const blobdata& block_blob)
+  {
+    if(block_blob.size() > get_max_block_size())
+    {
+      LOG_PRINT_L1("WRONG BLOCK BLOB, too big size " << block_blob.size() << ", rejected");
+      return false;
+    }
     return true;
   }
   //-----------------------------------------------------------------------------------------------
