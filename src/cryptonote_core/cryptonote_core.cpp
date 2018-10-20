@@ -432,10 +432,10 @@ namespace cryptonote
     block_verification_context bvc = boost::value_initialized<block_verification_context>();
     m_miner.pause();
     add_new_block(b, bvc);
-    //anyway - update miner template
+
+    // anyway - update miner template
     update_miner_block_template();
     m_miner.resume();
-
 
     CHECK_AND_ASSERT_MES(!bvc.m_verification_failed, false, "mined block failed verification");
     if(bvc.m_added_to_main_chain)
@@ -452,13 +452,17 @@ namespace cryptonote
         LOG_PRINT_L0("Block found but, seems that reorganize just happened after that, do not relay this block");
         return true;
       }
+
       CHECK_AND_ASSERT_MES(txs.size() == b.tx_hashes.size() && !missed_txs.size(), false, "cant find some transactions in found block:" << get_block_hash(b) << " txs.size()=" << txs.size()
         << ", b.tx_hashes.size()=" << b.tx_hashes.size() << ", missed_txs.size()" << missed_txs.size());
 
       block_to_blob(b, arg.b.block);
-      //pack transactions
+
+      // pack transactions
       BOOST_FOREACH(auto& tx,  txs)
+      {
         arg.b.txs.push_back(t_serializable_object_to_blob(tx));
+      }
 
       m_pprotocol->relay_block(arg, exclude_context);
     }
@@ -490,7 +494,9 @@ namespace cryptonote
       }
 
       if (m_callback)
+      {
         m_callback->on_new_block_added(get_block_height(b), b);
+      }
     }
 
     return r;
@@ -514,10 +520,14 @@ namespace cryptonote
       bvc.m_verification_failed = true;
       return false;
     }
+
     // if block fails to add, bvc will contain the error - this function returns true for having been able to try to handle it
     add_new_block(b, bvc);
     if(update_miner_blocktemplate && bvc.m_added_to_main_chain)
-       update_miner_block_template();
+    {
+      update_miner_block_template();
+    }
+
     return true;
   }
   //-----------------------------------------------------------------------------------------------
