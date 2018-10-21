@@ -22,29 +22,193 @@ using boost::asio::ip::udp;
 namespace tools
 {
   static const char *DEFAULT_NTP_SERVERS[] = {
-    "0.pool.ntp.org",
-    "1.pool.ntp.org",
-    "2.pool.ntp.org",
-    "3.pool.ntp.org",
-    "ntp.ubuntu.com",
-    "ntp-nist.ldsbc.edu",
-    "2.fr.pool.ntp.org",
-    "0.europe.pool.ntp.org",
-    "1.europe.pool.ntp.org",
-    "2.europe.pool.ntp.org",
-    "3.europe.pool.ntp.org",
-    "1.oceania.pool.ntp.org",
+    // Apple
+    "time.apple.com",
+
+    // Microsoft
+    "time.windows.com",
+
+    // Google
+    "time1.google.com",
+    "time2.google.com",
+    "time3.google.com",
+    "time4.google.com",
+
+    // Hurricane Electric
+    "clock.sjc.he.net",
+    "clock.nyc.he.net",
+
+    // Russian Federation
+    "ntp.karelia.pro",
+    "ntp.alpet.me",
+    "aviel.alpet.me",
+    "ntp.sampo.ru",
+    "ntp.szt.ru",
+    "ntp.ix.ru",
+    "ntp1.stratum2.ru",
+    "ntp2.stratum2.ru",
+    "ntp3.stratum2.ru",
+    "ntp4.stratum2.ru",
+    "ntp5.stratum2.ru",
+    "ntp1.stratum1.ru",
+    "ntp2.stratum1.ru",
+    "ntp3.stratum1.ru",
+    "ntp4.stratum1.ru",
+    "ntp5.stratum1.ru",
+    "ntp1.vniiftri.ru",
+    "ntp2.vniiftri.ru",
+    "ntp3.vniiftri.ru",
+    "ntp4.vniiftri.ru",
+    "ntp21.vniiftri.ru",
+    "ntp1.niiftri.irkutsk.ru",
+    "ntp2.niiftri.irkutsk.ru",
+    "vniiftri.khv.ru",
+    "vniiftri2.khv.ru",
+    "ntp0.zenon.net",
+    "ntp.mobatime.ru",
+    "0.ru.pool.ntp.org",
+    "1.ru.pool.ntp.org",
+    "2.ru.pool.ntp.org",
+    "3.ru.pool.ntp.org",
+
+    // United States
+    "tock.cs.unlv.edu",
+    "timex.cs.columbia.edu",
+    "tick.cs.unlv.edu",
+    "sundial.columbia.edu",
+    "ntp-1.ece.cmu.edu",
+    "ntp-2.ece.cmu.edu",
+    "ntp-3.ece.cmu.edu",
+    "ntp1.cs.wisc.edu",
+    "ntp2.cs.wisc.edu",
+    "ntp3.cs.wisc.edu",
+    "ntp4.cs.wisc.edu",
+    "ntp-01.caltech.edu",
+    "ntp-02.caltech.edu",
+    "ntp-03.caltech.edu",
+    "ntp-04.caltech.edu",
+    "nist0-pa.ustiming.org",
     "nist1-pa.ustiming.org",
-    "time-c.nist.gov",
-    "wwv.nist.gov",
+    "nist2-pa.ustiming.org",
     "time.nist.gov",
+    "time-a.nist.gov",
+    "time-b.nist.gov",
+    "time-c.nist.gov",
+    "time-d.nist.gov",
+    "time-nw.nist.gov",
+    "nist1-macon.macon.ga.us",
+    "nist.netservicesgroup.com",
+    "wwv.nist.gov",
+    "time-a.timefreq.bldrdoc.gov",
+    "time-b.timefreq.bldrdoc.gov",
+    "time-c.timefreq.bldrdoc.gov",
     "utcnist.colorado.edu",
     "utcnist2.colorado.edu",
     "nist1-lv.ustiming.org",
     "time-nw.nist.gov",
-    "nist-time-server.eoni.com",
+    "ntp1.bu.edu",
+    "ntp2.bu.edu",
+    "ntp3.bu.edu",
+    "0.us.pool.ntp.org",
+    "1.us.pool.ntp.org",
+    "2.us.pool.ntp.org",
+    "3.us.pool.ntp.org",
+    "otc1.psu.edu",
+    "otc2.psu.edu",
+    "now.okstate.edu",
+    "ntp.colby.edu",
+    "bonehed.lcs.mit.edu",
+    "ntp-s1.cise.ufl.edu",
+
+    // South Africa
+    "ntp1.meraka.csir.co.za",
+    "ntp.is.co.za",
+    "ntp2.is.co.za",
+    "igubu.saix.net",
+    "ntp1.neology.co.za",
+    "ntp2.neology.co.za",
+    "tick.meraka.csir.co.za",
+    "tock.meraka.csir.co.za",
+    "ntp.time.org.za",
+    "ntp1.meraka.csir.co.za",
+    "ntp2.meraka.csir.co.za",
+    "0.za.pool.ntp.org",
+    "1.za.pool.ntp.org",
+    "2.za.pool.ntp.org",
+    "3.za.pool.ntp.org",
+
+    // Italy
+    "ntp0.ien.it",
+    "ntp1.ien.it",
+    "ntp2.ien.it",
+    "ntp1.inrim.it",
+    "ntp2.inrim.it",
+    "0.it.pool.ntp.org",
+    "1.it.pool.ntp.org",
+    "2.it.pool.ntp.org",
+    "3.it.pool.ntp.org",
+
+    // Netherlands
+    "ntp0.nl.net",
+    "ntp1.nl.net",
+    "ntp2.nl.net",
+    "ntp.utwente.nl",
+    "0.nl.pool.ntp.org",
+    "1.nl.pool.ntp.org",
+    "2.nl.pool.ntp.org",
+    "3.nl.pool.ntp.org",
+
+    // United Kingdom
+    "ntp2d.mcc.ac.uk",
+    "ntp2c.mcc.ac.uk",
+    "ntp2b.mcc.ac.uk",
+    "ntp.exnet.com",
+    "ntp.cis.strath.ac.uk",
+    "ntppub.le.ac.uk",
+    "0.uk.pool.ntp.org",
+    "1.uk.pool.ntp.org",
+    "2.uk.pool.ntp.org",
+    "3.uk.pool.ntp.org",
+
+    // Canada
+    "chime.utoronto.ca",
+    "tick.utoronto.ca",
+    "time.nrc.ca",
+    "timelord.uregina.ca",
+    "tock.utoronto.ca",
+    "0.ca.pool.ntp.org",
+    "1.ca.pool.ntp.org",
+    "2.ca.pool.ntp.org",
+    "3.ca.pool.ntp.org",
+
+    // Japan
+    "ntp.nict.jp",
+    "0.jp.pool.ntp.org",
+    "1.jp.pool.ntp.org",
+    "2.jp.pool.ntp.org",
+    "3.jp.pool.ntp.org",
+
+    // Australia
+    "ntp.cs.mu.oz.au",
+    "augean.eleceng.adelaide.edu.au",
+    "0.au.pool.ntp.org",
+    "1.au.pool.ntp.org",
+    "2.au.pool.ntp.org",
+    "3.au.pool.ntp.org",
+
+    // Slovenia
+    "time.ijs.si",
+
+    // Austria
+    "0.at.pool.ntp.org",
+    "1.at.pool.ntp.org",
+    "2.at.pool.ntp.org",
+    "3.at.pool.ntp.org",
+
+    // ???
+    "clepsydra.dec.com"
   };
-  static size_t N_DEFAULT_SERVERS = 21;
+  static size_t N_DEFAULT_SERVERS = 154;
 
   bool get_ntp_time(const std::string ntp_server, uint64_t ntp_port, time_t& ntp_time, time_t timeout_ms)
   {
