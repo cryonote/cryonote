@@ -78,10 +78,11 @@ namespace nodetool
       make_default_config();
     }
 
-    //at this moment we have hardcoded config
+    // at this moment we have hardcoded config
+    m_config.m_net_config.max_thread_count = P2P_DEFAULT_MAX_THREAD_COUNT;
     m_config.m_net_config.handshake_interval = P2P_DEFAULT_HANDSHAKE_INTERVAL;
     m_config.m_net_config.connections_count = P2P_DEFAULT_CONNECTIONS_COUNT;
-    m_config.m_net_config.packet_max_size = P2P_DEFAULT_PACKET_MAX_SIZE; //20 MB limit
+    m_config.m_net_config.packet_max_size = P2P_DEFAULT_PACKET_MAX_SIZE; // 20 MB limit
     m_config.m_net_config.config_id = 0; // initial config
     m_config.m_net_config.connection_timeout = P2P_DEFAULT_CONNECTION_TIMEOUT;
     m_config.m_net_config.ping_connection_timeout = P2P_DEFAULT_PING_CONNECTION_TIMEOUT;
@@ -224,6 +225,7 @@ namespace nodetool
       ADD_HARDCODED_SEED_NODE("54.39.22.94:7801");
       ADD_HARDCODED_SEED_NODE("54.39.144.234:7801");
     }
+
     std::random_shuffle(m_seed_nodes.begin(), m_seed_nodes.end());
 
     bool res = handle_command_line(vm);
@@ -236,21 +238,22 @@ namespace nodetool
     res = m_peerlist.init(m_allow_local_ip);
     CHECK_AND_ASSERT_MES(res, false, "Failed to init peerlist.");
 
-
     for(auto& p: m_command_line_peers)
+    {
       m_peerlist.append_with_peer_white(p);
+    }
 
-    //only in case if we really sure that we have external visible ip
+    // only in case if we really sure that we have external visible ip
     m_have_address = true;
     m_ip_address = 0;
     m_last_stat_request_time = 0;
 
-    //configure self
+    // configure self
     m_net_server.set_threads_prefix("P2P");
     m_net_server.get_config_object().m_pcommands_handler = this;
     m_net_server.get_config_object().m_invoke_timeout = P2P_DEFAULT_INVOKE_TIMEOUT;
 
-    //try to bind
+    // try to bind
     LOG_PRINT_L0("Binding on " << m_bind_ip << ":" << m_port);
     res = m_net_server.init_server(m_port, m_bind_ip);
     CHECK_AND_ASSERT_MES(res, false, "Failed to bind server");
@@ -258,7 +261,9 @@ namespace nodetool
     m_listenning_port = m_net_server.get_binded_port();
     LOG_PRINT_GREEN("Net service binded on " << m_bind_ip << ":" << m_listenning_port, LOG_LEVEL_0);
     if(m_external_port)
+    {
       LOG_PRINT_L0("External port defined as " << m_external_port);
+    }
 
     // Add UPnP port mapping
     LOG_PRINT_L0("Attempting to add IGD port mapping.");
@@ -318,7 +323,8 @@ namespace nodetool
   {
     // here you can set worker threads count, by default just get the
     // maximum number of concurrent threads based on the user's hardware...
-    int thread_count = std::thread::hardware_concurrency();
+    size_t thread_count = std::thread::hardware_concurrency();
+    thread_count = std::min(thread_count, m_config.m_net_config.max_thread_count);
 
     m_net_server.add_idle_handler(boost::bind(&node_server<t_payload_net_handler>::idle_worker, this), 1000);
     m_net_server.add_idle_handler(boost::bind(&t_payload_net_handler::on_idle, &m_payload_handler), 1000);
@@ -336,7 +342,6 @@ namespace nodetool
     LOG_PRINT("net_service loop stopped.", LOG_LEVEL_0);
     return true;
   }
-
   //-----------------------------------------------------------------------------------
   template<class t_payload_net_handler>
   uint64_t node_server<t_payload_net_handler>::get_connections_count()
@@ -510,7 +515,9 @@ namespace nodetool
   {
 
     if(m_config.m_peer_id == peer.id)
+    {
       return true;//dont make connections to ourself
+    }
 
     bool used = false;
     m_net_server.get_config_object().foreach_connection([&](const p2p_connection_context& cntxt)

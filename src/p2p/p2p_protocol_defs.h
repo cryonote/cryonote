@@ -43,11 +43,11 @@ namespace nodetool
 
   inline bool operator <(const net_address& a, const net_address& b)
   {
-    return  epee::misc_utils::is_less_as_pod(a, b);
+    return epee::misc_utils::is_less_as_pod(a, b);
   }
   inline bool operator ==(const net_address& a, const net_address& b)
   {
-    return  memcmp(&a, &b, sizeof(a)) == 0;
+    return memcmp(&a, &b, sizeof(a)) == 0;
   }
   inline std::ostream &operator <<(std::ostream &o, const net_address& a)
   {
@@ -76,6 +76,7 @@ namespace nodetool
       KV_SERIALIZE(config_id)
     END_KV_SERIALIZE_MAP()
 
+    size_t max_thread_count;
     uint32_t connections_count;
     uint32_t connection_timeout;
     uint32_t ping_connection_timeout;
