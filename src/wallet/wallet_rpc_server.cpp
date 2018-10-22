@@ -110,7 +110,6 @@ namespace tools
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::on_transfer(const wallet_rpc::COMMAND_RPC_TRANSFER::request& req, wallet_rpc::COMMAND_RPC_TRANSFER::response& res, epee::json_rpc::error& er, connection_context& cntx)
   {
-
     std::vector<cryptonote::tx_destination_entry> dsts;
     for (auto it = req.destinations.begin(); it != req.destinations.end(); it++)
     {
@@ -124,10 +123,33 @@ namespace tools
       de.amount = it->amount;
       dsts.push_back(de);
     }
+
+    std::vector<uint8_t> extra;
+    if (!req.payment_id.empty())
+    {
+      const std::string& payment_id_str = req.payment_id;
+      crypto::hash payment_id;
+      if (!cryptonote::parse_payment_id(payment_id_str, payment_id))
+      {
+        er.code = WALLET_RPC_ERROR_CODE_WRONG_PAYMENT_ID;
+        er.message = "Payment ID has invalid format!";
+        return false;
+      }
+
+      std::string extra_nonce;
+      cryptonote::set_payment_id_to_tx_extra_nonce(extra_nonce, payment_id);
+      if (!cryptonote::add_extra_nonce_to_tx_extra(extra, extra_nonce))
+      {
+        er.code = WALLET_RPC_ERROR_CODE_WRONG_PAYMENT_ID;
+        er.message = "Something went wront with payment_id. Please check its format: \"" + payment_id_str + "\", expected 64-character string";
+        return false;
+      }
+    }
+
     try
     {
       cryptonote::transaction tx;
-      m_wallet->transfer(dsts, req.mixin, req.mixin, req.unlock_time, req.fee, std::vector<uint8_t>(), tx);
+      m_wallet->transfer(dsts, req.mixin, req.mixin, req.unlock_time, req.fee, extra, tx);
       res.tx_hash = boost::lexical_cast<std::string>(cryptonote::get_transaction_hash(tx));
       return true;
     }

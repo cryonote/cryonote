@@ -117,6 +117,7 @@ namespace tools
     friend class wallet_tx_builder;
 
     wallet2(const wallet2&);
+
   public:
     typedef wallet2_transfer_details transfer_details;
     typedef wallet2_known_transfer_details known_transfer_details;
