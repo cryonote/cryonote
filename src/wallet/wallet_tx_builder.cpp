@@ -25,7 +25,8 @@
 
 using tools::map_filter;
 
-namespace {
+namespace
+{
 //----------------------------------------------------------------------------------------------------
 cryptonote::currency_map calculate_needed_money(std::vector<cryptonote::tx_destination_entry> dests, uint64_t fee)
 {
@@ -71,12 +72,13 @@ void print_source_entry(const cryptonote::tx_source_entry& src)
 
 }
 
-namespace tools {
-
+namespace tools
+{
 class wallet_tx_builder::impl
 {
 private:
-  enum state {
+  enum state
+  {
     Uninitialized,
     InProgress,
     Finalized,
@@ -123,6 +125,7 @@ private:
   uint64_t select_batches_for_votes(uint64_t num_votes, uint64_t dust, const cryptonote::delegate_votes& voting_set,
                                     std::list<size_t>& batch_is);
   uint64_t select_transfers_for_votes(uint64_t num_votes, uint64_t dust, std::list<size_t>& transfer_is, size_t min_fake_outs);
+
   // for spending
   uint64_t select_transfers_for_spend(const cryptonote::coin_type& currency, uint64_t needed_money, uint64_t max_dusts,
                                       uint64_t dust, std::list<size_t>& transfer_is, size_t min_fake_outs);
@@ -185,7 +188,9 @@ bool wallet_tx_builder::impl::batch_being_spent(size_t i) const
 size_t wallet_tx_builder::impl::filter_scanty_outs(std::vector<size_t>& transfer_indices, size_t min_fake_outs)
 {
   if (min_fake_outs == 0)
+  {
     return 0;
+  }
 
   std::list<size_t> for_fakes;
   for_fakes.insert(for_fakes.end(), transfer_indices.begin(), transfer_indices.end());
@@ -209,14 +214,15 @@ size_t wallet_tx_builder::impl::filter_scanty_outs(std::vector<size_t>& transfer
   }
 
   transfer_indices = new_indices;
-
   return num_filtered;
 }
 //----------------------------------------------------------------------------------------------------
 size_t wallet_tx_builder::impl::pop_random_weighted_transfer(std::vector<size_t>& indices)
 {
   if (indices.empty())
+  {
     throw std::runtime_error("Can't get random from empty list");
+  }
 
   uint64_t sum = tools::sum(indices, [this](size_t i) { return this->m_wallet.m_transfers[i].amount(); });
 
@@ -245,20 +251,31 @@ uint64_t wallet_tx_builder::impl::select_transfers_for_votes(uint64_t num_votes,
     const auto& td = m_wallet.m_transfers[i];
 
     if (td.cp() != cryptonote::CP_XCN)
+    {
       continue;
+    }
     if (td.m_spent)
+    {
       continue;
+    }
     if (!m_wallet.is_transfer_unlocked(td))
+    {
       continue;
+    }
     if (transfer_being_spent(i))
+    {
       continue;
+    }
     if (td.amount() <= dust) // don't vote with dusts
+    {
       continue;
+    }
 
     size_t voting_batch_index = m_wallet.m_votes_info.m_transfer_batch_map[i];
-
     if (voting_batch_index != 0) // don't use if in a voting batch
+    {
       continue;
+    }
 
     unused_transfers_indices.push_back(i);
   }
@@ -273,7 +290,9 @@ uint64_t wallet_tx_builder::impl::select_transfers_for_votes(uint64_t num_votes,
     transfer_is.push_back(idx);
     found_votes += m_wallet.m_transfers[idx].amount();
     if (transfer_is.size() >= MAX_VOTE_INPUTS_PER_TX)
+    {
       break;
+    }
   }
 
   return found_votes;
@@ -294,9 +313,13 @@ uint64_t wallet_tx_builder::impl::select_batches_for_votes(uint64_t num_votes, u
                               error::wallet_internal_error, "voting batch with no vote history");
 
     if (batch.spent(m_wallet))
+    {
       continue;
+    }
     if (batch_being_spent(i))
+    {
       continue;
+    }
 
     // only use if there's something to update
     size_t num_unwanted = set_sub(batch.m_vote_history.back(), voting_set).size();
@@ -320,7 +343,9 @@ uint64_t wallet_tx_builder::impl::select_batches_for_votes(uint64_t num_votes, u
     batch_is.push_back(inf.second);
     found_votes += m_wallet.m_votes_info.m_batches[inf.second].amount(m_wallet);
     if (found_votes >= num_votes)
+    {
       break;
+    }
   }
 
   return found_votes;
@@ -338,17 +363,27 @@ uint64_t wallet_tx_builder::impl::select_transfers_for_spend(const cryptonote::c
   {
     const auto& td = m_wallet.m_transfers[i];
     if (td.cp() != cp)
+    {
       continue;
+    }
     if (td.m_spent)
+    {
       continue;
+    }
     if (!m_wallet.is_transfer_unlocked(td))
+    {
       continue;
+    }
     if (transfer_being_spent(i))
+    {
       continue;
+    }
 
     size_t voting_batch_index = m_wallet.m_votes_info.m_transfer_batch_map[i];
     if (voting_batch_index != 0) // don't use if in a batch
+    {
       continue;
+    }
 
     if (dust < td.amount())
       unused_transfers_indices.push_back(i);
@@ -413,9 +448,13 @@ uint64_t wallet_tx_builder::impl::select_batches_for_spend(uint64_t needed_money
                               error::wallet_internal_error, "voting batch with no vote history");
 
     if (batch.spent(m_wallet))
+    {
       continue;
+    }
     if (batch_being_spent(i))
+    {
       continue;
+    }
 
     batch_infos.push_back(std::make_pair(batch.amount(m_wallet), i));
   }
@@ -429,7 +468,9 @@ uint64_t wallet_tx_builder::impl::select_batches_for_spend(uint64_t needed_money
     batch_is.push_back(inf.second);
     found_money += m_wallet.m_votes_info.m_batches[inf.second].amount(m_wallet);
     if (found_money >= needed_money)
+    {
       break;
+    }
   }
 
   return found_money;
@@ -449,9 +490,13 @@ cryptonote::tx_destination_entry wallet_tx_builder::impl::process_change_dests(
       change_dest.cp = item.first;
       change_dest.amount = found_money[item.first] - needed_money[item.first];
       if (item.first == cryptonote::CP_XCN)
+      {
         xcn_change_dest = change_dest;
+      }
       else
+      {
         all_dests.push_back(change_dest);
+      }
     }
   }
 
@@ -481,13 +526,17 @@ std::vector<cryptonote::tx_source_entry> wallet_tx_builder::impl::prepare_inputs
       BOOST_FOREACH(const auto& daemon_oe, these_fakes[i])
       {
         if(td.m_global_output_index == daemon_oe.global_amount_index)
+        {
           continue;
+        }
         tx_output_entry oe;
         oe.first = daemon_oe.global_amount_index;
         oe.second = daemon_oe.out_key;
         src.outputs.push_back(oe);
         if(src.outputs.size() >= fake_outputs_count)
+        {
           break;
+        }
       }
     }
 
@@ -667,8 +716,6 @@ void wallet_tx_builder::impl::add_send(const std::vector<cryptonote::tx_destinat
   m_spend_batch_is.splice(m_spend_batch_is.end(), batch_is);
 
   m_state = InProgress;
-
-  return;
 }
 //----------------------------------------------------------------------------------------------------
 void wallet_tx_builder::impl::add_mint(uint64_t currency, const std::string& description, uint64_t amount, uint64_t decimals,
@@ -836,7 +883,6 @@ uint64_t wallet_tx_builder::impl::add_votes(size_t min_fake_outs, size_t fake_ou
   }
 
   m_state = InProgress;
-
   return result;
 }
 //----------------------------------------------------------------------------------------------------
@@ -904,8 +950,6 @@ void wallet_tx_builder::impl::finalize(cryptonote::transaction& tx)
   tx = m_finalized_tx;
 
   m_state = Finalized;
-
-  return;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -1007,8 +1051,6 @@ void wallet_tx_builder::impl::process_transaction_sent()
   }
 
   m_state = ProcessedSent;
-
-  return;
 }
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
@@ -1075,5 +1117,4 @@ void wallet_tx_builder::process_transaction_sent()
   return m_pimpl->process_transaction_sent();
 }
 //----------------------------------------------------------------------------------------------------
-
 }

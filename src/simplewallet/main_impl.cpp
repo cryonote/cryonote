@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 #if defined(WIN32)
-#include <crtdbg.h>
+  #include <crtdbg.h>
 #endif
 
 #include <boost/program_options.hpp>
@@ -286,20 +286,34 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm)
   }
 
   size_t c = 0;
-  if(!m_generate_new.empty()) ++c;
-  if(!m_wallet_file.empty()) ++c;
+  if(!m_generate_new.empty())
+  {
+    ++c;
+  }
+  if(!m_wallet_file.empty())
+  {
+    ++c;
+  }
   if (1 != c)
   {
     if(!ask_wallet_create_if_needed())
+    {
       return false;
+    }
   }
 
   if (m_daemon_host.empty())
+  {
     m_daemon_host = "localhost";
+  }
   if (!m_daemon_port)
+  {
     m_daemon_port = cryptonote::config::rpc_default_port();
+  }
   if (m_daemon_address.empty())
+  {
     m_daemon_address = std::string("http://") + m_daemon_host + ":" + std::to_string(m_daemon_port);
+  }
 
   tools::password_container pwd_container;
   if (command_line::has_arg(vm, arg_password))
@@ -333,7 +347,9 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm)
 bool simple_wallet::deinit()
 {
   if (!m_wallet.get())
+  {
     return true;
+  }
 
   return close_wallet();
 }
@@ -446,8 +462,6 @@ bool simple_wallet::process_command(const std::vector<std::string> &args)
   return m_pcmd_binder->process_command_vec(args);
 }
 //----------------------------------------------------------------------------------------------------
-
-
 int main(int argc, char* argv[])
 {
 #ifdef WIN32
@@ -458,10 +472,11 @@ int main(int argc, char* argv[])
 
   po::variables_map vm;
   if (!simple_wallet::parse_command_line(argc, argv, vm))
+  {
     return 1;
+  }
 
   simple_wallet::setup_logging(vm);
-
   if (!cryptonote_opt::handle_command_line(vm))
   {
     return 1;
@@ -471,17 +486,17 @@ int main(int argc, char* argv[])
   {
     log_space::log_singletone::add_logger(LOGGER_CONSOLE, NULL, NULL, LOG_LEVEL_2);
     //runs wallet with rpc interface
-    if(!command_line::has_arg(vm, arg_wallet_file) )
+    if(!command_line::has_arg(vm, arg_wallet_file))
     {
       LOG_ERROR("Wallet file not set.");
       return 1;
     }
-    if(!command_line::has_arg(vm, arg_daemon_address) )
+    if(!command_line::has_arg(vm, arg_daemon_address))
     {
       LOG_ERROR("Daemon address not set.");
       return 1;
     }
-    if(!command_line::has_arg(vm, arg_password) )
+    if(!command_line::has_arg(vm, arg_password))
     {
       LOG_ERROR("Wallet password not set.");
       return 1;
@@ -493,11 +508,17 @@ int main(int argc, char* argv[])
     std::string daemon_host = command_line::get_arg(vm, arg_daemon_host);
     int daemon_port = command_line::get_arg(vm, arg_daemon_port);
     if (daemon_host.empty())
+    {
       daemon_host = "localhost";
+    }
     if (!daemon_port)
+    {
       daemon_port = cryptonote::config::rpc_default_port();
+    }
     if (daemon_address.empty())
+    {
       daemon_address = std::string("http://") + daemon_host + ":" + std::to_string(daemon_port);
+    }
 
     tools::wallet2 wal;
     try
@@ -513,11 +534,13 @@ int main(int argc, char* argv[])
       LOG_ERROR("Wallet initialize failed: " << e.what());
       return 1;
     }
-    tools::wallet_rpc_server wrpc(wal);
+    tools::wallet_rpc_server wrpc;
+    wrpc.set_wallet(&wal);
     bool r = wrpc.init(vm);
     CHECK_AND_ASSERT_MES(r, 1, "Failed to initialize wallet rpc server");
 
-    tools::signal_handler::install([&wrpc, &wal] {
+    tools::signal_handler::install([&wrpc, &wal]
+    {
       wrpc.send_stop_signal();
       wal.store();
     });
@@ -538,19 +561,22 @@ int main(int argc, char* argv[])
   }else
   {
     cryptonote::simple_wallet w;
-    //runs wallet with console interface
+
+    // runs wallet with console interface
     bool r = w.init(vm);
     CHECK_AND_ASSERT_MES(r, 1, "Failed to initialize wallet");
 
     std::vector<std::string> command = command_line::get_arg(vm, arg_command);
     if (!command.empty())
+    {
       w.process_command(command);
+    }
 
-    tools::signal_handler::install([&w] {
+    tools::signal_handler::install([&w]
+    {
       w.stop();
     });
     w.run();
-
     w.deinit();
   }
   return 1;

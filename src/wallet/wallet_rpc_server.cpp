@@ -33,17 +33,32 @@ namespace tools
     command_line::add_arg(desc, arg_rpc_bind_port);
   }
   //------------------------------------------------------------------------------------------------------------------------------
-  wallet_rpc_server::wallet_rpc_server(wallet2& w):m_wallet(w)
-  {}
+  wallet_rpc_server::wallet_rpc_server():m_wallet(NULL)
+  {
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  wallet_rpc_server::~wallet_rpc_server()
+  {
+    if (m_wallet)
+    {
+      delete m_wallet;
+    }
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  void wallet_rpc_server::set_wallet(wallet2 *w)
+  {
+    m_wallet = w;
+  }
   //------------------------------------------------------------------------------------------------------------------------------
   bool wallet_rpc_server::run()
   {
-    m_net_server.add_idle_handler([this](){
-      m_wallet.refresh();
+    m_net_server.add_idle_handler([this]()
+    {
+      m_wallet->refresh();
       return true;
     }, 20000);
 
-    //DO NOT START THIS SERVER IN MORE THEN 1 THREADS WITHOUT REFACTORING
+    // DO NOT START THIS SERVER IN MORE THEN 1 THREADS WITHOUT REFACTORING
     return epee::http_server_impl_base<wallet_rpc_server, connection_context>::run(1, true);
   }
   //------------------------------------------------------------------------------------------------------------------------------
@@ -66,8 +81,23 @@ namespace tools
   {
     try
     {
-      res.balance = m_wallet.balance()[cryptonote::CP_XCN];
-      res.unlocked_balance = m_wallet.unlocked_balance()[cryptonote::CP_XCN];
+      res.balance = m_wallet->balance()[cryptonote::CP_XCN];
+      res.unlocked_balance = m_wallet->unlocked_balance()[cryptonote::CP_XCN];
+    }
+    catch (std::exception& e)
+    {
+      er.code = WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR;
+      er.message = e.what();
+      return false;
+    }
+    return true;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  bool wallet_rpc_server::on_getaddress(const wallet_rpc::COMMAND_RPC_GET_ADDRESS::request& req, wallet_rpc::COMMAND_RPC_GET_ADDRESS::response& res, epee::json_rpc::error& er, connection_context& cntx)
+  {
+    try
+    {
+      res.address = m_wallet->get_account().get_public_address_str();
     }
     catch (std::exception& e)
     {
@@ -97,7 +127,7 @@ namespace tools
     try
     {
       cryptonote::transaction tx;
-      m_wallet.transfer(dsts, req.mixin, req.mixin, req.unlock_time, req.fee, std::vector<uint8_t>(), tx);
+      m_wallet->transfer(dsts, req.mixin, req.mixin, req.unlock_time, req.fee, std::vector<uint8_t>(), tx);
       res.tx_hash = boost::lexical_cast<std::string>(cryptonote::get_transaction_hash(tx));
       return true;
     }
@@ -126,7 +156,7 @@ namespace tools
   {
     try
     {
-      m_wallet.store();
+      m_wallet->store();
     }
     catch (std::exception& e)
     {
@@ -144,14 +174,14 @@ namespace tools
     if(!epee::string_tools::parse_hexstr_to_binbuff(req.payment_id, payment_id_blob))
     {
       er.code = WALLET_RPC_ERROR_CODE_WRONG_PAYMENT_ID;
-      er.message = "Payment ID has invald format";
+      er.message = "Payment ID has invalid format!";
       return false;
     }
 
     if(sizeof(payment_id) != payment_id_blob.size())
     {
       er.code = WALLET_RPC_ERROR_CODE_WRONG_PAYMENT_ID;
-      er.message = "Payment ID has invalid size";
+      er.message = "Payment ID has invalid size: " + std::to_string(sizeof(payment_id)) + " expected: " + std::to_string(payment_id_blob.size());
       return false;
     }
 
@@ -159,7 +189,7 @@ namespace tools
 
     res.payments.clear();
     std::list<wallet2::payment_details> payment_list;
-    m_wallet.get_payments(payment_id, payment_list);
+    m_wallet->get_payments(payment_id, payment_list);
     for (auto payment : payment_list)
     {
       wallet_rpc::payment_details rpc_payment;
@@ -168,6 +198,46 @@ namespace tools
       rpc_payment.block_height = payment.m_block_height;
       rpc_payment.unlock_time  = payment.m_unlock_time;
       res.payments.push_back(rpc_payment);
+    }
+
+    return true;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  bool wallet_rpc_server::on_get_bulk_payments(const wallet_rpc::COMMAND_RPC_GET_BULK_PAYMENTS::request& req, wallet_rpc::COMMAND_RPC_GET_BULK_PAYMENTS::response& res, epee::json_rpc::error& er, connection_context& cntx)
+  {
+    res.payments.clear();
+
+    for (auto & payment_id_str : req.payment_ids)
+    {
+      crypto::hash payment_id;
+      cryptonote::blobdata payment_id_blob;
+      if(!epee::string_tools::parse_hexstr_to_binbuff(payment_id_str, payment_id_blob))
+      {
+        er.code = WALLET_RPC_ERROR_CODE_WRONG_PAYMENT_ID;
+        er.message = "Payment ID has invalid format!";
+        return false;
+      }
+
+      if(sizeof(payment_id_str) != payment_id_blob.size())
+      {
+        er.code = WALLET_RPC_ERROR_CODE_WRONG_PAYMENT_ID;
+        er.message = "Payment ID has invalid size: " + std::to_string(sizeof(payment_id_str)) + " expected: " + std::to_string(payment_id_blob.size());
+        return false;
+      }
+
+      payment_id = *reinterpret_cast<const crypto::hash*>(payment_id_str.data());
+
+      std::list<wallet2::payment_details> payment_list;
+      m_wallet->get_payments(payment_id, payment_list);
+      for (auto & payment : payment_list)
+      {
+        wallet_rpc::payment_details rpc_payment;
+        rpc_payment.tx_hash      = epee::string_tools::pod_to_hex(payment.m_tx_hash);
+        rpc_payment.amount       = payment.m_amount;
+        rpc_payment.block_height = payment.m_block_height;
+        rpc_payment.unlock_time  = payment.m_unlock_time;
+        res.payments.push_back(std::move(rpc_payment));
+      }
     }
 
     return true;
