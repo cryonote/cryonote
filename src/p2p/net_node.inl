@@ -258,8 +258,8 @@ namespace nodetool
     res = m_net_server.init_server(m_port, m_bind_ip);
     CHECK_AND_ASSERT_MES(res, false, "Failed to bind server");
 
-    m_listenning_port = m_net_server.get_binded_port();
-    LOG_PRINT_GREEN("Net service binded on " << m_bind_ip << ":" << m_listenning_port, LOG_LEVEL_0);
+    m_listening_port = m_net_server.get_binded_port();
+    LOG_PRINT_GREEN("Net service binded on " << m_bind_ip << ":" << m_listening_port, LOG_LEVEL_0);
     if(m_external_port)
     {
       LOG_PRINT_L0("External port defined as " << m_external_port);
@@ -285,7 +285,7 @@ namespace nodetool
     if (result != 0) {
       if (result == 1) {
         std::ostringstream portString;
-        portString << m_listenning_port;
+        portString << m_listening_port;
         // delete the port mapping before we create it, just in case we have dangling
         // port mapping from the daemon not being shut down correctly
         UPNP_DeletePortMapping(urls.controlURL, igdData.first.servicetype, portString.str().c_str(), "TCP", 0);
@@ -827,7 +827,7 @@ namespace nodetool
     node_data.local_time = local_time;
     node_data.peer_id = m_config.m_peer_id;
     if(!m_hide_my_port)
-      node_data.my_port = m_external_port ? m_external_port : m_listenning_port;
+      node_data.my_port = m_external_port ? m_external_port : m_listening_port;
     else
       node_data.my_port = 0;
     node_data.network_id = network_id();
