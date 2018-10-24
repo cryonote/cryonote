@@ -3,7 +3,6 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-
 #include "include_base_utils.h"
 #include "misc_language.h"
 #include "string_tools.h"
@@ -132,7 +131,7 @@ namespace tools
       if (!cryptonote::parse_payment_id(payment_id_str, payment_id))
       {
         er.code = WALLET_RPC_ERROR_CODE_WRONG_PAYMENT_ID;
-        er.message = "Payment ID has invalid format!";
+        er.message = "Something went wront with payment_id. Please check its format: \"" + payment_id_str + "\", expected 64-character string";
         return false;
       }
 
@@ -236,7 +235,7 @@ namespace tools
       if(!epee::string_tools::parse_hexstr_to_binbuff(payment_id_str, payment_id_blob))
       {
         er.code = WALLET_RPC_ERROR_CODE_WRONG_PAYMENT_ID;
-        er.message = "Payment ID has invalid format!";
+        er.message = "Something went wront with payment_id. Please check its format: \"" + payment_id_str + "\", expected 64-character string";
         return false;
       }
 
