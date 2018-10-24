@@ -195,7 +195,7 @@ namespace tools
     if(!epee::string_tools::parse_hexstr_to_binbuff(req.payment_id, payment_id_blob))
     {
       er.code = WALLET_RPC_ERROR_CODE_WRONG_PAYMENT_ID;
-      er.message = "Something went wront with payment_id. Please check its format: \"" + payment_id_str + "\", expected 64-character string";
+      er.message = "Payment ID has invalid format!";
       return false;
     }
 
