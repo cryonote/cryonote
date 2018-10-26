@@ -33,6 +33,7 @@ namespace cryptonote
     typedef epee::net_utils::connection_context_base connection_context;
 
     core_rpc_server(core& cr, node_server_t& p2p);
+    ~core_rpc_server();
 
     static void init_options(boost::program_options::options_description& desc);
     bool init(const boost::program_options::variables_map& vm);

@@ -37,8 +37,13 @@ namespace cryptonote
     command_line::add_arg(desc, arg_rpc_bind_port);
   }
   //------------------------------------------------------------------------------------------------------------------------------
-  core_rpc_server::core_rpc_server(core& cr, node_server_t& p2p):m_core(cr), m_p2p(p2p)
-  {}
+  core_rpc_server::core_rpc_server(core& cr, node_server_t& p2p) : m_core(cr), m_p2p(p2p)
+  {
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  core_rpc_server::~core_rpc_server()
+  {
+  }
   //------------------------------------------------------------------------------------------------------------------------------
   bool core_rpc_server::handle_command_line(const boost::program_options::variables_map& vm)
   {
@@ -267,7 +272,6 @@ namespace cryptonote
       return true;
     }
 
-
     NOTIFY_NEW_TRANSACTIONS::request r;
     r.txs.push_back(tx_blob);
     m_core.get_protocol()->relay_transactions(r, fake_context);
@@ -339,17 +343,21 @@ namespace cryptonote
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------
-  uint64_t slow_memmem(void* start_buff, size_t buflen,void* pat,size_t patlen)
+  uint64_t slow_memmem(void* start_buff, size_t buflen, void* pat, size_t patlen)
   {
     void* buf = start_buff;
-    void* end=(char*)buf+buflen-patlen;
-    while((buf=memchr(buf,((char*)pat)[0],buflen)))
+    void* end = (char*)buf + buflen - patlen;
+    while((buf = memchr(buf, ((char*)pat)[0], buflen)))
     {
-      if(buf>end)
+      if(buf > end)
+      {
         return 0;
-      if(memcmp(buf,pat,patlen)==0)
+      }
+      if(memcmp(buf, pat, patlen) == 0)
+      {
         return (char*)buf - (char*)start_buff;
-      buf=(char*)buf+1;
+      }
+      buf = (char*)buf + 1;
     }
     return 0;
   }
@@ -631,7 +639,6 @@ namespace cryptonote
 
     res.autovote_delegates = std::vector<delegate_id_t>(set_delegates.begin(), set_delegates.end());
     res.status = CORE_RPC_STATUS_OK;
-
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------
@@ -661,7 +668,6 @@ namespace cryptonote
     }
 
     res.status = CORE_RPC_STATUS_OK;
-
     return true;
   }
 }
