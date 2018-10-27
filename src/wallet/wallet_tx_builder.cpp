@@ -335,7 +335,7 @@ uint64_t wallet_tx_builder::impl::select_batches_for_votes(uint64_t num_votes, u
 
   std::sort(batch_infos.rbegin(), batch_infos.rend()); // reversed sort
 
-  // use up to all usable batches - any anonimity regarding them has already been resolved
+  // use up to all usable batches - any anonymity regarding them has already been resolved
   uint64_t found_votes = 0;
   BOOST_FOREACH(const auto& inf, batch_infos)
   {
@@ -386,9 +386,13 @@ uint64_t wallet_tx_builder::impl::select_transfers_for_spend(const cryptonote::c
     }
 
     if (dust < td.amount())
+    {
       unused_transfers_indices.push_back(i);
+    }
     else
+    {
       unused_dust_indices.push_back(i);
+    }
   }
 
   filter_scanty_outs(unused_transfers_indices, min_fake_outs);
@@ -657,10 +661,15 @@ void wallet_tx_builder::impl::add_send(const std::vector<cryptonote::tx_destinat
       // if yes xcns, try spending a batch
       uint64_t amount_missing = needed_money[item.first] - found_money[item.first];
       uint64_t batch_found = select_batches_for_spend(amount_missing, batch_is);
-      THROW_WALLET_EXCEPTION_IF(batch_found < amount_missing,
-                                error::not_enough_money, item.first, found_money[item.first] + batch_found,
-                                needed_money[item.first] - this_fee, this_fee,
-                                m_scanty_outs_amount);
+
+      // check to see if we actually have any vote batches...
+      if (m_wallet.m_votes_info.m_batches.size() > 0)
+      {
+        THROW_WALLET_EXCEPTION_IF(batch_found < amount_missing,
+                                  error::not_enough_money, item.first, found_money[item.first] + batch_found,
+                                  needed_money[item.first] - this_fee, this_fee,
+                                  m_scanty_outs_amount);
+      }
       found_money[item.first] += batch_found;
     }
   }
