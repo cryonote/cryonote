@@ -669,8 +669,9 @@ void wallet_tx_builder::impl::add_send(const std::vector<cryptonote::tx_destinat
                                   error::not_enough_money, item.first, found_money[item.first] + batch_found,
                                   needed_money[item.first] - this_fee, this_fee,
                                   m_scanty_outs_amount);
+
+        found_money[item.first] += batch_found;
       }
-      found_money[item.first] += batch_found;
     }
   }
 
