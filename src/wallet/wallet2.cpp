@@ -111,7 +111,7 @@ bool wallet2_voting_batch::spent(const tools::wallet2 &wallet) const
 }
 //----------------------------------------------------------------------------------------------------
 wallet2::wallet2(const wallet2&)
-    : m_run(true), m_callback(0), m_conn_timeout(WALLET_DEFAULT_RCP_CONNECTION_TIMEOUT)
+    : m_run(true), m_callback(0), m_conn_timeout(WALLET_DEFAULT_RPC_CONNECTION_TIMEOUT)
     , m_phttp_client(new epee::net_utils::http::http_simple_client())
     , m_read_only(false)
     , m_account_public_address(cryptonote::null_public_address)
@@ -120,7 +120,7 @@ wallet2::wallet2(const wallet2&)
 }
 //----------------------------------------------------------------------------------------------------
 wallet2::wallet2(bool read_only)
-    : m_run(true), m_callback(0), m_conn_timeout(WALLET_DEFAULT_RCP_CONNECTION_TIMEOUT)
+    : m_run(true), m_callback(0), m_conn_timeout(WALLET_DEFAULT_RPC_CONNECTION_TIMEOUT)
     , m_phttp_client(new epee::net_utils::http::http_simple_client())
     , m_read_only(read_only)
     , m_account_public_address(cryptonote::null_public_address)
