@@ -659,12 +659,10 @@ void wallet_tx_builder::impl::add_send(const std::vector<cryptonote::tx_destinat
                                 m_scanty_outs_amount);
 
       // if yes xcns, try spending a batch
-      uint64_t amount_missing = needed_money[item.first] - found_money[item.first];
-      uint64_t batch_found = select_batches_for_spend(amount_missing, batch_is);
-
-      // check to see if we actually have any vote batches...
       if (m_wallet.m_votes_info.m_batches.size() > 0)
       {
+        uint64_t amount_missing = needed_money[item.first] - found_money[item.first];
+        uint64_t batch_found = select_batches_for_spend(amount_missing, batch_is);
         THROW_WALLET_EXCEPTION_IF(batch_found < amount_missing,
                                   error::not_enough_money, item.first, found_money[item.first] + batch_found,
                                   needed_money[item.first] - this_fee, this_fee,
@@ -682,10 +680,14 @@ void wallet_tx_builder::impl::add_send(const std::vector<cryptonote::tx_destinat
   auto sources = prepare_inputs(transfer_is, fake_outputs, fake_outputs_count);
 
   // prepare the batches for spending
-  BOOST_FOREACH(size_t idx, batch_is)
+  if (m_wallet.m_votes_info.m_batches.size() > 0)
   {
-    auto batch_sources = prepare_batch(idx); // uses batch's previous fake outs
-    sources.insert(sources.end(), batch_sources.begin(), batch_sources.end());
+    BOOST_FOREACH(size_t idx, batch_is)
+    {
+      // uses batch's previous fake outs
+      auto batch_sources = prepare_batch(idx);
+      sources.insert(sources.end(), batch_sources.begin(), batch_sources.end());
+    }
   }
 
   // split destinations
@@ -723,7 +725,10 @@ void wallet_tx_builder::impl::add_send(const std::vector<cryptonote::tx_destinat
 
   // update transfers & batches being spent here
   m_spend_transfer_is.splice(m_spend_transfer_is.end(), transfer_is);
-  m_spend_batch_is.splice(m_spend_batch_is.end(), batch_is);
+  if (m_wallet.m_votes_info.m_batches.size() > 0)
+  {
+    m_spend_batch_is.splice(m_spend_batch_is.end(), batch_is);
+  }
 
   m_state = InProgress;
 }

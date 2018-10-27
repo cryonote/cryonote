@@ -135,7 +135,7 @@ namespace cryptonote
                                currency_map& input_amounts,
                                bool vote, uint16_t vote_seq, const delegate_votes& votes)
   {
-    //fill inputs
+    // fill inputs
     BOOST_FOREACH(const tx_source_entry& src_entr, sources)
     {
       if (src_entr.real_output >= src_entr.outputs.size())
@@ -146,9 +146,13 @@ namespace cryptonote
       }
 
       if (m_ignore_checks)
+      {
         input_amounts[src_entr.cp] += src_entr.amount_out;
+      }
       else
+      {
         CHECK_AND_ASSERT(add_amount(input_amounts[src_entr.cp], src_entr.amount_out), false);
+      }
 
       m_in_contexts.push_back(input_generation_context_data());
       keypair& in_ephemeral = m_in_contexts.back().in_ephemeral;
@@ -160,7 +164,7 @@ namespace cryptonote
         return false;
       }
 
-      //check that derivated key is equal with real output key
+      // check that derivated key is equal with real output key
       if (!(in_ephemeral.pub == src_entr.outputs[src_entr.real_output].second))
       {
         LOG_ERROR("derived public key missmatch with output public key! "<< ENDL << "derived_key:"
@@ -169,12 +173,12 @@ namespace cryptonote
         return false;
       }
 
-      //put key image into tx input
+      // put key image into tx input
       txin_to_key input_to_key;
       input_to_key.amount = src_entr.amount_in;
       input_to_key.k_image = img;
 
-      //fill outputs array and use relative offsets
+      // fill outputs array and use relative offsets
       BOOST_FOREACH(const tx_source_entry::output_entry& out_entry, src_entr.outputs)
       {
         input_to_key.key_offsets.push_back(out_entry.first);
@@ -184,32 +188,33 @@ namespace cryptonote
 
       // add the in spending the cp, or the backing/contract coins
       coin_type in_cp;
-      switch (src_entr.type) {
+      switch (src_entr.type)
+      {
         case tx_source_entry::InToKey:
           in_cp = src_entr.cp;
           break;
-
         case tx_source_entry::ResolveBacking:
           in_cp = coin_type(src_entr.contract_resolving, BackingCoin, src_entr.cp.currency);
           break;
-
         case tx_source_entry::ResolveContract:
           in_cp = coin_type(src_entr.contract_resolving, ContractCoin, src_entr.cp.currency);
           break;
-
         default:
           LOG_ERROR("Unknown src_entr.type: " << src_entr.type);
           return false;
       }
 
-      if (!m_ignore_checks) {
-        if (vote && in_cp != CP_XCN) {
+      if (!m_ignore_checks)
+      {
+        if (vote && in_cp != CP_XCN)
+        {
           LOG_ERROR("Can only vote with XCNs");
           return false;
         }
       }
 
-      if (vote) {
+      if (vote)
+      {
         txin_vote input_vote;
 
         input_vote.ink = input_to_key;
@@ -217,7 +222,8 @@ namespace cryptonote
         input_vote.votes = votes;
         this->add_in(input_vote, in_cp);
       }
-      else {
+      else
+      {
         this->add_in(input_to_key, in_cp);
       }
 
@@ -423,7 +429,8 @@ namespace cryptonote
     CHECK_AND_ASSERT(add_dests_unchecked(grading_fee_destinations, output_amounts), false);
 
     std::map<uint64_t, uint64_t> fee_amounts;
-    BOOST_FOREACH(const auto& item, output_amounts) {
+    BOOST_FOREACH(const auto& item, output_amounts)
+    {
       if (!m_ignore_checks)
       {
         CHECK_AND_ASSERT_MES(item.first.backed_by_currency == BACKED_BY_N_A, false, "A fee for grading can't be a contract");
@@ -469,7 +476,6 @@ namespace cryptonote
     }
 
     // WARNING: changing the order things are added will cause the unit tests to fail
-
     currency_map input_amounts, output_amounts;
     CHECK_AND_ASSERT(add_sources(sender_account_keys, backing_sources, input_amounts), false);
 
