@@ -680,14 +680,11 @@ void wallet_tx_builder::impl::add_send(const std::vector<cryptonote::tx_destinat
   auto sources = prepare_inputs(transfer_is, fake_outputs, fake_outputs_count);
 
   // prepare the batches for spending
-  if (m_wallet.m_votes_info.m_batches.size() > 0)
+  BOOST_FOREACH(size_t idx, batch_is)
   {
-    BOOST_FOREACH(size_t idx, batch_is)
-    {
-      // uses batch's previous fake outs
-      auto batch_sources = prepare_batch(idx);
-      sources.insert(sources.end(), batch_sources.begin(), batch_sources.end());
-    }
+    // uses batch's previous fake outs
+    auto batch_sources = prepare_batch(idx);
+    sources.insert(sources.end(), batch_sources.begin(), batch_sources.end());
   }
 
   // split destinations
@@ -725,10 +722,7 @@ void wallet_tx_builder::impl::add_send(const std::vector<cryptonote::tx_destinat
 
   // update transfers & batches being spent here
   m_spend_transfer_is.splice(m_spend_transfer_is.end(), transfer_is);
-  if (m_wallet.m_votes_info.m_batches.size() > 0)
-  {
-    m_spend_batch_is.splice(m_spend_batch_is.end(), batch_is);
-  }
+  m_spend_batch_is.splice(m_spend_batch_is.end(), batch_is);
 
   m_state = InProgress;
 }
