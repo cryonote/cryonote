@@ -73,7 +73,8 @@ namespace nodetool
     {
       boost::archive::binary_iarchive a(p2p_data);
       a >> *this;
-    }else
+    }
+    else
     {
       make_default_config();
     }
@@ -282,8 +283,10 @@ namespace nodetool
     char lanAddress[64];
     result = UPNP_GetValidIGD(deviceList, &urls, &igdData, lanAddress, sizeof lanAddress);
     freeUPNPDevlist(deviceList);
-    if (result != 0) {
-      if (result == 1) {
+    if (result != 0)
+    {
+      if (result == 1)
+      {
         std::ostringstream portString;
         portString << m_listening_port;
         // delete the port mapping before we create it, just in case we have dangling
@@ -291,21 +294,31 @@ namespace nodetool
         UPNP_DeletePortMapping(urls.controlURL, igdData.first.servicetype, portString.str().c_str(), "TCP", 0);
         int portMappingResult;
         portMappingResult = UPNP_AddPortMapping(urls.controlURL, igdData.first.servicetype, portString.str().c_str(), portString.str().c_str(), lanAddress, CRYPTONOTE_NAME, "TCP", 0, "0");
-        if (portMappingResult != 0) {
+        if (portMappingResult != 0)
+        {
           LOG_ERROR("UPNP_AddPortMapping failed.");
-        } else {
+        }
+        else
+        {
           LOG_PRINT_GREEN("Added IGD port mapping.", LOG_LEVEL_0);
         }
-      } else if (result == 2) {
+      }
+      else if (result == 2)
+      {
         LOG_PRINT_L0("IGD was found but reported as not connected.");
-      } else if (result == 3) {
+      }
+      else if (result == 3)
+      {
         LOG_PRINT_L0("UPnP device was found but not recoginzed as IGD.");
-      } else {
+      }
+      else
+      {
         LOG_ERROR("UPNP_GetValidIGD returned an unknown result code.");
       }
-
       FreeUPNPUrls(&urls);
-    } else {
+    }
+    else
+    {
       LOG_PRINT_L0("No IGD was found.");
     }
 
@@ -444,7 +457,8 @@ namespace nodetool
           return;
         }
         LOG_PRINT_CCONTEXT_L1(" COMMAND_HANDSHAKE INVOKED OK");
-      }else
+      }
+      else
       {
         LOG_PRINT_CCONTEXT_L1(" COMMAND_HANDSHAKE(AND CLOSE) INVOKED OK");
       }
@@ -485,7 +499,9 @@ namespace nodetool
         m_net_server.get_config_object().close(context.m_connection_id );
       }
       if(!context.m_is_income)
+      {
         m_peerlist.set_peer_just_seen(context.peer_id, context.m_remote_ip, context.m_remote_port);
+      }
       m_payload_handler.process_payload_sync_data(rsp.payload_data, context, false);
     });
 
@@ -500,9 +516,11 @@ namespace nodetool
   template<class t_payload_net_handler>
   size_t node_server<t_payload_net_handler>::get_random_index_with_fixed_probability(size_t max_index)
   {
-    //divide by zero workaround
+    // divide by zero workaround
     if(!max_index)
+    {
       return 0;
+    }
 
     size_t x = crypto::rand<size_t>()%(max_index+1);
     size_t res = (x*x*x)/(max_index*max_index); //parabola \/

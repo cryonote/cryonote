@@ -1361,6 +1361,7 @@ bool blockchain_storage::complete_timestamps_vector(uint64_t start_top_height, s
 //------------------------------------------------------------------
 bool blockchain_storage::handle_alternative_block(const block& b, const crypto::hash& id, block_verification_context& bvc)
 {
+  TRY_ENTRY();
   CRITICAL_REGION_LOCAL(m_blockchain_lock);
 
   uint64_t block_height = get_block_height(b);
@@ -1411,7 +1412,8 @@ bool blockchain_storage::handle_alternative_block(const block& b, const crypto::
       CHECK_AND_ASSERT_MES(h == get_block_by_hash(front_ent.hash).prev_id, false,
                            "alternative chain have wrong connection to main chain");
       complete_timestamps_vector(front_ent.height - 1, timestamps);
-    }else
+    }
+    else
     {
       CHECK_AND_ASSERT_MES(it_main_prev != m_blocks_index.end(), false, "internal error: broken imperative condition it_main_prev != m_blocks_index.end()");
       complete_timestamps_vector(it_main_prev->second, timestamps);
@@ -1439,7 +1441,6 @@ bool blockchain_storage::handle_alternative_block(const block& b, const crypto::
       bvc.m_verification_failed = true;
       return false;
     }
-
     if (!check_block_type(b))
     {
       LOG_ERROR("Block with id: " << id << " for alternative chain, has invalid pow/pos type");
@@ -1463,7 +1464,6 @@ bool blockchain_storage::handle_alternative_block(const block& b, const crypto::
       bvc.m_verification_failed = true;
       return false;
     }
-
     if (!prevalidate_miner_transaction(b, bent.height))
     {
       LOG_PRINT_RED_L0("Block with id: " << string_tools::pod_to_hex(id)
@@ -1471,7 +1471,6 @@ bool blockchain_storage::handle_alternative_block(const block& b, const crypto::
       bvc.m_verification_failed = true;
       return false;
     }
-
     bent.cumulative_difficulty = alt_chain.size() ? it_prev->second.cumulative_difficulty: (*m_pblockchain_entries)[it_main_prev->second].cumulative_difficulty;
     bent.cumulative_difficulty += current_diff;
 
@@ -1493,7 +1492,8 @@ bool blockchain_storage::handle_alternative_block(const block& b, const crypto::
       if(r) bvc.m_added_to_main_chain = true;
       else bvc.m_verification_failed = true;
       return r;
-    }else if(m_pblockchain_entries->back().cumulative_difficulty < bent.cumulative_difficulty) //check if difficulty bigger then in main chain
+    }
+    else if(m_pblockchain_entries->back().cumulative_difficulty < bent.cumulative_difficulty) //check if difficulty bigger then in main chain
     {
       //do reorganize!
       auto front_ent = m_alternative_chain_entries.load(alt_chain.front());
@@ -1503,7 +1503,8 @@ bool blockchain_storage::handle_alternative_block(const block& b, const crypto::
       if(r) bvc.m_added_to_main_chain = true;
       else bvc.m_verification_failed = true;
       return r;
-    }else
+    }
+    else
     {
       LOG_PRINT_BLUE("----- BLOCK ADDED AS ALTERNATIVE ON HEIGHT " << bent.height
         << ENDL << "id:\t" << id
@@ -1511,7 +1512,8 @@ bool blockchain_storage::handle_alternative_block(const block& b, const crypto::
         << ENDL << "difficulty:\t" << current_diff, LOG_LEVEL_0);
       return true;
     }
-  }else
+  }
+  else
   {
     //block orphaned
     bvc.m_marked_as_orphaned = true;
@@ -1519,6 +1521,7 @@ bool blockchain_storage::handle_alternative_block(const block& b, const crypto::
   }
 
   return true;
+  CATCH_ENTRY_L0("blockchain_storage::handle_alternative_block", false);
 }
 //------------------------------------------------------------------
 bool blockchain_storage::get_blocks(uint64_t start_offset, size_t count,
