@@ -168,14 +168,14 @@ namespace cryptonote
     }
 
     LOG_PRINT_L0("COMMAND_RPC_GET_KEY_IMAGE_SEQS: " << ENDL);
-	for (const auto& im : req.images)
-	{
-		LOG_PRINT_L0("  req : " << im);
-	}
-	for (const auto& pair : res.image_seqs)
-	{
-		LOG_PRINT_L0("  resp : " << pair.first << " -> " << pair.second);
-	}
+  	for (const auto& im : req.images)
+  	{
+  		LOG_PRINT_L0("  req : " << im);
+  	}
+  	for (const auto& pair : res.image_seqs)
+  	{
+  		LOG_PRINT_L0("  resp : " << pair.first << " -> " << pair.second);
+  	}
 
     res.status = CORE_RPC_STATUS_OK;
     return true;
