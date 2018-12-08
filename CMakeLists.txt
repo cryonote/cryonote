@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.8)
 
 if(POLICY CMP0058)
   # Ninja requires custom command byproducts to be explicit
