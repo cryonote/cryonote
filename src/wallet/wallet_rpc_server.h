@@ -49,6 +49,8 @@ namespace tools
         MAP_JON_RPC_WE("get_payments",       on_get_payments,            wallet_rpc::COMMAND_RPC_GET_PAYMENTS)
         MAP_JON_RPC_WE("getbulkpayments",    on_get_bulk_payments,       wallet_rpc::COMMAND_RPC_GET_BULK_PAYMENTS)
         MAP_JON_RPC_WE("get_bulk_payments",  on_get_bulk_payments,       wallet_rpc::COMMAND_RPC_GET_BULK_PAYMENTS)
+        MAP_JON_RPC_WE("incomingtransfers",  on_incoming_transfers,      wallet_rpc::COMMAND_RPC_INCOMING_TRANSFERS)
+        MAP_JON_RPC_WE("incoming_transfers", on_incoming_transfers,      wallet_rpc::COMMAND_RPC_INCOMING_TRANSFERS)
       END_JSON_RPC_MAP()
     END_URI_MAP2()
 
@@ -59,6 +61,7 @@ namespace tools
     bool on_store(const wallet_rpc::COMMAND_RPC_STORE::request& req, wallet_rpc::COMMAND_RPC_STORE::response& res, epee::json_rpc::error& er, connection_context& cntx);
     bool on_get_payments(const wallet_rpc::COMMAND_RPC_GET_PAYMENTS::request& req, wallet_rpc::COMMAND_RPC_GET_PAYMENTS::response& res, epee::json_rpc::error& er, connection_context& cntx);
     bool on_get_bulk_payments(const wallet_rpc::COMMAND_RPC_GET_BULK_PAYMENTS::request& req, wallet_rpc::COMMAND_RPC_GET_BULK_PAYMENTS::response& res, epee::json_rpc::error& er, connection_context& cntx);
+    bool on_incoming_transfers(const wallet_rpc::COMMAND_RPC_INCOMING_TRANSFERS::request& req, wallet_rpc::COMMAND_RPC_INCOMING_TRANSFERS::response& res, epee::json_rpc::error& er, connection_context& cntx);
 
     bool handle_command_line(const boost::program_options::variables_map& vm);
 
